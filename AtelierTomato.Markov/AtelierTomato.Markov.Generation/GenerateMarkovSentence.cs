@@ -14,10 +14,11 @@ namespace AtelierTomato.Markov.Generation
 		}
 
 		// TODO: Replace with configurable options.
-		private int maximumOutputLength = 50;
-		private int maximumPrevListLength = 10;
-		private int maximumMarkovRerolls = 10;
-		private int maximumLengthForReroll = 10;
+		private readonly static int maximumOutputLength = 50;
+		private readonly static int maximumPrevListLength = 10;
+		private readonly static int maximumMarkovRerolls = 10;
+		private readonly static int maximumLengthForReroll = 10;
+		private readonly static double copyPastaKillingProbability = .02;
 
 		public async Task<string> Generate()
 		{
@@ -107,8 +108,7 @@ namespace AtelierTomato.Markov.Generation
 
 		private static bool KillCopypasta(int currentPastaLength)
 		{
-			// TODO: replace .02 with a configurable option (CopypastaKillingProbability)
-			var discardThreshold = 1 - Math.Pow(1 - .02, currentPastaLength);
+			var discardThreshold = 1 - Math.Pow(1 - copyPastaKillingProbability, currentPastaLength);
 			return random.NextDouble() < discardThreshold;
 		}
 

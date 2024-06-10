@@ -28,7 +28,7 @@ namespace AtelierTomato.Markov.Generation
 			var prevList = tokenizedSentence;
 
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
-			var prevIDs = new List<ulong> { sentence.ID };
+			var prevIDs = new List<Guid> { sentence.ID };
 			var rerolls = 0;
 
 			// Gets reset whenever the list of previous words has to be modified or the randomized copypasta killer takes action
@@ -108,7 +108,7 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<ulong> previousIDs) => await sentenceAccess.ReadNextSentence(prevList, previousIDs);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<Guid> previousIDs) => await sentenceAccess.ReadNextSentence(prevList, previousIDs);
 
 		private async Task<Sentence?> GetFirstSentence() => await sentenceAccess.ReadSentence();
 	}

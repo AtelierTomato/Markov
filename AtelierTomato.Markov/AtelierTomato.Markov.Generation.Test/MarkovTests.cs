@@ -15,5 +15,21 @@ namespace AtelierTomato.Markov.Generation.Test
 
 			target.Should().NotBeNull().And.BeOfType<GenerateMarkovSentence>();
 		}
+
+		[Fact]
+		public async Task DatabaseFailure()
+		{
+			var sentenceAccess = Mock.Of<ISentenceAccess>();
+
+
+			Func<Task> action = async () =>
+			{
+				var target = new GenerateMarkovSentence(sentenceAccess);
+
+				var result = await target.Generate();
+
+			};
+			await action.Should().ThrowAsync<Exception>().WithMessage("Couldn't query any messages.");
+		}
 	}
 }

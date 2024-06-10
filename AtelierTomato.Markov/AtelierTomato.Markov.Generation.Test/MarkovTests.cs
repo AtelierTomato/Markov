@@ -1,4 +1,4 @@
-using AtelierTomato.Markov.Database;
+using AtelierTomato.Markov.Data;
 using FluentAssertions;
 using Moq;
 

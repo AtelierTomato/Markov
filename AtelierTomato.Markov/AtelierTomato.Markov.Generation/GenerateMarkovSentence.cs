@@ -1,5 +1,5 @@
-﻿using AtelierTomato.Markov.Database;
-using AtelierTomato.Markov.Database.Model;
+﻿using AtelierTomato.Markov.Data;
+using AtelierTomato.Markov.Data.Model;
 
 namespace AtelierTomato.Markov.Generation
 {

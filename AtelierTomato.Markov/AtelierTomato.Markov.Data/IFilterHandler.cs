@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Database
+﻿namespace AtelierTomato.Markov.Data
 {
 	public interface IFilterHandler
 	{

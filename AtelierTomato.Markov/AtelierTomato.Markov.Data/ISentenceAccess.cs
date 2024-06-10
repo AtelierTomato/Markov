@@ -1,6 +1,6 @@
-﻿using AtelierTomato.Markov.Database.Model;
+﻿using AtelierTomato.Markov.Data.Model;
 
-namespace AtelierTomato.Markov.Database
+namespace AtelierTomato.Markov.Data
 {
 	public interface ISentenceAccess
 	{

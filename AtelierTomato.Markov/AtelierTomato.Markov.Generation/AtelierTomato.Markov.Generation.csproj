@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AtelierTomato.Markov.Database\AtelierTomato.Markov.Database.csproj" />
+    <ProjectReference Include="..\AtelierTomato.Markov.Data\AtelierTomato.Markov.Data.csproj" />
   </ItemGroup>
 
 </Project>

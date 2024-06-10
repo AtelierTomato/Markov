@@ -20,9 +20,9 @@ namespace AtelierTomato.Markov.Generation
 		private readonly static int maximumLengthForReroll = 10;
 		private readonly static double copyPastaKillingProbability = .02;
 
-		public async Task<string> Generate()
+		public async Task<string> Generate(IFilterHandler filter)
 		{
-			Sentence? sentence = await GetFirstSentence();
+			Sentence? sentence = await GetFirstSentence(filter);
 			if (sentence is null)
 			{
 				throw new Exception("Couldn't query any messages.");
@@ -46,7 +46,7 @@ namespace AtelierTomato.Markov.Generation
 					currentPastaLength = 0;
 				}
 
-				sentence = await GetNextSentence(prevList, prevIDs);
+				sentence = await GetNextSentence(prevList, prevIDs, filter);
 				if (sentence is not null)
 				{
 					prevIDs.Add(sentence.ID);
@@ -112,8 +112,8 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<ulong> previousIDs) => await sentenceAccess.ReadNextSentence(prevList, previousIDs);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<ulong> previousIDs, IFilterHandler filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
 
-		private async Task<Sentence?> GetFirstSentence() => await sentenceAccess.ReadSentence();
+		private async Task<Sentence?> GetFirstSentence(IFilterHandler filter) => await sentenceAccess.ReadSentence(filter);
 	}
 }

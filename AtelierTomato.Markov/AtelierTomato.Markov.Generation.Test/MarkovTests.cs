@@ -20,13 +20,14 @@ namespace AtelierTomato.Markov.Generation.Test
 		public async Task DatabaseFailure()
 		{
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
+			var filter = Mock.Of<IFilterHandler>();
 
 
 			Func<Task> action = async () =>
 			{
 				var target = new GenerateMarkovSentence(sentenceAccess);
 
-				var result = await target.Generate();
+				var result = await target.Generate(filter);
 
 			};
 			await action.Should().ThrowAsync<Exception>().WithMessage("Couldn't query any messages.");

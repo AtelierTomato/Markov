@@ -52,7 +52,7 @@ namespace AtelierTomato.Markov.Parser
 ([()[\]{}]|\\""|[&]|(?<!,),(?!,)|-)
 (?!$|\s|[.?!]|[()[\]{}]|\\""|[&]|(?<!,),(?!,)|-)
 |
-# secondly, sentence characters again - this is according to that weird rexegg trick.
+# secondly, sentence characters again - this is according to that weird rexegg trick (http://www.rexegg.com/regex-best-trick.html)
 ([()[\]{}]|\\""|[&]|(?<!,),(?!,)|-)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex processDetachFromPrecedingPattern = new Regex(@"
@@ -67,6 +67,9 @@ namespace AtelierTomato.Markov.Parser
 
 		private static readonly int minimumInputLength = 5; // TODO: make this a configurable option
 
+		/// <summary>
+		/// Parses the given text into multiple sentence texts.
+		/// </summary>
 		public IEnumerable<string> ParseIntoSentenceTexts(string text)
 		{
 			text = ProcessText(text);
@@ -82,6 +85,10 @@ namespace AtelierTomato.Markov.Parser
 
 			return sentenceTexts;
 		}
+
+		/// <summary>
+		/// Processes text parts such as punctuation and prepares spacing for tokenization.
+		/// </summary>
 		public string ProcessText(string text)
 		{
 			text = DeleteLinks(text);

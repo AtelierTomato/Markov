@@ -16,10 +16,23 @@ namespace AtelierTomato.Markov.Parser
 )+)                      # 1 or multiple
 (\.|[.!?]+|\r?\n)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex spaceifyEllipsesPattern = new Regex(@"(?<=[^\s.,?!])([.,?!])(?=[.,?!])", RegexOptions.Compiled);
+		private readonly Regex ignoreCountPattern = new Regex(@"^[\p{P}]*$", RegexOptions.Compiled);
+		private static readonly int minimumInputLength = 5; // TODO: make this a configurable option
 
 		public IEnumerable<string> ParseIntoSentenceTexts(string text)
 		{
-			throw new NotImplementedException();
+			text = ProcessText(text);
+
+			var sentences = SplitIntoSentences(text);
+			sentences = sentences.Select(SpaceifyEllipses);
+
+			var tokenizedSentences = sentences.Select(s => TokenizeProcessedSentence(s));
+			// Remove sentences where the minimum length of the sentence (not including punctuation) is less than the minimum input length for a sentence.
+			tokenizedSentences = tokenizedSentences.Where(s => s.Count(w => !ignoreCountPattern.IsMatch(w)) >= minimumInputLength);
+
+			var sentenceTexts = tokenizedSentences.Select(ts => string.Join(" ", ts));
+
+			return sentenceTexts;
 		}
 		public string ProcessText(string text)
 		{
@@ -41,5 +54,6 @@ namespace AtelierTomato.Markov.Parser
 				m => " " + m.Groups[1].Value);
 		}
 		private static IEnumerable<string> TokenizeProcessedSentence(string s) => s.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 	}
 }

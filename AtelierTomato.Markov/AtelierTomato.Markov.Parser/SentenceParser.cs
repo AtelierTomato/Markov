@@ -17,6 +17,51 @@ namespace AtelierTomato.Markov.Parser
 (\.|[.!?]+|\r?\n)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex spaceifyEllipsesPattern = new Regex(@"(?<=[^\s.,?!])([.,?!])(?=[.,?!])", RegexOptions.Compiled);
 		private readonly Regex ignoreCountPattern = new Regex(@"^[\p{P}]*$", RegexOptions.Compiled);
+		private readonly Regex deleteLinkPattern = new Regex(@"\S*://\S*", RegexOptions.Compiled);
+		private readonly Regex whitespaceCleanerPattern = new Regex(@"[^\S\r\n]+", RegexOptions.Compiled);
+		private readonly Regex escapeAndDetachQuoteArrowsPattern = new Regex(@"(?<=^|\n)(>)(?=\S)", RegexOptions.Compiled);
+		private readonly Regex processHashtagPattern = new Regex(@"(?<=^|\s)#(?=\S)", RegexOptions.Compiled);
+		private readonly Regex unescapedPattern = new Regex(@"(
+(?<!\\)\\(?![\\~|_*>`:]) # lone \
+|
+(?<!\\)\* # * with no \
+|
+(?<!\\)_ # _ with no \
+| 
+(?<!\\)\| # | with no \
+|
+(?<!\\)~ # ~ with no \
+|
+(?<!\\)> # > with no \
+|
+(?<!\\)` # ` with no \
+|
+(?<!\\): # : with no \
+|
+(?<!\\)' # ' with no \
+|
+(?<!\\)"" # "" with no \
+)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+		private readonly Regex processDetachCharactersPattern = new Regex(@"
+# first, the stuff we don't want to change: sentency characters surrounded by words and shit
+# punctuation is not words [citation needed]
+(?<!^|\s|[.?!]|[()[\]{}]|\\""|[&]|(?<!,),(?!,)|-)
+([()[\]{}]|\\""|[&]|(?<!,),(?!,)|-)
+(?!$|\s|[.?!]|[()[\]{}]|\\""|[&]|(?<!,),(?!,)|-)
+|
+# secondly, sentence characters again - this is according to that weird rexegg trick.
+([()[\]{}]|\\""|[&]|(?<!,),(?!,)|-)
+", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+		private readonly Regex processDetachFromPrecedingPattern = new Regex(@"
+(?<!\s|\\:|;)(\\:|;)(?=\s)
+", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+		private readonly Regex processDetachFromSucceedingPattern = new Regex(@"
+(?<=\s)([.]{2,}|[,]{2,}|[?!]{2,})(?=\S)
+", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+		private readonly Regex splitOffApostropheSequencesPattern = new Regex(@"(?<=\S)(?:\\')", RegexOptions.Compiled);
+		private readonly Regex splitOffDashSequencesPattern = new Regex(@"(?<=\S)(?:-)(?=\S)", RegexOptions.Compiled);
+		private readonly Regex normalizeEllipsesPattern = new Regex(@"(?<=[.,?!]) (?=[.,?!])", RegexOptions.Compiled);
+
 		private static readonly int minimumInputLength = 5; // TODO: make this a configurable option
 
 		public IEnumerable<string> ParseIntoSentenceTexts(string text)
@@ -36,7 +81,24 @@ namespace AtelierTomato.Markov.Parser
 		}
 		public string ProcessText(string text)
 		{
-			throw new NotImplementedException();
+			text = DeleteLinks(text);
+			text = CleanWhitespace(text);
+
+			text = EscapeAndDetachQuoteArrows(text);
+
+			text = ProcessHashtags(text);
+
+			text = EscapeUnescapeds(text);
+
+			text = ProcessDetachCharacters(text);
+			text = ProcessDetachFromPreceding(text);
+			text = ProcessDetachFromSucceeding(text);
+
+			text = SplitOffApostropheSequences(text);
+			text = SplitOffDashSequences(text);
+
+			text = NormalizeEllipses(text);
+			return text;
 		}
 
 		/// <summary>
@@ -55,5 +117,33 @@ namespace AtelierTomato.Markov.Parser
 		}
 		private static IEnumerable<string> TokenizeProcessedSentence(string s) => s.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
+		private string DeleteLinks(string text) => deleteLinkPattern.Replace(text, "");
+
+		/// <summary>
+		/// Cleans up whitespace. For now this means deleting duplicate whitespace characters (except line breaking ones).
+		/// </summary>
+		/// <param name="text"></param>
+		private string CleanWhitespace(string text) => whitespaceCleanerPattern.Replace(text, " ");
+
+		private string EscapeAndDetachQuoteArrows(string messageText) => escapeAndDetachQuoteArrowsPattern.Replace(messageText, m => "\\" + m.Groups[1].Value + " ");
+
+		private string ProcessHashtags(string messageText) => processHashtagPattern.Replace(messageText, "# ");
+
+		/// <summary>
+		/// Escapes unescaped characters.
+		/// </summary>
+		private string EscapeUnescapeds(string text) => unescapedPattern.Replace(text, m => "\\" + m.Value);
+
+		private string ProcessDetachCharacters(string messageText) => processDetachCharactersPattern.Replace(messageText, m => m.Groups[1].Success ? m.Groups[1].Value : " " + m.Groups[2].Value + " ");
+
+		private string ProcessDetachFromPreceding(string messageText) => processDetachFromPrecedingPattern.Replace(messageText, m => " " + m.Groups[1].Value);
+
+		private string ProcessDetachFromSucceeding(string messageText) => processDetachFromSucceedingPattern.Replace(messageText, m => m.Groups[1].Value + " ");
+
+		private string SplitOffApostropheSequences(string messageText) => splitOffApostropheSequencesPattern.Replace(messageText, " \\'");
+
+		private string SplitOffDashSequences(string messageText) => splitOffDashSequencesPattern.Replace(messageText, "- ");
+
+		private string NormalizeEllipses(string messageText) => normalizeEllipsesPattern.Replace(messageText, string.Empty);
 	}
 }

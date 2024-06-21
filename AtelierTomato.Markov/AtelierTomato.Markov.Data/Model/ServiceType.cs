@@ -2,7 +2,8 @@
 {
 	public enum ServiceType
 	{
-		General = 0,
-		Discord = 1,
+		Invalid = 0,
+		RawText = 1,
+		Discord = 2,
 	}
 }

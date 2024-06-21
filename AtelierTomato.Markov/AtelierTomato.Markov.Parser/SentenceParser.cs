@@ -2,6 +2,9 @@
 
 namespace AtelierTomato.Markov.Parser
 {
+	/// <summary>
+	/// A class that contains various methods for parsing message contents.
+	/// </summary>
 	public class SentenceParser
 	{
 		private readonly Regex sentenceSeparatorPattern = new Regex(@"

@@ -1,24 +1,20 @@
 ﻿using AtelierTomato.Markov.Data;
 using AtelierTomato.Markov.Data.Model;
+using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Generation
 {
 	public class GenerateMarkovSentence
 	{
 		private readonly ISentenceAccess sentenceAccess;
+		private readonly MarkovGenerationOptions options;
 		private static Random random = new Random();
 
-		public GenerateMarkovSentence(ISentenceAccess sentenceAccess)
+		public GenerateMarkovSentence(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
 		{
 			this.sentenceAccess = sentenceAccess;
+			this.options = options.Value;
 		}
-
-		// TODO: Replace with configurable options.
-		private readonly static int maximumOutputLength = 50;
-		private readonly static int maximumPrevListLength = 10;
-		private readonly static int maximumMarkovRerolls = 10;
-		private readonly static int maximumLengthForReroll = 10;
-		private readonly static double copyPastaKillingProbability = .02;
 
 		public async Task<string> Generate(IFilterHandler filter)
 		{
@@ -32,13 +28,13 @@ namespace AtelierTomato.Markov.Generation
 			var prevList = tokenizedSentence;
 
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
-			var prevIDs = new List<ulong> { sentence.ID };
+			var prevIDs = new List<Guid> { sentence.ID };
 			var rerolls = 0;
 
 			// Gets reset whenever the list of previous words has to be modified or the randomized copypasta killer takes action
 			var currentPastaLength = 0;
 
-			while (tokenizedSentence.Count < maximumOutputLength)
+			while (tokenizedSentence.Count < options.maximumOutputLength)
 			{
 				if (KillCopypasta(currentPastaLength))
 				{
@@ -77,14 +73,14 @@ namespace AtelierTomato.Markov.Generation
 						prevList.Add(nextWord);
 
 						// Trim prevList if it gets too long.
-						if (prevList.Count > maximumPrevListLength)
+						if (prevList.Count > options.maximumPrevListLength)
 						{
 							prevList.RemoveAt(0);
 						}
 					} else
 					{
 						// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
-						if (rerolls > maximumMarkovRerolls || tokenizedSentence.Count > maximumLengthForReroll)
+						if (rerolls > options.maximumMarkovRerolls || tokenizedSentence.Count > options.maximumLengthForReroll)
 						{
 							return string.Join(' ', tokenizedSentence);
 						}
@@ -106,13 +102,13 @@ namespace AtelierTomato.Markov.Generation
 			return string.Join(' ', tokenizedSentence);
 		}
 
-		private static bool KillCopypasta(int currentPastaLength)
+		private bool KillCopypasta(int currentPastaLength)
 		{
-			var discardThreshold = 1 - Math.Pow(1 - copyPastaKillingProbability, currentPastaLength);
+			var discardThreshold = 1 - Math.Pow(1 - options.copyPastaKillingProbability, currentPastaLength);
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<ulong> previousIDs, IFilterHandler filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<Guid> previousIDs, IFilterHandler filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
 
 		private async Task<Sentence?> GetFirstSentence(IFilterHandler filter) => await sentenceAccess.ReadSentence(filter);
 	}

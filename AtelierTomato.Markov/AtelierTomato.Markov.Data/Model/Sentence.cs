@@ -1,6 +1,6 @@
 ﻿namespace AtelierTomato.Markov.Data.Model
 {
 	public record Sentence(
-		ulong ID, string Text
+		Guid ID, ObjectOID OID, AuthorOID Author, DateTimeOffset Date, string Text
 	);
 }

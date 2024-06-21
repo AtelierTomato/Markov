@@ -1,5 +1,6 @@
 using AtelierTomato.Markov.Data;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace AtelierTomato.Markov.Generation.Test
@@ -9,9 +10,10 @@ namespace AtelierTomato.Markov.Generation.Test
 		[Fact]
 		public void ConstructorTest()
 		{
+			var options = Options.Create(new MarkovGenerationOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
 
-			var target = new GenerateMarkovSentence(sentenceAccess);
+			var target = new GenerateMarkovSentence(sentenceAccess, options);
 
 			target.Should().NotBeNull().And.BeOfType<GenerateMarkovSentence>();
 		}
@@ -19,13 +21,14 @@ namespace AtelierTomato.Markov.Generation.Test
 		[Fact]
 		public async Task DatabaseFailure()
 		{
+			var options = Options.Create(new MarkovGenerationOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
 			var filter = Mock.Of<IFilterHandler>();
 
 
 			Func<Task> action = async () =>
 			{
-				var target = new GenerateMarkovSentence(sentenceAccess);
+				var target = new GenerateMarkovSentence(sentenceAccess, options);
 
 				var result = await target.Generate(filter);
 

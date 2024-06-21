@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Parser
 {
@@ -65,7 +66,11 @@ namespace AtelierTomato.Markov.Parser
 		private readonly Regex splitOffDashSequencesPattern = new Regex(@"(?<=\S)(?:-)(?=\S)", RegexOptions.Compiled);
 		private readonly Regex normalizeEllipsesPattern = new Regex(@"(?<=[.,?!]) (?=[.,?!])", RegexOptions.Compiled);
 
-		private static readonly int minimumInputLength = 5; // TODO: make this a configurable option
+		private readonly SentenceParserOptions options;
+		public SentenceParser(IOptions<SentenceParserOptions> options)
+		{
+			this.options = options.Value;
+		}
 
 		/// <summary>
 		/// Parses the given text into multiple sentence texts.
@@ -79,7 +84,7 @@ namespace AtelierTomato.Markov.Parser
 
 			var tokenizedSentences = sentences.Select(s => TokenizeProcessedSentence(s));
 			// Remove sentences where the minimum length of the sentence (not including punctuation) is less than the minimum input length for a sentence.
-			tokenizedSentences = tokenizedSentences.Where(s => s.Count(w => !ignoreCountPattern.IsMatch(w)) >= minimumInputLength);
+			tokenizedSentences = tokenizedSentences.Where(s => s.Count(w => !ignoreCountPattern.IsMatch(w)) >= options.minimumInputLength);
 
 			var sentenceTexts = tokenizedSentences.Select(ts => string.Join(" ", ts));
 

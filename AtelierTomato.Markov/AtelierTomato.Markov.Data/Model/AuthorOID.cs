@@ -2,6 +2,6 @@
 {
 	public record AuthorOID
 	(
-		Enum Service, string author
+		ServiceType Service, string author
 	);
 }

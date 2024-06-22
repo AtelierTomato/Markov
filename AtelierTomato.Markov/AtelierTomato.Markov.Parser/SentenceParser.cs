@@ -36,7 +36,7 @@ namespace AtelierTomato.Markov.Parser
 ([()[\]{}]|""|[&]|(?<!,),(?!,)|-)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex processDetachFromPrecedingPattern = new Regex(@"
-(?<!\s|\\:|;)(\\:|;)(?=\s)
+(?<!\s|:|;)(:|;)(?=\s)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex processDetachFromSucceedingPattern = new Regex(@"
 (?<=\s)([.]{2,}|[,]{2,}|[?!]{2,})(?=\S)

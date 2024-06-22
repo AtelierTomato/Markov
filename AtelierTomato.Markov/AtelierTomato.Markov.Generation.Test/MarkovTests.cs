@@ -23,7 +23,7 @@ namespace AtelierTomato.Markov.Generation.Test
 		{
 			var options = Options.Create(new MarkovGenerationOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
-			var filter = Mock.Of<IFilterHandler>();
+			var filter = Mock.Of<IMarkovFilter>();
 
 
 			Func<Task> action = async () =>

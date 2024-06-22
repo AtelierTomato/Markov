@@ -2,7 +2,7 @@
 
 namespace AtelierTomato.Markov.Data
 {
-	public interface IFilterHandler
+	public interface IMarkovFilter
 	{
 		AuthorOID? Author { get; set; }
 		ServiceType? Service { get; set; }

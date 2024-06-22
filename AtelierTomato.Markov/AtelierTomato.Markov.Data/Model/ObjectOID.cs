@@ -2,6 +2,6 @@
 {
 	public record ObjectOID
 	(
-		ServiceType Service, string instance, string guild, string channel, string subchannel, string user, string message, string fragment
+		ServiceType Service, string Instance, string Guild, string Channel, string Subchannel, string User, string Message, string Fragment
 	);
 }

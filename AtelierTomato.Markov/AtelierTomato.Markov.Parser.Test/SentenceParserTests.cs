@@ -107,6 +107,7 @@ Life in the Vault is about to change.";
 				new object[] { "girlfriend in ,,,several commas i know", new string[] { "girlfriend in ,,, several commas i know" } },
 				new object[] { "lisp is (fun), unless you (defun x).", new string[] { "lisp is ( fun ) , unless you ( defun x ) ." } },
 				new object[] { ">implying that i'm implying", new string[] { "> implying that i 'm implying" } },
+				new object[] { ">implying that i am implying", new string[] { "> implying that i am implying" } },
 			};
 		}
 

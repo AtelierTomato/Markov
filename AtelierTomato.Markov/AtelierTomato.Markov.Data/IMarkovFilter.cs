@@ -6,6 +6,7 @@ namespace AtelierTomato.Markov.Data
 	{
 		AuthorOID? Author { get; set; }
 		ServiceType? Service { get; set; }
+		string? Instance { get; set; }
 		string? Guild { get; set; }
 		string? Channel { get; set; }
 		string? Subchannel { get; set; }

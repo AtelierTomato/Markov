@@ -1,7 +1,15 @@
-﻿namespace AtelierTomato.Markov.Data
+﻿using AtelierTomato.Markov.Data.Model;
+
+namespace AtelierTomato.Markov.Data
 {
 	public interface IFilterHandler
 	{
-		string? keyword { get; set; }
+		AuthorOID? Author { get; set; }
+		ServiceType? Service { get; set; }
+		string? Guild { get; set; }
+		string? Channel { get; set; }
+		string? Subchannel { get; set; }
+		string? User { get; set; }
+		string? Keyword { get; set; }
 	}
 }

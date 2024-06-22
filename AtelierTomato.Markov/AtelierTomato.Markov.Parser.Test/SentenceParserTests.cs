@@ -109,5 +109,19 @@ Life in the Vault is about to change.";
 				new object[] { ">implying that i'm implying", new string[] { "\\> implying that i \\'m implying" } },
 			};
 		}
+
+		[Theory]
+		[InlineData("")]
+		[InlineData(" ")]
+		public void TokenizeEdgeCasesTest(string input)
+		{
+			var options = new SentenceParserOptions();
+			var target = new SentenceParser(Options.Create(options));
+
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(Enumerable.Empty<string>());
+		}
 	}
 }

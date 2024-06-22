@@ -2,6 +2,6 @@
 {
 	public record AuthorOID
 	(
-		ServiceType Service, string Instance, string Author
+		ServiceType Service, string? Instance, string Author
 	);
 }

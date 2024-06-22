@@ -25,27 +25,6 @@ namespace AtelierTomato.Markov.Parser
 		private readonly Regex whitespaceCleanerPattern = new Regex(@"[^\S\r\n]+", RegexOptions.Compiled);
 		private readonly Regex escapeAndDetachQuoteArrowsPattern = new Regex(@"(?<=^|\n)(>)(?=\S)", RegexOptions.Compiled);
 		private readonly Regex processHashtagPattern = new Regex(@"(?<=^|\s)#(?=\S)", RegexOptions.Compiled);
-		private readonly Regex unescapedPattern = new Regex(@"(
-(?<!\\)\\(?![\\~|_*>`:]) # lone \
-|
-(?<!\\)\* # * with no \
-|
-(?<!\\)_ # _ with no \
-| 
-(?<!\\)\| # | with no \
-|
-(?<!\\)~ # ~ with no \
-|
-(?<!\\)> # > with no \
-|
-(?<!\\)` # ` with no \
-|
-(?<!\\): # : with no \
-|
-(?<!\\)' # ' with no \
-|
-(?<!\\)"" # "" with no \
-)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex processDetachCharactersPattern = new Regex(@"
 # first, the stuff we don't want to change: sentency characters surrounded by words and shit
 # punctuation is not words [citation needed]
@@ -103,8 +82,6 @@ namespace AtelierTomato.Markov.Parser
 
 			text = ProcessHashtags(text);
 
-			text = EscapeUnescapeds(text);
-
 			text = ProcessDetachCharacters(text);
 			text = ProcessDetachFromPreceding(text);
 			text = ProcessDetachFromSucceeding(text);
@@ -143,11 +120,6 @@ namespace AtelierTomato.Markov.Parser
 		private string EscapeAndDetachQuoteArrows(string messageText) => escapeAndDetachQuoteArrowsPattern.Replace(messageText, m => "\\" + m.Groups[1].Value + " ");
 
 		private string ProcessHashtags(string messageText) => processHashtagPattern.Replace(messageText, "# ");
-
-		/// <summary>
-		/// Escapes unescaped characters.
-		/// </summary>
-		private string EscapeUnescapeds(string text) => unescapedPattern.Replace(text, m => "\\" + m.Value);
 
 		private string ProcessDetachCharacters(string messageText) => processDetachCharactersPattern.Replace(messageText, m => m.Groups[1].Success ? m.Groups[1].Value : " " + m.Groups[2].Value + " ");
 

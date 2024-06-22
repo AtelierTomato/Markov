@@ -18,7 +18,7 @@ namespace AtelierTomato.Markov.Parser
 |                        # nor
 [.!?]\w                  # punctuation with word after it
 )+)                      # 1 or multiple
-(\.|[.!?]+|\r?\n)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+(\.|[.!?]+|$|\r?\n)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex spaceifyEllipsesPattern = new Regex(@"(?<=[^\s.,?!])([.,?!])(?=[.,?!])", RegexOptions.Compiled);
 		private readonly Regex ignoreCountPattern = new Regex(@"^[\p{P}]*$", RegexOptions.Compiled);
 		private readonly Regex deleteLinkPattern = new Regex(@"\S*://\S*", RegexOptions.Compiled);

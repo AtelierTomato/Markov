@@ -23,7 +23,7 @@ namespace AtelierTomato.Markov.Parser
 		private readonly Regex ignoreCountPattern = new Regex(@"^[\p{P}]*$", RegexOptions.Compiled);
 		private readonly Regex deleteLinkPattern = new Regex(@"\S*://\S*", RegexOptions.Compiled);
 		private readonly Regex whitespaceCleanerPattern = new Regex(@"[^\S\r\n]+", RegexOptions.Compiled);
-		private readonly Regex detahQuoteArrowsPattern = new Regex(@"(?<=^|\n)(>)(?=\S)", RegexOptions.Compiled);
+		private readonly Regex detachQuoteArrowsPattern = new Regex(@"(?<=^|\n)(>)(?=\S)", RegexOptions.Compiled);
 		private readonly Regex processHashtagPattern = new Regex(@"(?<=^|\s)#(?=\S)", RegexOptions.Compiled);
 		private readonly Regex processDetachCharactersPattern = new Regex(@"
 # first, the stuff we don't want to change: sentency characters surrounded by words and shit
@@ -117,7 +117,7 @@ namespace AtelierTomato.Markov.Parser
 		/// <param name="text"></param>
 		private string CleanWhitespace(string text) => whitespaceCleanerPattern.Replace(text, " ");
 
-		private string EscapeAndDetachQuoteArrows(string messageText) => detahQuoteArrowsPattern.Replace(messageText, m => m.Groups[1].Value + " ");
+		private string EscapeAndDetachQuoteArrows(string messageText) => detachQuoteArrowsPattern.Replace(messageText, m => m.Groups[1].Value + " ");
 
 		private string ProcessHashtags(string messageText) => processHashtagPattern.Replace(messageText, "# ");
 

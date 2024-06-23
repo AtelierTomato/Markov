@@ -7,10 +7,10 @@
 		public string? Series { get; set; }
 		public string? Book { get; set; }
 		public string? Chapter { get; set; }
-		public string? Paragraph { get; set; }
-		public string? Sentence { get; set; }
+		public int? Paragraph { get; set; }
+		public int? Sentence { get; set; }
 
-		private BookObjectOID(string instance, string? series = null, string? book = null, string? chapter = null, string? paragraph = null, string? sentence = null)
+		private BookObjectOID(string instance, string? series = null, string? book = null, string? chapter = null, int? paragraph = null, int? sentence = null)
 		{
 			Instance = instance;
 			Series = series;
@@ -25,9 +25,9 @@
 			=> new(instance, series, book);
 		public static BookObjectOID ForChapter(string instance, string series, string book, string chapter)
 			=> new(instance, series, book, chapter);
-		public static BookObjectOID ForParagraph(string instance, string series, string book, string chapter, string paragraph)
+		public static BookObjectOID ForParagraph(string instance, string series, string book, string chapter, int paragraph)
 			=> new(instance, series, book, chapter, paragraph);
-		public static BookObjectOID ForSentence(string instance, string series, string book, string chapter, string paragraph, string sentence)
+		public static BookObjectOID ForSentence(string instance, string series, string book, string chapter, int paragraph, int sentence)
 			=> new(instance, series, book, chapter, paragraph, sentence);
 		public BookObjectOID Parse(string OID)
 		{
@@ -36,7 +36,10 @@
 
 		public override string ToString()
 		{
-			throw new NotImplementedException();
+			IEnumerable<string?> stringRange = [Service.ToString(), Instance, Series, Book, Chapter, Paragraph?.ToString() ?? null, Sentence?.ToString() ?? null];
+			stringRange = stringRange.Where(s => s is not null);
+			stringRange = stringRange.Select(ObjectOIDEscapement.Escape);
+			return string.Join(':', stringRange);
 		}
 	}
 }

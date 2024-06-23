@@ -2,6 +2,6 @@
 {
 	public record Sentence
 	(
-		Guid ID, ObjectOID OID, AuthorOID Author, DateTimeOffset Date, string Text
+		Guid ID, IObjectOID OID, AuthorOID Author, DateTimeOffset Date, string Text
 	);
 }

@@ -1,4 +1,4 @@
-using AtelierTomato.Markov.Data.Model.ObjectOID;
+using AtelierTomato.Markov.Data.Model;
 using FluentAssertions;
 
 namespace AtelierTomato.Markov.Data.Test

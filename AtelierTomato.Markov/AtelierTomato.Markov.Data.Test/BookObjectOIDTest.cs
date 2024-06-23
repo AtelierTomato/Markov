@@ -39,5 +39,12 @@ namespace AtelierTomato.Markov.Data.Test
 			BookObjectOID book = BookObjectOID.ForSentence("_", "Alice in Wonderland", "Through the Looking Glass", "1", 3, 2);
 			book.ToString().Should().Be("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2");
 		}
+
+		[Fact]
+		public void BookEscapeTest()
+		{
+			BookObjectOID book = BookObjectOID.ForSeries("_", "Book: The Beginning");
+			book.ToString().Should().Be("Book:_:Book^: The Beginning");
+		}
 	}
 }

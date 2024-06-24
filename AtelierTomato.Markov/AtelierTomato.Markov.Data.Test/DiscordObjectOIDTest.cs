@@ -41,5 +41,36 @@ namespace AtelierTomato.Markov.Data.Test
 			DiscordObjectOID discordMessage = DiscordObjectOID.ForSentence("discord.com", 1253189664655806606, 1253270827257036801, 1254633446295207966, 2);
 			discordMessage.ToString().Should().Be("Discord:discord.com:1253189664655806606:1253270827257036801:1254633446295207966:2");
 		}
+
+		[Fact]
+		public void DiscordInstanceParseTest()
+		{
+			DiscordObjectOID discordMessage = DiscordObjectOID.Parse("Discord:discord.com");
+			discordMessage.Should().BeEquivalentTo(DiscordObjectOID.ForInstance("discord.com"));
+		}
+		[Fact]
+		public void DiscordServerParseTest()
+		{
+			DiscordObjectOID discordMessage = DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606");
+			discordMessage.Should().BeEquivalentTo(DiscordObjectOID.ForServer("discord.com", 1253189664655806606));
+		}
+		[Fact]
+		public void DiscordChannelParseTest()
+		{
+			DiscordObjectOID discordMessage = DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253270827257036801");
+			discordMessage.Should().BeEquivalentTo(DiscordObjectOID.ForChannel("discord.com", 1253189664655806606, 1253270827257036801));
+		}
+		[Fact]
+		public void DiscordMessageParseTest()
+		{
+			DiscordObjectOID discordMessage = DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253270827257036801:1254633446295207966");
+			discordMessage.Should().BeEquivalentTo(DiscordObjectOID.ForMessage("discord.com", 1253189664655806606, 1253270827257036801, 1254633446295207966));
+		}
+		[Fact]
+		public void DiscordSentenceParseTest()
+		{
+			DiscordObjectOID discordMessage = DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253270827257036801:1254633446295207966:2");
+			discordMessage.Should().BeEquivalentTo(DiscordObjectOID.ForSentence("discord.com", 1253189664655806606, 1253270827257036801, 1254633446295207966, 2));
+		}
 	}
 }

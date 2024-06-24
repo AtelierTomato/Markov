@@ -38,8 +38,8 @@ namespace AtelierTomato.Markov.Data.Test
 		[Fact]
 		public void DiscordSentenceToStringTest()
 		{
-			DiscordObjectOID discordMessage = DiscordObjectOID.ForMessage("discord.com", 1253189664655806606, 1253270827257036801, 1254633446295207966);
-			discordMessage.ToString().Should().Be("Discord:discord.com:1253189664655806606:1253270827257036801:1254633446295207966");
+			DiscordObjectOID discordMessage = DiscordObjectOID.ForSentence("discord.com", 1253189664655806606, 1253270827257036801, 1254633446295207966, 2);
+			discordMessage.ToString().Should().Be("Discord:discord.com:1253189664655806606:1253270827257036801:1254633446295207966:2");
 		}
 	}
 }

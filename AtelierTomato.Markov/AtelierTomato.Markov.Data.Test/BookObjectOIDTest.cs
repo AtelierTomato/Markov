@@ -6,6 +6,12 @@ namespace AtelierTomato.Markov.Data.Test
 	public class BookObjectOIDTest
 	{
 		[Fact]
+		public void BookInstanceToStringTest()
+		{
+			BookObjectOID book = BookObjectOID.ForInstance("_");
+			book.ToString().Should().Be("Book:_");
+		}
+		[Fact]
 		public void BookSeriesToStringTest()
 		{
 			BookObjectOID book = BookObjectOID.ForSeries("_", "Alice in Wonderland");
@@ -42,6 +48,12 @@ namespace AtelierTomato.Markov.Data.Test
 			book.ToString().Should().Be("Book:_:Book^: The Beginning");
 		}
 
+		[Fact]
+		public void BookInstanceParseTest()
+		{
+			BookObjectOID book = BookObjectOID.Parse("Book:_");
+			book.Should().BeEquivalentTo(BookObjectOID.ForInstance("_"));
+		}
 		[Fact]
 		public void BookSeriesParseTest()
 		{

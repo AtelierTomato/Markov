@@ -19,6 +19,8 @@
 			Paragraph = paragraph;
 			Sentence = sentence;
 		}
+		public static BookObjectOID ForInstance(string instance)
+			=> new(instance);
 		public static BookObjectOID ForSeries(string instance, string series)
 			=> new(instance, series);
 		public static BookObjectOID ForBook(string instance, string series, string book)
@@ -40,7 +42,10 @@
 			{
 				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.");
 			}
-			if (stringRange.Length == 3)
+			if (stringRange.Length == 2)
+			{
+				return ForInstance(stringRange[1]);
+			} else if (stringRange.Length == 3)
 			{
 				return ForSeries(stringRange[1], stringRange[2]);
 			} else if (stringRange.Length == 4)

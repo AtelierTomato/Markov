@@ -41,6 +41,10 @@
 			{
 				throw new ArgumentException("The OID given has too many members to be a valid DiscordObjectOID.");
 			}
+			if (stringRange[0] == string.Empty)
+			{
+				throw new ArgumentException("The OID given is empty.");
+			}
 			if (ServiceType.Discord.ToString() != stringRange.First())
 			{
 				throw new ArgumentException("The OID given is not a DiscordObjectOID, as it does not begin with Discord.");

@@ -104,6 +104,12 @@ namespace AtelierTomato.Markov.Data.Test
 			Assert.Equal("The OID given has too many members to be a valid DiscordObjectOID.", exception.Message);
 		}
 		[Fact]
+		public void BookParseEmptyTest()
+		{
+			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse(String.Empty));
+			Assert.Equal("The OID given is empty.", exception.Message);
+		}
+		[Fact]
 		public void DiscordParseNotADiscordTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg"));

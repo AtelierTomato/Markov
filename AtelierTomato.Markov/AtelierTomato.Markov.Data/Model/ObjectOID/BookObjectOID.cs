@@ -38,6 +38,10 @@
 			{
 				throw new ArgumentException("The OID given has too many members to be a valid BookObjectOID.");
 			}
+			if (stringRange[0] == string.Empty)
+			{
+				throw new ArgumentException("The OID given is empty.");
+			}
 			if (ServiceType.Book.ToString() != stringRange.First())
 			{
 				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.");

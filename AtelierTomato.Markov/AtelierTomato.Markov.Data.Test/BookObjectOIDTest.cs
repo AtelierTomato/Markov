@@ -98,6 +98,12 @@ namespace AtelierTomato.Markov.Data.Test
 			Assert.Equal("The OID given has too many members to be a valid BookObjectOID.", exception.Message);
 		}
 		[Fact]
+		public void BookParseEmptyTest()
+		{
+			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse(String.Empty));
+			Assert.Equal("The OID given is empty.", exception.Message);
+		}
+		[Fact]
 		public void BookParseNotABookTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg"));

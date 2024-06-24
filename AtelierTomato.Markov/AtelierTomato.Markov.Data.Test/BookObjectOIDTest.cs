@@ -78,5 +78,30 @@ namespace AtelierTomato.Markov.Data.Test
 			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice^: in Wonderland:Through^^the^^Looking^^Glass");
 			book.Should().BeEquivalentTo(BookObjectOID.ForBook("_", "Alice: in Wonderland", "Through^the^Looking^Glass"));
 		}
+
+		[Fact]
+		public void BookParseTooLongTest()
+		{
+			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2:4"));
+			Assert.Equal("The OID given has too many members to be a valid BookObjectOID.", exception.Message);
+		}
+		[Fact]
+		public void BookParseNotABookTest()
+		{
+			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg"));
+			Assert.Equal("The OID given is not a BookObjectOID, as it does not begin with Book.", exception.Message);
+		}
+		[Fact]
+		public void BookParseParagraphNotIntTest()
+		{
+			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:Lol"));
+			Assert.Equal("The part of the BookObjectOID corresponding to the paragraph was not able to be parsed into an integer value.", exception.Message);
+		}
+		[Fact]
+		public void BookParseSentenceNotIntTest()
+		{
+			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:Wrong"));
+			Assert.Equal("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value.", exception.Message);
+		}
 	}
 }

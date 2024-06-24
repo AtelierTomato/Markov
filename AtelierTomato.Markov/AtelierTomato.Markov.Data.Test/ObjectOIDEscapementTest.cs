@@ -36,5 +36,19 @@ namespace AtelierTomato.Markov.Data.Test
 
 			result.Should().Be(output);
 		}
+
+		[Theory]
+		[InlineData("apple:orange:grape", new[] { "apple", "orange", "grape" })]
+		[InlineData("bread", new[] { "bread" })]
+		[InlineData("Re^:Birth", new[] { "Re:Birth" })]
+		[InlineData("Flop^^4", new[] { "Flop^4" })]
+		[InlineData("apple^::bread", new[] { "apple:", "bread" })]
+		[InlineData("apple::bread", new[] { "apple", "", "bread" })]
+		public void SplitTest(string input, IEnumerable<string> output)
+		{
+			var result = ObjectOIDEscapement.Split(input);
+
+			result.Should().BeEquivalentTo(output);
+		}
 	}
 }

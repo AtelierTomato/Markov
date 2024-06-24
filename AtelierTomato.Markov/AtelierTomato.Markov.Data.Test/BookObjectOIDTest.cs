@@ -72,5 +72,11 @@ namespace AtelierTomato.Markov.Data.Test
 			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2");
 			book.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "Alice in Wonderland", "Through the Looking Glass", "1", 3, 2));
 		}
+		[Fact]
+		public void BookParseUnescapeTest()
+		{
+			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice^: in Wonderland:Through^^the^^Looking^^Glass");
+			book.Should().BeEquivalentTo(BookObjectOID.ForBook("_", "Alice: in Wonderland", "Through^the^Looking^Glass"));
+		}
 	}
 }

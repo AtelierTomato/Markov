@@ -104,6 +104,12 @@ namespace AtelierTomato.Markov.Data.Test
 			Assert.Equal("The OID given is not a BookObjectOID, as it does not begin with Book.", exception.Message);
 		}
 		[Fact]
+		public void BookParseOnlyHasSerivceTypeTest()
+		{
+			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book"));
+			Assert.Equal("The OID given is not long enough. You cannot have a BookObjectOID with only the ServiceType.", exception.Message);
+		}
+		[Fact]
 		public void BookParseParagraphNotIntTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:Lol"));

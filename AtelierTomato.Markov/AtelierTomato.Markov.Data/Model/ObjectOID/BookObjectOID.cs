@@ -42,7 +42,10 @@
 			{
 				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.");
 			}
-			if (stringRange.Length == 2)
+			if (stringRange.Length == 1)
+			{
+				throw new ArgumentException("The OID given is not long enough. You cannot have a BookObjectOID with only the ServiceType.");
+			} else if (stringRange.Length == 2)
 			{
 				return ForInstance(stringRange[1]);
 			} else if (stringRange.Length == 3)

@@ -4,15 +4,19 @@
 	{
 		public ServiceType Service { get; } = ServiceType.Discord;
 		public string Instance { get; set; }
+		public ulong? Category { get; set; }
 		public ulong? Server { get; set; }
 		public ulong? Channel { get; set; }
+		public ulong? Thread { get; set; }
 		public ulong? Message { get; set; }
 		public int? Sentence { get; set; }
-		private DiscordObjectOID(string instance, ulong? server = null, ulong? channel = null, ulong? message = null, int? sentence = null)
+		private DiscordObjectOID(string instance, ulong? server = null, ulong? category = null, ulong? channel = null, ulong? thread = null, ulong? message = null, int? sentence = null)
 		{
 			Instance = instance;
 			Server = server;
+			Category = category;
 			Channel = channel;
+			Thread = thread;
 			Message = message;
 			Sentence = sentence;
 		}
@@ -20,16 +24,20 @@
 			=> new(instance);
 		public static DiscordObjectOID ForServer(string instance, ulong server)
 			=> new(instance, server);
-		public static DiscordObjectOID ForChannel(string instance, ulong server, ulong channel)
-			=> new(instance, server, channel);
-		public static DiscordObjectOID ForMessage(string instance, ulong server, ulong channel, ulong message)
-			=> new(instance, server, channel, message);
-		public static DiscordObjectOID ForSentence(string instance, ulong server, ulong channel, ulong message, int sentence)
-			=> new(instance, server, channel, message, sentence);
+		public static DiscordObjectOID ForCategory(string instance, ulong server, ulong category)
+			=> new(instance, server, category);
+		public static DiscordObjectOID ForChannel(string instance, ulong server, ulong? category, ulong channel)
+			=> new(instance, server, category, channel);
+		public static DiscordObjectOID ForThread(string instance, ulong server, ulong? category, ulong channel, ulong thread)
+			=> new(instance, server, category, channel, thread);
+		public static DiscordObjectOID ForMessage(string instance, ulong server, ulong? category, ulong channel, ulong? thread, ulong message)
+			=> new(instance, server, category, channel, thread, message);
+		public static DiscordObjectOID ForSentence(string instance, ulong server, ulong? category, ulong channel, ulong? thread, ulong message, int sentence)
+			=> new(instance, server, category, channel, thread, message, sentence);
 		public static DiscordObjectOID Parse(string OID)
 		{
 			string[] stringRange = ObjectOIDEscapement.Split(OID).ToArray();
-			if (stringRange.Length > 6)
+			if (stringRange.Length > 8)
 			{
 				throw new ArgumentException("The OID given has too many members to be a valid DiscordObjectOID.");
 			}
@@ -53,28 +61,46 @@
 					return ForServer(stringRange[1], server);
 				} else
 				{
-					if (!ulong.TryParse(stringRange[3], out ulong channel))
+					if (!ulong.TryParse(stringRange[3], out ulong category))
 					{
-						throw new ArgumentException("The part of the DiscordObjectOID corresponding to the channel was not able to be parsed into a ulong value.");
+						throw new ArgumentException("The part of the DiscordObjectOID corresponding to the category was not able to be parsed into a ulong value.");
 					} else if (stringRange.Length == 4)
 					{
-						return ForChannel(stringRange[1], server, channel);
+						return ForCategory(stringRange[1], server, category);
 					} else
 					{
-						if (!ulong.TryParse(stringRange[4], out ulong message))
+						if (!ulong.TryParse(stringRange[4], out ulong channel))
 						{
-							throw new ArgumentException("The part of the DiscordObjectOID corresponding to the message was not able to be parsed into a ulong value.");
+							throw new ArgumentException("The part of the DiscordObjectOID corresponding to the channel was not able to be parsed into a ulong value.");
 						} else if (stringRange.Length == 5)
 						{
-							return ForMessage(stringRange[1], server, channel, message);
+							return ForChannel(stringRange[1], server, category, channel);
 						} else
 						{
-							if (!int.TryParse(stringRange[5], out int sentence))
+							if (!ulong.TryParse(stringRange[5], out ulong thread))
 							{
-								throw new ArgumentException("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value.");
+								throw new ArgumentException("The part of the DiscordObjectOID corresponding to the thread was not able to be parsed into a ulong value.");
+							} else if (stringRange.Length == 6)
+							{
+								return ForThread(stringRange[1], server, category, channel, thread);
 							} else
 							{
-								return ForSentence(stringRange[1], server, channel, message, sentence);
+								if (!ulong.TryParse(stringRange[6], out ulong message))
+								{
+									throw new ArgumentException("The part of the DiscordObjectOID corresponding to the message was not able to be parsed into a ulong value.");
+								} else if (stringRange.Length == 7)
+								{
+									return ForMessage(stringRange[1], server, category, channel, thread, message);
+								} else
+								{
+									if (!int.TryParse(stringRange[7], out int sentence))
+									{
+										throw new ArgumentException("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value.");
+									} else
+									{
+										return ForSentence(stringRange[1], server, category, channel, thread, message, sentence);
+									}
+								}
 							}
 						}
 					}
@@ -88,7 +114,9 @@
 				Service.ToString(),
 				ObjectOIDEscapement.Escape(Instance),
 				Server?.ToString() ?? null,
+				Category?.ToString() ?? null,
 				Channel?.ToString() ?? null,
+				Thread?.ToString() ?? null,
 				Message?.ToString() ?? null,
 				Sentence?.ToString()?? null
 			];

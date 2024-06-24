@@ -31,7 +31,7 @@
 			=> new(instance, series, book, chapter, paragraph, sentence);
 		public static BookObjectOID Parse(string OID)
 		{
-			string[] stringRange = (string[])ObjectOIDEscapement.Split(OID);
+			string[] stringRange = ObjectOIDEscapement.Split(OID).ToArray();
 			if (stringRange.Length > 7)
 			{
 				throw new ArgumentException("The OID given has too many members to be a valid BookObjectOID.");

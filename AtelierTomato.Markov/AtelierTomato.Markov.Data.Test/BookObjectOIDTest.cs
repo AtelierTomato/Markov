@@ -107,7 +107,7 @@ namespace AtelierTomato.Markov.Data.Test
 		public void BookParseOnlyHasSerivceTypeTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book"));
-			Assert.Equal("The OID given is not long enough. You cannot have a BookObjectOID with only the ServiceType.", exception.Message);
+			Assert.Equal("The OID given is not long enough. You cannot have an IObjectOID with only the ServiceType.", exception.Message);
 		}
 		[Fact]
 		public void BookParseParagraphNotIntTest()

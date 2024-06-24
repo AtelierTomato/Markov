@@ -29,9 +29,49 @@
 			=> new(instance, series, book, chapter, paragraph);
 		public static BookObjectOID ForSentence(string instance, string series, string book, string chapter, int paragraph, int sentence)
 			=> new(instance, series, book, chapter, paragraph, sentence);
-		public BookObjectOID Parse(string OID)
+		public static BookObjectOID Parse(string OID)
 		{
-			throw new NotImplementedException();
+			string[] stringRange = (string[])ObjectOIDEscapement.Split(OID);
+			if (stringRange.Length > 7)
+			{
+				throw new ArgumentException("The OID given has too many members to be a valid BookObjectOID.");
+			}
+			if (ServiceType.Book.ToString() != stringRange.First())
+			{
+				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.");
+			}
+			if (stringRange.Length == 3)
+			{
+				return ForSeries(stringRange[1], stringRange[2]);
+			} else if (stringRange.Length == 4)
+			{
+				return ForBook(stringRange[1], stringRange[2], stringRange[3]);
+			} else if (stringRange.Length == 5)
+			{
+				return ForChapter(stringRange[1], stringRange[2], stringRange[3], stringRange[4]);
+			} else if (stringRange.Length >= 6)
+			{
+				if (!int.TryParse(stringRange[5], out int paragraph))
+				{
+					throw new ArgumentException("The part of the BookObjectOID corresponding to the paragraph was not able to be parsed into an integer value.");
+				} else
+				{
+					if (stringRange.Length != 7)
+					{
+						return ForParagraph(stringRange[1], stringRange[2], stringRange[3], stringRange[4], paragraph);
+					} else
+					{
+						if (!int.TryParse(stringRange[6], out int sentence))
+						{
+							throw new ArgumentException("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value.");
+						} else
+						{
+							return ForSentence(stringRange[1], stringRange[2], stringRange[3], stringRange[4], paragraph, sentence);
+						}
+					}
+				}
+			}
+			throw new ArgumentException("Somehow, BookObjectOID.Parse() went through all of its code without returning a value. This should not happen.");
 		}
 
 		public override string ToString()

@@ -48,5 +48,29 @@ namespace AtelierTomato.Markov.Data.Test
 			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice in Wonderland");
 			book.Should().BeEquivalentTo(BookObjectOID.ForSeries("_", "Alice in Wonderland"));
 		}
+		[Fact]
+		public void BookBookParseTest()
+		{
+			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass");
+			book.Should().BeEquivalentTo(BookObjectOID.ForBook("_", "Alice in Wonderland", "Through the Looking Glass"));
+		}
+		[Fact]
+		public void BookChapterParseTest()
+		{
+			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1");
+			book.Should().BeEquivalentTo(BookObjectOID.ForChapter("_", "Alice in Wonderland", "Through the Looking Glass", "1"));
+		}
+		[Fact]
+		public void BookParagraphParseTest()
+		{
+			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3");
+			book.Should().BeEquivalentTo(BookObjectOID.ForParagraph("_", "Alice in Wonderland", "Through the Looking Glass", "1", 3));
+		}
+		[Fact]
+		public void BookSentenceParseTest()
+		{
+			BookObjectOID book = BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2");
+			book.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "Alice in Wonderland", "Through the Looking Glass", "1", 3, 2));
+		}
 	}
 }

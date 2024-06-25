@@ -35,12 +35,12 @@ namespace AtelierTomato.Markov.Data
 		/// </summary>
 		/// <param name="OID">The <see cref="IObjectOID"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
 		/// <returns></returns>
-		Task DeleteSentencesByOID(IObjectOID OID);
+		Task DeleteSentenceRangeByOID(IObjectOID OID);
 		/// <summary>
 		/// Deletes all <see cref="Sentence"/>s that match the given <paramref name="Author"/>.
 		/// </summary>
 		/// <param name="Author">The <see cref="AuthorOID"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
 		/// <returns></returns>
-		Task DeleteSentencesByAuthor(AuthorOID Author);
+		Task DeleteSentenceRangeByAuthor(AuthorOID Author);
 	}
 }

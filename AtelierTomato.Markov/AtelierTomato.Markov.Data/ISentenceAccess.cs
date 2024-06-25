@@ -7,24 +7,24 @@ namespace AtelierTomato.Markov.Data
 		/// <summary>
 		/// Read a random <see cref="Sentence"/> that matches the given <paramref name="filter"/>.
 		/// </summary>
-		/// <param name="filter">The <see cref="IMarkovFilter"/> that the resulting <see cref="Sentence"/> must match.</param>
+		/// <param name="filter">The <see cref="ISentenceFilter"/> that the resulting <see cref="Sentence"/> must match.</param>
 		/// <returns></returns>
-		Task<Sentence?> ReadRandomSentence(IMarkovFilter filter);
+		Task<Sentence?> ReadRandomSentence(ISentenceFilter filter);
 		/// <summary>
 		/// Read a random sentence that matches to given <paramref name="filter"/> that is not in <paramref name="previousIDs"/> and matches to the <paramref name="prevList"/>.
 		/// </summary>
 		/// <param name="prevList">A list of previous words that the function will attempt to match to other <see cref="Sentence"/>s with.</param>
 		/// <param name="previousIDs">A list of previous IDs of <see cref="Sentence"/>s that will be excluded from the query.</param>
-		/// <param name="filter">The <see cref="IMarkovFilter"/> that the resulting <see cref="Sentence"/> must match.</param>
+		/// <param name="filter">The <see cref="ISentenceFilter"/> that the resulting <see cref="Sentence"/> must match.</param>
 		/// <returns></returns>
-		Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, IMarkovFilter filter);
+		Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, ISentenceFilter filter);
 
 		/// <summary>
 		/// Reads all <see cref="Sentence"/>s that match the given <paramref name="filter"/>.
 		/// </summary>
-		/// <param name="filter">The <see cref="IMarkovFilter"/> that the resulting <see cref="Sentence"/>s must match.</param>
+		/// <param name="filter">The <see cref="ISentenceFilter"/> that the resulting <see cref="Sentence"/>s must match.</param>
 		/// <returns></returns>
-		Task<Sentence?> ReadSentenceRange(IMarkovFilter filter);
+		Task<Sentence?> ReadSentenceRange(ISentenceFilter filter);
 
 		Task WriteSentence(Sentence sentence);
 		Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange);
@@ -33,8 +33,8 @@ namespace AtelierTomato.Markov.Data
 		/// Deletes all <see cref="Sentence"/>s that match the given <paramref name="filter"/>.
 		/// This allows deletion of anywhere from all <see cref="Sentence"/>s in an <see cref="IObjectOID.Instance"/> to a specific <see cref="Sentence"/>.
 		/// </summary>
-		/// <param name="filter">The <see cref="IMarkovFilter"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
+		/// <param name="filter">The <see cref="ISentenceFilter"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
 		/// <returns></returns>
-		Task DeleteSentenceRangeByFilter(IMarkovFilter filter);
+		Task DeleteSentenceRangeByFilter(ISentenceFilter filter);
 	}
 }

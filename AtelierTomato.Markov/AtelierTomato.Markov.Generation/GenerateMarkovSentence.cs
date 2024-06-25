@@ -108,8 +108,8 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<string> previousIDs, IMarkovFilter filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<string> previousIDs, IMarkovFilter filter) => await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
 
-		private async Task<Sentence?> GetFirstSentence(IMarkovFilter filter) => await sentenceAccess.ReadSentence(filter);
+		private async Task<Sentence?> GetFirstSentence(IMarkovFilter filter) => await sentenceAccess.ReadRandomSentence(filter);
 	}
 }

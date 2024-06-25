@@ -100,7 +100,7 @@ namespace AtelierTomato.Markov.Data.Test
 		[Fact]
 		public void BookParseEmptyTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse(String.Empty));
+			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse(string.Empty));
 			Assert.Equal("The OID given is empty.", exception.Message);
 		}
 		[Fact]

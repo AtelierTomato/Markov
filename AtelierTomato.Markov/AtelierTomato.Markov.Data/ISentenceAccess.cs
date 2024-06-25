@@ -35,6 +35,6 @@ namespace AtelierTomato.Markov.Data
 		/// </summary>
 		/// <param name="filter">The <see cref="IMarkovFilter"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
 		/// <returns></returns>
-		Task DeleteSentenceRangeByFilter(IMarkovFilter filter);
+		Task DeleteSentenceRange(SentenceFilter filter);
 	}
 }

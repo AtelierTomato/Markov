@@ -31,7 +31,7 @@ namespace AtelierTomato.Markov.Data
 
 		/// <summary>
 		/// Deletes all <see cref="Sentence"/>s that match the given <paramref name="OID"/>.
-		/// As the <paramref name="OID"/> can be any permutation of <see cref="IObjectOID"/>, this can be anywhere from 1 specific <see cref="Sentence"/> to all <see cref="Sentence"/>s of a <see cref="ServiceType"/>.
+		/// As the <paramref name="OID"/> can be any permutation of <see cref="IObjectOID"/>, this can be anywhere from 1 specific <see cref="Sentence"/> to all <see cref="Sentence"/>s of a <see cref="IObjectOID.Service"/> and <see cref="IObjectOID.Instance"/>.
 		/// </summary>
 		/// <param name="OID">The <see cref="IObjectOID"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
 		/// <returns></returns>

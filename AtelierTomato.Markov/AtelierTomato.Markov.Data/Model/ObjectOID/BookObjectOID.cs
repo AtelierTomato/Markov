@@ -33,7 +33,7 @@
 			=> new(instance, series, book, chapter, paragraph, sentence);
 		public static BookObjectOID Parse(string OID)
 		{
-			string[] stringRange = ObjectOIDEscapement.Split(OID).ToArray();
+			string[] stringRange = OIDEscapement.Split(OID).ToArray();
 			if (stringRange.Length > 7)
 			{
 				throw new ArgumentException("The OID given has too many members to be a valid BookObjectOID.");
@@ -91,7 +91,7 @@
 		{
 			IEnumerable<string?> stringRange = [Service.ToString(), Instance, Series, Book, Chapter, Paragraph?.ToString() ?? null, Sentence?.ToString() ?? null];
 			stringRange = stringRange.Where(s => s is not null);
-			stringRange = stringRange.Select(ObjectOIDEscapement.Escape);
+			stringRange = stringRange.Select(OIDEscapement.Escape);
 			return string.Join(':', stringRange);
 		}
 	}

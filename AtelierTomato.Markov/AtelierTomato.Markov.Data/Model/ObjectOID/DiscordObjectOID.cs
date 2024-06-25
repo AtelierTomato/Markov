@@ -36,7 +36,7 @@
 			=> new(instance, server, category, channel, thread, message, sentence);
 		public static DiscordObjectOID Parse(string OID)
 		{
-			string[] stringRange = ObjectOIDEscapement.Split(OID).ToArray();
+			string[] stringRange = OIDEscapement.Split(OID).ToArray();
 			if (stringRange.Length > 8)
 			{
 				throw new ArgumentException("The OID given has too many members to be a valid DiscordObjectOID.");
@@ -116,7 +116,7 @@
 		{
 			IEnumerable<string?> stringRange = [
 				Service.ToString(),
-				ObjectOIDEscapement.Escape(Instance),
+				OIDEscapement.Escape(Instance),
 				Server?.ToString() ?? null,
 				Category?.ToString() ?? null,
 				Channel?.ToString() ?? null,

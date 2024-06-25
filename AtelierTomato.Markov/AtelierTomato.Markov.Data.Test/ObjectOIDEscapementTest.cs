@@ -16,7 +16,7 @@ namespace AtelierTomato.Markov.Data.Test
 		[InlineData("evenmore^:nonsense", "evenmore^^^:nonsense")]
 		public void EscapeTest(string input, string output)
 		{
-			var result = ObjectOIDEscapement.Escape(input);
+			var result = OIDEscapement.Escape(input);
 
 			result.Should().Be(output);
 		}
@@ -32,7 +32,7 @@ namespace AtelierTomato.Markov.Data.Test
 		[InlineData("evenmore^^^:nonsense", "evenmore^:nonsense")]
 		public void UnescapeTest(string input, string output)
 		{
-			var result = ObjectOIDEscapement.Unescape(input);
+			var result = OIDEscapement.Unescape(input);
 
 			result.Should().Be(output);
 		}
@@ -46,7 +46,7 @@ namespace AtelierTomato.Markov.Data.Test
 		[InlineData("apple::bread", new[] { "apple", "", "bread" })]
 		public void SplitTest(string input, IEnumerable<string> output)
 		{
-			var result = ObjectOIDEscapement.Split(input);
+			var result = OIDEscapement.Split(input);
 
 			result.Should().BeEquivalentTo(output);
 		}

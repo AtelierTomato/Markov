@@ -11,6 +11,6 @@
 			Instance = instance;
 			Author = author;
 		}
-		public string ToString() => string.Join(':', [Service.ToString(), ObjectOIDEscapement.Escape(Instance), ObjectOIDEscapement.Escape(Author)]);
+		public string ToString() => string.Join(':', [Service.ToString(), OIDEscapement.Escape(Instance), OIDEscapement.Escape(Author)]);
 	}
 }

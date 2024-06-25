@@ -116,7 +116,7 @@
 		{
 			IEnumerable<string?> stringRange = [
 				Service.ToString(),
-				OIDEscapement.Escape(Instance),
+				Instance,
 				Server?.ToString() ?? null,
 				Category?.ToString() ?? null,
 				Channel?.ToString() ?? null,
@@ -124,7 +124,7 @@
 				Message?.ToString() ?? null,
 				Sentence?.ToString()?? null
 			];
-			stringRange = stringRange.Where(s => s is not null);
+			stringRange = stringRange.Where(s => s is not null).Select(OIDEscapement.Escape);
 			return string.Join(':', stringRange);
 		}
 	}

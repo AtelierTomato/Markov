@@ -11,7 +11,8 @@
 			Instance = instance;
 			Author = author;
 		}
-		public string ToString() => string.Join(':', [Service.ToString(), OIDEscapement.Escape(Instance), OIDEscapement.Escape(Author)]);
+		public string ToString() => string.Join(':', ((IEnumerable<string>)([Service.ToString(), Instance, Author])).Select(OIDEscapement.Escape));
+
 		public static AuthorOID Parse(string OID)
 		{
 			string[] stringRange = OIDEscapement.Split(OID).ToArray();

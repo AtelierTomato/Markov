@@ -89,9 +89,16 @@
 
 		public override string ToString()
 		{
-			IEnumerable<string?> stringRange = [Service.ToString(), Instance, Series, Book, Chapter, Paragraph?.ToString() ?? null, Sentence?.ToString() ?? null];
-			stringRange = stringRange.Where(s => s is not null);
-			stringRange = stringRange.Select(OIDEscapement.Escape);
+			IEnumerable<string?> stringRange = [
+				Service.ToString(),
+				Instance,
+				Series,
+				Book,
+				Chapter,
+				Paragraph?.ToString() ?? null,
+				Sentence?.ToString() ?? null
+			];
+			stringRange = stringRange.Where(s => s is not null).Select(OIDEscapement.Escape);
 			return string.Join(':', stringRange);
 		}
 	}

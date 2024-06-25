@@ -16,7 +16,7 @@ namespace AtelierTomato.Markov.Generation
 			this.options = options.Value;
 		}
 
-		public async Task<string> Generate(IMarkovFilter filter)
+		public async Task<string> Generate(ISentenceFilter filter)
 		{
 			Sentence? sentence = await GetFirstSentence(filter);
 			if (sentence is null)
@@ -108,8 +108,8 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<string> previousIDs, IMarkovFilter filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<string> previousIDs, ISentenceFilter filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
 
-		private async Task<Sentence?> GetFirstSentence(IMarkovFilter filter) => await sentenceAccess.ReadSentence(filter);
+		private async Task<Sentence?> GetFirstSentence(ISentenceFilter filter) => await sentenceAccess.ReadSentence(filter);
 	}
 }

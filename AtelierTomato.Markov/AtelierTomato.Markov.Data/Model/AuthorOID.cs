@@ -18,7 +18,7 @@
 			string[] stringRange = OIDEscapement.Split(OID).ToArray();
 			if (stringRange.Length > 3)
 			{
-				throw new ArgumentException("The OID given has too many members to be a valid AuthorOID");
+				throw new ArgumentException("The OID given has too many members to be a valid AuthorOID.");
 			}
 			if (stringRange[0] == string.Empty)
 			{

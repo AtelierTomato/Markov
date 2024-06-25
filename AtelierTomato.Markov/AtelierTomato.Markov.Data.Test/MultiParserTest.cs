@@ -27,7 +27,7 @@ namespace AtelierTomato.Markov.Data.Test
 		{
 			MultiParser<IObjectOID> oidParser = new([new BookObjectOIDParser(), new InvalidObjectOIDParser(), new DiscordObjectOIDParser()]);
 			var exception = Assert.Throws<ArgumentException>(() => oidParser.Parse("We are never using this as a service type lol:google.com:appleseed"));
-			Assert.Equal("The ServiceType was not able to be parsed from the given OID.", exception.Message);
+			Assert.Equal("The MultiParser was not able to find any IObjectOID that it could parse.", exception.Message);
 		}
 		[Fact]
 		public void IObjectOIDParseInvalidTest()

@@ -4,7 +4,7 @@
 	{
 		public TOID Parse(string input) =>
 			parsers.FirstOrDefault(parser => parser.CanParse(input))
-			?.Parse(input) ?? throw new ArgumentException("The ServiceType was not able to be parsed from the given OID.");
+			?.Parse(input) ?? throw new ArgumentException($"The MultiParser was not able to find any {typeof(TOID).Name} that it could parse.");
 	}
 
 	public interface IParser<TOID>

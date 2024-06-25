@@ -2,35 +2,35 @@
 
 namespace AtelierTomato.Markov.Data.Model
 {
-	public interface IParseable
+	public class MultiParser<TOID>(IEnumerable<IParser<TOID>> parsers) where TOID : class
 	{
-		public bool CanParse(string input);
-
-		public IObjectOID Parse(string input);
-	}
-
-	public class OIDParser(IEnumerable<IParseable> parseables)
-	{
-		public IObjectOID? Parse(string input) =>
-			parseables.FirstOrDefault(parseable => parseable.CanParse(input))
+		public TOID Parse(string input) =>
+			parsers.FirstOrDefault(parser => parser.CanParse(input))
 			?.Parse(input) ?? throw new ArgumentException("The ServiceType was not able to be parsed from the given OID.");
 	}
 
-	public class InvalidParseable : IParseable
+	public interface IParser<TOID>
+	{
+		public bool CanParse(string input);
+
+		public TOID Parse(string input);
+	}
+
+	public class InvalidObjectOIDParser : IParser<IObjectOID>
 	{
 		public bool CanParse(string input) => OIDEscapement.Split(input).First() == ServiceType.Invalid.ToString();
 
 		public IObjectOID Parse(string input) => throw new ArgumentException("The IObjectOID given is of ServiceType Invalid, which is not a valid ServiceType.");
 	}
 
-	public class BookParseable : IParseable
+	public class BookObjectOIDParser : IParser<IObjectOID>
 	{
 		public bool CanParse(string input) => OIDEscapement.Split(input).First() == ServiceType.Book.ToString();
 
 		public IObjectOID Parse(string input) => BookObjectOID.Parse(input);
 	}
 
-	public class DiscordParseable : IParseable
+	public class DiscordObjectOIDParser : IParser<IObjectOID>
 	{
 		public bool CanParse(string input) => OIDEscapement.Split(input).First() == ServiceType.Discord.ToString();
 

@@ -26,13 +26,13 @@
 			=> new(instance, server);
 		public static DiscordObjectOID ForCategory(string instance, ulong server, ulong category)
 			=> new(instance, server, category);
-		public static DiscordObjectOID ForChannel(string instance, ulong server, ulong? category, ulong channel)
+		public static DiscordObjectOID ForChannel(string instance, ulong server, ulong category, ulong channel)
 			=> new(instance, server, category, channel);
-		public static DiscordObjectOID ForThread(string instance, ulong server, ulong? category, ulong channel, ulong thread)
+		public static DiscordObjectOID ForThread(string instance, ulong server, ulong category, ulong channel, ulong thread)
 			=> new(instance, server, category, channel, thread);
-		public static DiscordObjectOID ForMessage(string instance, ulong server, ulong? category, ulong channel, ulong? thread, ulong message)
+		public static DiscordObjectOID ForMessage(string instance, ulong server, ulong category, ulong channel, ulong thread, ulong message)
 			=> new(instance, server, category, channel, thread, message);
-		public static DiscordObjectOID ForSentence(string instance, ulong server, ulong? category, ulong channel, ulong? thread, ulong message, int sentence)
+		public static DiscordObjectOID ForSentence(string instance, ulong server, ulong category, ulong channel, ulong thread, ulong message, int sentence)
 			=> new(instance, server, category, channel, thread, message, sentence);
 		public static DiscordObjectOID Parse(string OID)
 		{

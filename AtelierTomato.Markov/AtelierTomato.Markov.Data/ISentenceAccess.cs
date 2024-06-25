@@ -30,17 +30,11 @@ namespace AtelierTomato.Markov.Data
 		Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange);
 
 		/// <summary>
-		/// Deletes all <see cref="Sentence"/>s that match the given <paramref name="OID"/>.
-		/// As the <paramref name="OID"/> can be any permutation of <see cref="IObjectOID"/>, this can be anywhere from 1 specific <see cref="Sentence"/> to all <see cref="Sentence"/>s of a <see cref="IObjectOID.Service"/> and <see cref="IObjectOID.Instance"/>.
+		/// Deletes all <see cref="Sentence"/>s that match the given <paramref name="filter"/>.
+		/// This allows deletion of anywhere from all <see cref="Sentence"/>s in an <see cref="IObjectOID.Instance"/> to a specific <see cref="Sentence"/>.
 		/// </summary>
-		/// <param name="OID">The <see cref="IObjectOID"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
+		/// <param name="filter">The <see cref="IMarkovFilter"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
 		/// <returns></returns>
-		Task DeleteSentenceRangeByOID(IObjectOID OID);
-		/// <summary>
-		/// Deletes all <see cref="Sentence"/>s that match the given <paramref name="Author"/>.
-		/// </summary>
-		/// <param name="Author">The <see cref="AuthorOID"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
-		/// <returns></returns>
-		Task DeleteSentenceRangeByAuthor(AuthorOID Author);
+		Task DeleteSentenceRangeByFilter(IMarkovFilter filter);
 	}
 }

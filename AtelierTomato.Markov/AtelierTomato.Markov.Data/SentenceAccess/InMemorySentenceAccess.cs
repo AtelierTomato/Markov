@@ -4,6 +4,7 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 {
 	public class InMemorySentenceAccess : ISentenceAccess
 	{
+		private readonly Random random = new Random();
 		public List<Sentence> SentenceRange = [];
 		public Task DeleteSentenceRange(SentenceFilter filter)
 		{
@@ -14,14 +15,32 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 			return Task.CompletedTask;
 		}
 
-		public Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)
+		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)
 		{
-			throw new NotImplementedException();
+			List<Sentence> sentenceRange = ReadSentenceRange(filter).Result.Where(s => s.Text.Contains(string.Join(' ', prevList))).ToList();
+			if (sentenceRange.Count == 0)
+			{
+				sentenceRange = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result.Where(s => s.Text.Contains(string.Join(' ', prevList))).ToList();
+			}
+			if (sentenceRange.Count == 0)
+			{
+				return null;
+			}
+			return sentenceRange[random.Next(sentenceRange.Count)];
 		}
 
-		public Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
+		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
 		{
-			throw new NotImplementedException();
+			List<Sentence> sentenceRange = ReadSentenceRange(filter).Result.ToList();
+			if (sentenceRange.Count == 0)
+			{
+				sentenceRange = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result.ToList();
+			}
+			if (sentenceRange.Count == 0)
+			{
+				return null;
+			}
+			return sentenceRange[random.Next(sentenceRange.Count)];
 		}
 
 		public async Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)

@@ -10,7 +10,7 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 			SentenceRange = SentenceRange.Where(s =>
 				(filter.OID is null || (!s.OID.ToString().StartsWith(filter.OID.ToString()))) &&
 				(filter.Author is null || s.Author.ToString() != filter.Author.ToString()) &&
-				(filter.Keyword is null || !s.Text.Contains(filter.Keyword))
+				(filter.SearchString is null || !s.Text.Contains(filter.SearchString))
 			).ToList();
 			return Task.CompletedTask;
 		}
@@ -30,7 +30,7 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 			return SentenceRange.Where(s =>
 				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString())) &&
 				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
-				(filter.Keyword is null || s.Text.Contains(filter.Keyword))
+				(filter.SearchString is null || s.Text.Contains(filter.SearchString))
 			).ToList();
 		}
 

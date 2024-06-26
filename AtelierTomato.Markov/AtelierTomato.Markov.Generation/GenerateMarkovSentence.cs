@@ -4,25 +4,15 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Generation
 {
-	public class GenerateMarkovSentence
+	public class GenerateMarkovSentence(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
 	{
-		private readonly ISentenceAccess sentenceAccess;
-		private readonly MarkovGenerationOptions options;
+		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
+		private readonly MarkovGenerationOptions options = options.Value;
 		private static readonly Random random = new();
-
-		public GenerateMarkovSentence(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
-		{
-			this.sentenceAccess = sentenceAccess;
-			this.options = options.Value;
-		}
 
 		public async Task<string> Generate(SentenceFilter filter)
 		{
-			Sentence? sentence = await GetFirstSentence(filter);
-			if (sentence is null)
-			{
-				throw new Exception("Couldn't query any messages.");
-			}
+			Sentence? sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
 			string firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 			var tokenizedSentence = new List<string> { firstWord };
 			var prevList = tokenizedSentence;
@@ -87,7 +77,7 @@ namespace AtelierTomato.Markov.Generation
 						rerolls++;
 						currentPastaLength = 0;
 					}
-				} else if (prevList.Any())
+				} else if (prevList.Count != 0)
 				{
 					// If the prevList can't be used to match to anything, remove the first word from the prevList.
 					prevList.RemoveAt(0);

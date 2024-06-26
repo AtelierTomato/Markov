@@ -7,11 +7,10 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 		public List<Sentence> SentenceRange = [];
 		public Task DeleteSentenceRange(SentenceFilter filter)
 		{
-			SentenceRange = SentenceRange.Where(s =>
-				(filter.OID is null || (!s.OID.ToString().StartsWith(filter.OID.ToString()))) &&
-				(filter.Author is null || s.Author.ToString() != filter.Author.ToString()) &&
-				(filter.Keyword is null || !s.Text.Contains(filter.Keyword))
-			).ToList();
+			SentenceRange.RemoveAll(s =>
+				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString())) &&
+				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
+				(filter.SearchString is null || s.Text.Contains(filter.SearchString)));
 			return Task.CompletedTask;
 		}
 

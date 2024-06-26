@@ -1,0 +1,171 @@
+﻿using AtelierTomato.Markov.Data.Model;
+using AtelierTomato.Markov.Data.Model.ObjectOID;
+using AtelierTomato.Markov.Data.SentenceAccess;
+
+namespace AtelierTomato.Markov.Data.Test
+{
+	public class InMemorySentenceAccessTest
+	{
+		[Fact]
+		public void SentenceAddTest()
+		{
+			Sentence sentence = new(
+				DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:1254631136596852797:1"),
+				AuthorOID.Parse("Discord:discord.com:142781100152848384"),
+				DateTimeOffset.Now,
+				"lol this sentence is so cool"
+			);
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentence(sentence);
+			Assert.Contains(sentence, sentenceAccess.SentenceRange);
+		}
+		[Fact]
+		public void SentenceRangeAddTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			foreach (Sentence sentence in sentenceRange)
+			{
+				Assert.Contains(sentence, sentenceAccess.SentenceRange);
+			}
+		}
+
+		[Fact]
+		public void SentenceDeleteByOIDTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null));
+			Assert.Contains(sentenceRange[0], sentenceAccess.SentenceRange);
+			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
+			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
+			Assert.DoesNotContain(sentenceRange[3], sentenceAccess.SentenceRange);
+		}
+		[Fact]
+		public void SentenceDeleteByAuthorOIDTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null));
+			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
+			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
+			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
+			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
+		}
+		[Fact]
+		public void SentenceDeleteByKeywordOIDTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, null, "sentence"));
+			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
+			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
+			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
+			Assert.DoesNotContain(sentenceRange[3], sentenceAccess.SentenceRange);
+		}
+	}
+}

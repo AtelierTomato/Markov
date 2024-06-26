@@ -4,35 +4,45 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 {
 	public class InMemorySentenceAccess : ISentenceAccess
 	{
-		public Dictionary<IObjectOID, Sentence> SentenceDictionary = [];
-		public Task DeleteSentenceRange(ISentenceFilter filter)
+		public List<Sentence> SentenceRange = [];
+		public Task DeleteSentenceRange(SentenceFilter filter)
+		{
+			SentenceRange = SentenceRange.Where(s =>
+				(filter.OID is null || (!s.OID.ToString().StartsWith(filter.OID.ToString()))) &&
+				(filter.Author is null || s.Author.ToString() != filter.Author.ToString()) &&
+				(filter.Keyword is null || !s.Text.Contains(filter.Keyword))
+			).ToList();
+			return Task.CompletedTask;
+		}
+
+		public Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, ISentenceFilter filter)
+		public Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task<Sentence?> ReadRandomSentence(ISentenceFilter filter)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<Sentence?> ReadSentenceRange(ISentenceFilter filter)
+		public Task<Sentence?> ReadSentenceRange(SentenceFilter filter)
 		{
 			throw new NotImplementedException();
 		}
 
 		public Task WriteSentence(Sentence sentence)
 		{
-			throw new NotImplementedException();
+			SentenceRange.Add(sentence);
+			return Task.CompletedTask;
 		}
 
 		public Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange)
 		{
-			throw new NotImplementedException();
+			foreach (Sentence sentence in sentenceRange)
+			{
+				WriteSentence(sentence);
+			}
+			return Task.CompletedTask;
 		}
 	}
 }

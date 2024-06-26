@@ -33,7 +33,7 @@ namespace AtelierTomato.Markov.Data
 		/// Deletes all <see cref="Sentence"/>s that match the given <paramref name="filter"/>.
 		/// This allows deletion of anywhere from all <see cref="Sentence"/>s in an <see cref="IObjectOID.Instance"/> to a specific <see cref="Sentence"/>.
 		/// </summary>
-		/// <param name="filter">The <see cref="IMarkovFilter"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
+		/// <param name="filter">The <see cref="SentenceFilter"/> that must match to any <see cref="Sentence"/> that will be deleted.</param>
 		/// <returns></returns>
 		Task DeleteSentenceRange(SentenceFilter filter);
 	}

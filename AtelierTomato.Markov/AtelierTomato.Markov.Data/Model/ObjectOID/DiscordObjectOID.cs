@@ -1,4 +1,6 @@
-﻿namespace AtelierTomato.Markov.Data.Model.ObjectOID
+﻿using System.Text;
+
+namespace AtelierTomato.Markov.Data.Model.ObjectOID
 {
 	public class DiscordObjectOID : IObjectOID
 	{
@@ -114,18 +116,51 @@
 		}
 		public override string ToString()
 		{
-			IEnumerable<string?> stringRange = [
-				Service.ToString(),
-				Instance,
-				Server?.ToString() ?? null,
-				Category?.ToString() ?? null,
-				Channel?.ToString() ?? null,
-				Thread?.ToString() ?? null,
-				Message?.ToString() ?? null,
-				Sentence?.ToString()?? null
-			];
-			stringRange = stringRange.OfType<string>().Select(OIDEscapement.Escape);
-			return string.Join(':', stringRange);
+			var sb = new StringBuilder();
+			sb.Append(OIDEscapement.Escape(Service.ToString())).Append(':').Append(OIDEscapement.Escape(Instance));
+			if (Server is not null)
+			{
+				sb.Append(':').Append(Server.ToString());
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Category.HasValue)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Category.Value.ToString()));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Channel.HasValue)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Channel.Value.ToString()));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Thread.HasValue)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Thread.Value.ToString()));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Message.HasValue)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Message.Value.ToString()));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Sentence.HasValue)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Sentence.Value.ToString()));
+			} else
+			{
+				return sb.ToString();
+			}
+			return sb.ToString();
 		}
 	}
 }

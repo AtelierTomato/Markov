@@ -1,4 +1,6 @@
-﻿namespace AtelierTomato.Markov.Data.Model.ObjectOID
+﻿using System.Text;
+
+namespace AtelierTomato.Markov.Data.Model.ObjectOID
 {
 	public class BookObjectOID : IObjectOID
 	{
@@ -89,17 +91,44 @@
 
 		public override string ToString()
 		{
-			IEnumerable<string?> stringRange = [
-				Service.ToString(),
-				Instance,
-				Series,
-				Book,
-				Chapter,
-				Paragraph?.ToString() ?? null,
-				Sentence?.ToString() ?? null
-			];
-			stringRange = stringRange.OfType<string>().Select(OIDEscapement.Escape);
-			return string.Join(':', stringRange);
+			var sb = new StringBuilder();
+			sb.Append(OIDEscapement.Escape(Service.ToString())).Append(':').Append(OIDEscapement.Escape(Instance));
+			if (Series is not null)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Series));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Book is not null)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Book));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Chapter is not null)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Chapter));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Paragraph.HasValue)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Paragraph.Value.ToString()));
+			} else
+			{
+				return sb.ToString();
+			}
+			if (Sentence.HasValue)
+			{
+				sb.Append(':').Append(OIDEscapement.Escape(Sentence.Value.ToString()));
+			} else
+			{
+				return sb.ToString();
+			}
+			return sb.ToString();
 		}
 	}
 }

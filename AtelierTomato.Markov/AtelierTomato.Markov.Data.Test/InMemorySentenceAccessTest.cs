@@ -131,7 +131,7 @@ namespace AtelierTomato.Markov.Data.Test
 			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
 		}
 		[Fact]
-		public void SentenceDeleteByKeywordOIDTest()
+		public void SentenceDeleteBySearchStringTest()
 		{
 			List<Sentence> sentenceRange = [
 				new(
@@ -168,7 +168,51 @@ namespace AtelierTomato.Markov.Data.Test
 			Assert.DoesNotContain(sentenceRange[3], sentenceAccess.SentenceRange);
 		}
 		[Fact]
+		public void SentenceDeleteByObjectAndAuthorTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+				new (
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:3"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"i don 't want to be in a database so i 'm happy"
+				)
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1"), null));
+			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
+			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
+			Assert.Contains(sentenceRange[2], sentenceAccess.SentenceRange);
+			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
+			Assert.DoesNotContain(sentenceRange[4], sentenceAccess.SentenceRange);
+		}
 
+		[Fact]
 		public void SentenceSearchByOIDTest()
 		{
 			List<Sentence> sentenceRange = [
@@ -243,7 +287,7 @@ namespace AtelierTomato.Markov.Data.Test
 			Assert.DoesNotContain(sentenceRange[3], sentenceReturn);
 		}
 		[Fact]
-		public void SentenceSearchByKeywordOIDTest()
+		public void SentenceSearchBySearchStringTest()
 		{
 			List<Sentence> sentenceRange = [
 				new(

@@ -124,7 +124,7 @@
 				Message?.ToString() ?? null,
 				Sentence?.ToString()?? null
 			];
-			stringRange = stringRange.Where(s => s is not null).Select(OIDEscapement.Escape);
+			stringRange = stringRange.OfType<string>().Select(OIDEscapement.Escape);
 			return string.Join(':', stringRange);
 		}
 	}

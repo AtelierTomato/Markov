@@ -1,17 +1,12 @@
 ﻿namespace AtelierTomato.Markov.Data.Model
 {
-	public class AuthorOID
+	public class AuthorOID(ServiceType service, string instance, string author)
 	{
-		public ServiceType Service { get; set; }
-		public string Instance { get; set; }
-		public string Author { get; set; }
-		public AuthorOID(ServiceType service, string instance, string author)
-		{
-			Service = service;
-			Instance = instance;
-			Author = author;
-		}
-		public string ToString() => string.Join(':', ((IEnumerable<string>)([Service.ToString(), Instance, Author])).Select(OIDEscapement.Escape));
+		public ServiceType Service { get; set; } = service;
+		public string Instance { get; set; } = instance;
+		public string Author { get; set; } = author;
+
+		public override string ToString() => string.Join(':', ((IEnumerable<string>)([Service.ToString(), Instance, Author])).Select(OIDEscapement.Escape));
 
 		public static AuthorOID Parse(string OID)
 		{

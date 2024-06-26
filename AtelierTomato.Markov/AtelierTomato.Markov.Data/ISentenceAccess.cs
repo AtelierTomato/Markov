@@ -4,7 +4,7 @@ namespace AtelierTomato.Markov.Data
 {
 	public interface ISentenceAccess
 	{
-		Task<Sentence?> ReadSentence(ISentenceFilter filter);
-		Task<Sentence?> ReadNextSentence(List<string> prevList, List<string> previousIDs, ISentenceFilter filter);
+		Task<Sentence?> ReadSentence(SentenceFilter filter);
+		Task<Sentence?> ReadNextSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter);
 	}
 }

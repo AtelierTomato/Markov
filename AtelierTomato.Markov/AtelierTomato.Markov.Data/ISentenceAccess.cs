@@ -24,7 +24,7 @@ namespace AtelierTomato.Markov.Data
 		/// </summary>
 		/// <param name="filter">The <see cref="SentenceFilter"/> that the resulting <see cref="Sentence"/>s must match.</param>
 		/// <returns></returns>
-		Task<Sentence?> ReadSentenceRange(SentenceFilter filter);
+		Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter);
 
 		Task WriteSentence(Sentence sentence);
 		Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange);

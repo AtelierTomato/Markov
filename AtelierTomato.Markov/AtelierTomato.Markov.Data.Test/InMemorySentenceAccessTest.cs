@@ -167,5 +167,117 @@ namespace AtelierTomato.Markov.Data.Test
 			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
 			Assert.DoesNotContain(sentenceRange[3], sentenceAccess.SentenceRange);
 		}
+		[Fact]
+
+		public void SentenceSearchByOIDTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			IEnumerable<Sentence> sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null)).Result;
+			Assert.DoesNotContain(sentenceRange[0], sentenceReturn);
+			Assert.DoesNotContain(sentenceRange[1], sentenceReturn);
+			Assert.Contains(sentenceRange[2], sentenceReturn);
+			Assert.Contains(sentenceRange[3], sentenceReturn);
+		}
+		[Fact]
+		public void SentenceSearchByAuthorOIDTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			IEnumerable<Sentence> sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null)).Result;
+			Assert.Contains(sentenceRange[0], sentenceReturn);
+			Assert.DoesNotContain(sentenceRange[1], sentenceReturn);
+			Assert.Contains(sentenceRange[2], sentenceReturn);
+			Assert.DoesNotContain(sentenceRange[3], sentenceReturn);
+		}
+		[Fact]
+		public void SentenceSearchByKeywordOIDTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			IEnumerable<Sentence> sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, null, "sentence")).Result;
+			Assert.Contains(sentenceRange[0], sentenceReturn);
+			Assert.DoesNotContain(sentenceRange[1], sentenceReturn);
+			Assert.Contains(sentenceRange[2], sentenceReturn);
+			Assert.Contains(sentenceRange[3], sentenceReturn);
+		}
 	}
 }

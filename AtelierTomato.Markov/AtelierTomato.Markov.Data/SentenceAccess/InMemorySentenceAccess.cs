@@ -25,9 +25,13 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 			throw new NotImplementedException();
 		}
 
-		public Task<Sentence?> ReadSentenceRange(SentenceFilter filter)
+		public async Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)
 		{
-			throw new NotImplementedException();
+			return SentenceRange.Where(s =>
+				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString())) &&
+				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
+				(filter.Keyword is null || s.Text.Contains(filter.Keyword))
+			).ToList();
 		}
 
 		public Task WriteSentence(Sentence sentence)

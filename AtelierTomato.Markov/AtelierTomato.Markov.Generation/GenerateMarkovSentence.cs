@@ -10,15 +10,20 @@ namespace AtelierTomato.Markov.Generation
 		private readonly MarkovGenerationOptions options = options.Value;
 		private static readonly Random random = new();
 
-		public async Task<string> Generate(SentenceFilter filter)
+		public async Task<string> Generate(SentenceFilter filter, string? firstWord = null)
 		{
-			Sentence? sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
-			string firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
+			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
+			List<string> prevIDs = [];
+			Sentence? sentence;
+			if (firstWord is null)
+			{
+				sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
+				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
+				prevIDs.Add(sentence.OID.ToString());
+			}
 			var tokenizedSentence = new List<string> { firstWord };
 			var prevList = tokenizedSentence;
 
-			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
-			var prevIDs = new List<string> { sentence.OID.ToString() };
 			var rerolls = 0;
 
 			// Gets reset whenever the list of previous words has to be modified or the randomized copypasta killer takes action

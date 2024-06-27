@@ -40,7 +40,7 @@ namespace AtelierTomato.Markov.Generation.Test
 		}
 
 		[Fact]
-		public void MarkovChainTest()
+		public void MarkovChainTestWithFirst()
 		{
 			List<Sentence> sentenceRange = [
 				new(
@@ -73,6 +73,42 @@ namespace AtelierTomato.Markov.Generation.Test
 			GenerateMarkovSentence generator = new(sentenceAccess, Options.Create(new MarkovGenerationOptions { }));
 			var result = generator.Generate(new SentenceFilter(null, null, null), "lol").Result;
 			result.Should().Be("lol this is my head");
+		}
+		[Fact]
+		public void MarkovChainTestWithoutFirst()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"look at this photograph"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"look at this apple"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:3"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"look at this thing"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:4"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"look at this here"
+				),
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			GenerateMarkovSentence generator = new(sentenceAccess, Options.Create(new MarkovGenerationOptions { }));
+			var result = generator.Generate(new SentenceFilter(null, null, null)).Result;
+			result.Should().StartWith("look at this");
+			result.Should().NotBe("look at this");
 		}
 	}
 }

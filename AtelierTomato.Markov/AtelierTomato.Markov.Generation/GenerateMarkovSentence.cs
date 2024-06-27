@@ -21,8 +21,8 @@ namespace AtelierTomato.Markov.Generation
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 				prevIDs.Add(sentence.OID.ToString());
 			}
-			var tokenizedSentence = new List<string> { firstWord };
-			var prevList = tokenizedSentence;
+			List<string> tokenizedSentence = [firstWord];
+			List<string> prevList = [firstWord];
 
 			var rerolls = 0;
 

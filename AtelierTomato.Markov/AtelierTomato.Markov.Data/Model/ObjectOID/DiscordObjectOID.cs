@@ -116,51 +116,51 @@ namespace AtelierTomato.Markov.Data.Model.ObjectOID
 		}
 		public override string ToString()
 		{
-			var sb = new StringBuilder();
-			sb.Append(OIDEscapement.Escape(Service.ToString())).Append(':').Append(OIDEscapement.Escape(Instance));
-			if (Server is not null)
+			var oidBuilder = new OIDBuilder(Service);
+			oidBuilder.Append(Instance);
+			if (Server.HasValue)
 			{
-				sb.Append(':').Append(Server.ToString());
+				oidBuilder.Append(Server.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Category.HasValue)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Category.Value.ToString()));
+				oidBuilder.Append(Category.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Channel.HasValue)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Channel.Value.ToString()));
+				oidBuilder.Append(Channel.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Thread.HasValue)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Thread.Value.ToString()));
+				oidBuilder.Append(Thread.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Message.HasValue)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Message.Value.ToString()));
+				oidBuilder.Append(Message.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Sentence.HasValue)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Sentence.Value.ToString()));
+				oidBuilder.Append(Sentence.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
-			return sb.ToString();
+			return oidBuilder.Build();
 		}
 	}
 }

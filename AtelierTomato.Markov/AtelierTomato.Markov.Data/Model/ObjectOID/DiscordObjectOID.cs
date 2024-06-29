@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Data.Model.ObjectOID
 {
@@ -38,82 +39,92 @@ namespace AtelierTomato.Markov.Data.Model.ObjectOID
 			=> new(instance, server, category, channel, thread, message, sentence);
 		public static DiscordObjectOID Parse(string OID)
 		{
-			string[] stringRange = OIDEscapement.Split(OID).ToArray();
-			if (stringRange.Length > 8)
-			{
-				throw new ArgumentException("The OID given has too many members to be a valid DiscordObjectOID.");
-			}
-			if (stringRange[0] == string.Empty)
+			if (string.IsNullOrWhiteSpace(OID))
 			{
 				throw new ArgumentException("The OID given is empty.");
 			}
-			if (ServiceType.Discord.ToString() != stringRange.First())
-			{
+			
+			var discordOidPattern = $@"
+^
+(?<{nameof(ServiceType)}>(?:[^:]|\^:)+)
+:
+(?<{nameof(Instance)}>(?:[^:]|\^:)+)
+:?
+(?<{nameof(Server)}>(?:[^:]|\^:)+)?
+:?
+(?<{nameof(Category)}>(?:[^:]|\^:)+)?
+:?
+(?<{nameof(Channel)}>(?:[^:]|\^:)+)?
+:?
+(?<{nameof(Thread)}>(?:[^:]|\^:)+)?
+:?
+(?<{nameof(Message)}>(?:[^:]|\^:)+)?
+:?
+(?<{nameof(Sentence)}>(?:[^:]|\^:)+)?
+$";
+			Regex discordOidRegex = new Regex(discordOidPattern, RegexOptions.IgnorePatternWhitespace);
+
+			var match = discordOidRegex.Match(OID);
+
+			if (!match.Success)
+				throw new ArgumentException("The OID given is not a valid DiscordObjectOID.");
+								
+			if(match.Groups[nameof(ServiceType)].Value != ServiceType.Discord.ToString())
 				throw new ArgumentException("The OID given is not a DiscordObjectOID, as it does not begin with Discord.");
+
+			var instance = match.Groups[nameof(Instance)].Value;
+
+			if (!match.Groups[nameof(Server)].Success)
+			{
+				return ForInstance(instance);
 			}
-			if (stringRange.Length == 1)
+
+			if(!ulong.TryParse(match.Groups[nameof(Server)].Value, out var serverId)) 
+				throw new ArgumentException("The part of the DiscordObjectOID corresponding to the server was not able to be parsed into a ulong value.");
+
+			if (!match.Groups[nameof(Category)].Success)
 			{
-				throw new ArgumentException("The OID given is not long enough. You cannot have an IObjectOID with only the ServiceType.");
-			} else if (stringRange.Length == 2)
-			{
-				return ForInstance(stringRange[1]);
-			} else if (stringRange.Length >= 3)
-			{
-				if (!ulong.TryParse(stringRange[2], out ulong server))
-				{
-					throw new ArgumentException("The part of the DiscordObjectOID corresponding to the server was not able to be parsed into a ulong value.");
-				} else if (stringRange.Length == 3)
-				{
-					return ForServer(stringRange[1], server);
-				} else
-				{
-					if (!ulong.TryParse(stringRange[3], out ulong category))
-					{
-						throw new ArgumentException("The part of the DiscordObjectOID corresponding to the category was not able to be parsed into a ulong value.");
-					} else if (stringRange.Length == 4)
-					{
-						return ForCategory(stringRange[1], server, category);
-					} else
-					{
-						if (!ulong.TryParse(stringRange[4], out ulong channel))
-						{
-							throw new ArgumentException("The part of the DiscordObjectOID corresponding to the channel was not able to be parsed into a ulong value.");
-						} else if (stringRange.Length == 5)
-						{
-							return ForChannel(stringRange[1], server, category, channel);
-						} else
-						{
-							if (!ulong.TryParse(stringRange[5], out ulong thread))
-							{
-								throw new ArgumentException("The part of the DiscordObjectOID corresponding to the thread was not able to be parsed into a ulong value.");
-							} else if (stringRange.Length == 6)
-							{
-								return ForThread(stringRange[1], server, category, channel, thread);
-							} else
-							{
-								if (!ulong.TryParse(stringRange[6], out ulong message))
-								{
-									throw new ArgumentException("The part of the DiscordObjectOID corresponding to the message was not able to be parsed into a ulong value.");
-								} else if (stringRange.Length == 7)
-								{
-									return ForMessage(stringRange[1], server, category, channel, thread, message);
-								} else
-								{
-									if (!int.TryParse(stringRange[7], out int sentence))
-									{
-										throw new ArgumentException("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value.");
-									} else
-									{
-										return ForSentence(stringRange[1], server, category, channel, thread, message, sentence);
-									}
-								}
-							}
-						}
-					}
-				}
+				return ForServer(instance, serverId);
 			}
-			throw new ArgumentException("Somehow, DiscordObjectOID.Parse() went through all of its code without returning a value. This should not happen.");
+
+			if(!ulong.TryParse(match.Groups[nameof(Category)].Value, out var categoryId)) 
+				throw new ArgumentException("The part of the DiscordObjectOID corresponding to the category was not able to be parsed into a ulong value.");
+
+			if (!match.Groups[nameof(Channel)].Success)
+			{
+				return ForCategory(instance, serverId, categoryId);
+			}
+
+			if(!ulong.TryParse(match.Groups[nameof(Channel)].Value, out var channelId)) 
+				throw new ArgumentException("The part of the DiscordObjectOID corresponding to the channel was not able to be parsed into a ulong value.");
+
+			if (!match.Groups[nameof(Thread)].Success)
+			{
+				return ForChannel(instance, serverId, categoryId, channelId);
+			}
+
+			if(!ulong.TryParse(match.Groups[nameof(Thread)].Value, out var threadId)) 
+				throw new ArgumentException("The part of the DiscordObjectOID corresponding to the thread was not able to be parsed into a ulong value.");
+
+			if (!match.Groups[nameof(Message)].Success)
+			{
+				return ForThread(instance, serverId, categoryId, channelId,threadId);
+			}
+
+			if(!ulong.TryParse(match.Groups[nameof(Message)].Value, out var messageId)) 
+				throw new ArgumentException("The part of the DiscordObjectOID corresponding to the message was not able to be parsed into a ulong value.");
+
+			if (!match.Groups[nameof(Sentence)].Success)
+			{
+				return ForMessage(instance, serverId, categoryId, channelId,threadId, messageId);
+			}
+
+			if(!int.TryParse(match.Groups[nameof(Sentence)].Value, out var sentenceId)) 
+				throw new ArgumentException("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value.");
+
+			return ForSentence(instance, serverId, categoryId, channelId, threadId, messageId, sentenceId);
 		}
+
 		public override string ToString()
 		{
 			var oidBuilder = new OIDBuilder(Service);

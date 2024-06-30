@@ -1,4 +1,6 @@
 ﻿using AtelierTomato.Markov.Data.Model;
+using Dapper;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Data.Sqlite
@@ -31,7 +33,34 @@ namespace AtelierTomato.Markov.Data.Sqlite
 
 		public async Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange)
 		{
-			throw new NotImplementedException();
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+			await using var transaction = await connection.BeginTransactionAsync();
+
+			foreach (Sentence sentence in sentenceRange)
+			{
+				await WriteCore(sentence, connection);
+			}
+
+			await transaction.CommitAsync();
+		}
+
+		private async Task WriteCore(Sentence sentence, SqliteConnection connection)
+		{
+			await connection.ExecuteAsync($@"
+insert into {nameof(Sentence)} ( {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} )
+Values ( @oid, @author, @date, @text )
+on conflict ({nameof(Sentence.OID)}) do update set
+{nameof(Sentence.Date)} = excluded.{nameof(Sentence.Date)},
+{nameof(Sentence.Text)} = excluded.{nameof(Sentence.Text)}
+",
+			new
+			{
+				oid = sentence.OID.ToString(),
+				author = sentence.Author.ToString(),
+				date = sentence.Date.ToString("o"),
+				text = sentence.Text
+			}); ;
 		}
 	}
 }

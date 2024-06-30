@@ -40,23 +40,7 @@ namespace AtelierTomato.Markov.Data.Model.ObjectOID
 				throw new ArgumentException("The OID given is empty.");
 			}
 
-			var bookOIDPattern = $@"
-^
-(?<{nameof(ServiceType)}>(?:[^:]|\^:)+)
-(?<!\^):
-(?<{nameof(Instance)}>(?:[^:]|\^:)+)
-(?<!\^):?
-(?<{nameof(Series)}>(?:[^:]|\^:)+)?
-(?<!\^):?
-(?<{nameof(Book)}>(?:[^:]|\^:)+)?
-(?<!\^):?
-(?<{nameof(Chapter)}>(?:[^:]|\^:)+)?
-(?<!\^):?
-(?<{nameof(Paragraph)}>(?:[^:]|\^:)+)?
-(?<!\^):?
-(?<{nameof(Sentence)}>(?:[^:]|\^:)+)?
-$";
-			Regex bookOIDRegex = new Regex(bookOIDPattern, RegexOptions.IgnorePatternWhitespace);
+			Regex bookOIDRegex = OIDPattern.Generate([nameof(ServiceType), nameof(Instance), nameof(Series), nameof(Book), nameof(Chapter), nameof(Paragraph), nameof(Sentence)]);
 
 			var match = bookOIDRegex.Match(OID);
 

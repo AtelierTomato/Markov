@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Parser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Data.Test", "AtelierTomato.Markov.Data.Test\AtelierTomato.Markov.Data.Test.csproj", "{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Data.SQLite", "AtelierTomato.Markov.Data.SQLite\AtelierTomato.Markov.Data.SQLite.csproj", "{D09FD935-19DE-48E1-9799-C63BE64540EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Data.Sqlite", "AtelierTomato.Markov.Data.Sqlite\AtelierTomato.Markov.Data.Sqlite.csproj", "{D09FD935-19DE-48E1-9799-C63BE64540EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

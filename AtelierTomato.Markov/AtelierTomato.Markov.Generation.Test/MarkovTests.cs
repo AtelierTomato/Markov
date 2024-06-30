@@ -23,13 +23,14 @@ namespace AtelierTomato.Markov.Generation.Test
 		{
 			var options = Options.Create(new MarkovGenerationOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
+			var filter = new SentenceFilter(null, null, null);
 
 
 			Func<Task> action = async () =>
 			{
 				var target = new GenerateMarkovSentence(sentenceAccess, options);
 
-				var result = await target.Generate();
+				var result = await target.Generate(filter);
 
 			};
 			await action.Should().ThrowAsync<Exception>().WithMessage("Couldn't query any messages.");

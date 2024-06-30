@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace AtelierTomato.Markov.Data.Model.ObjectOID
+﻿namespace AtelierTomato.Markov.Data.Model.ObjectOID
 {
 	public class BookObjectOID : IObjectOID
 	{
@@ -91,44 +89,44 @@ namespace AtelierTomato.Markov.Data.Model.ObjectOID
 
 		public override string ToString()
 		{
-			var sb = new StringBuilder();
-			sb.Append(OIDEscapement.Escape(Service.ToString())).Append(':').Append(OIDEscapement.Escape(Instance));
+			var oidBuilder = new OIDBuilder(Service);
+			oidBuilder.Append(Instance);
 			if (Series is not null)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Series));
+				oidBuilder.Append(Series);
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Book is not null)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Book));
+				oidBuilder.Append(Book);
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Chapter is not null)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Chapter));
+				oidBuilder.Append(Chapter);
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Paragraph.HasValue)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Paragraph.Value.ToString()));
+				oidBuilder.Append(Paragraph.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
 			if (Sentence.HasValue)
 			{
-				sb.Append(':').Append(OIDEscapement.Escape(Sentence.Value.ToString()));
+				oidBuilder.Append(Sentence.Value.ToString());
 			} else
 			{
-				return sb.ToString();
+				return oidBuilder.Build();
 			}
-			return sb.ToString();
+			return oidBuilder.Build();
 		}
 	}
 }

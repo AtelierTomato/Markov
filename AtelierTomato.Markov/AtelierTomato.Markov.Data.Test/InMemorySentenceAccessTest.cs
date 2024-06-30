@@ -1,10 +1,9 @@
 ﻿using AtelierTomato.Markov.Data.Model;
 using AtelierTomato.Markov.Data.Model.ObjectOID;
-using AtelierTomato.Markov.Data.SentenceAccess;
 
 namespace AtelierTomato.Markov.Data.Test
 {
-	public class InMemorySentenceAccessTest
+    public class InMemorySentenceAccessTest
 	{
 		[Fact]
 		public void SentenceAddTest()

@@ -1,6 +1,6 @@
 ﻿using AtelierTomato.Markov.Data.Model;
 
-namespace AtelierTomato.Markov.Data.SentenceAccess
+namespace AtelierTomato.Markov.Data.SQLite
 {
 	public class SQLiteSentenceAccess : ISentenceAccess
 	{

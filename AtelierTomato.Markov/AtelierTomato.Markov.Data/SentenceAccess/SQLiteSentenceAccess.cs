@@ -24,12 +24,9 @@ namespace AtelierTomato.Markov.Data.SentenceAccess
 			throw new NotImplementedException();
 		}
 
-		public Task WriteSentence(Sentence sentence)
-		{
-			throw new NotImplementedException();
-		}
+		public async Task WriteSentence(Sentence sentence) => await WriteSentenceRange([sentence]);
 
-		public Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange)
+		public async Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange)
 		{
 			throw new NotImplementedException();
 		}

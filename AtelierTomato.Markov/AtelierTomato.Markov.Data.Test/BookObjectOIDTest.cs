@@ -95,7 +95,7 @@ namespace AtelierTomato.Markov.Data.Test
 		public void BookParseTooLongTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2:4"));
-			Assert.Equal("The OID given has too many members to be a valid BookObjectOID.", exception.Message);
+			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
 		}
 		[Fact]
 		public void BookParseEmptyTest()
@@ -113,7 +113,7 @@ namespace AtelierTomato.Markov.Data.Test
 		public void BookParseOnlyHasSerivceTypeTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book"));
-			Assert.Equal("The OID given is not long enough. You cannot have an IObjectOID with only the ServiceType.", exception.Message);
+			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
 		}
 		[Fact]
 		public void BookParseParagraphNotIntTest()

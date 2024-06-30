@@ -101,7 +101,7 @@ namespace AtelierTomato.Markov.Data.Test
 		public void DiscordParseTooLongTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:1254633446295207966:2:Appleseed"));
-			Assert.Equal("The OID given has too many members to be a valid DiscordObjectOID.", exception.Message);
+			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
 		}
 		[Fact]
 		public void BookParseEmptyTest()
@@ -119,7 +119,7 @@ namespace AtelierTomato.Markov.Data.Test
 		public void DiscordParseOnlyHasSerivceTypeTest()
 		{
 			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord"));
-			Assert.Equal("The OID given is not long enough. You cannot have an IObjectOID with only the ServiceType.", exception.Message);
+			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
 		}
 		[Fact]
 		public void DiscordParseServerNotUlongTest()

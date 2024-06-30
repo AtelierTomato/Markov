@@ -1,14 +1,13 @@
 using AtelierTomato.Markov.Data;
 using AtelierTomato.Markov.Data.Model;
 using AtelierTomato.Markov.Data.Model.ObjectOID;
-using AtelierTomato.Markov.Data.SentenceAccess;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 
 namespace AtelierTomato.Markov.Generation.Test
 {
-	public class MarkovTests
+    public class MarkovTests
 	{
 		[Fact]
 		public void ConstructorTest()

@@ -9,11 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Genera
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Generation.Test", "AtelierTomato.Markov.Generation.Test\AtelierTomato.Markov.Generation.Test.csproj", "{D5CE2577-452B-42D9-8585-9D0AE926FA7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Parser", "AtelierTomato.Markov.Parser\AtelierTomato.Markov.Parser.csproj", "{30D7199A-0F79-4EFD-BA16-D314F4A284E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Parser", "AtelierTomato.Markov.Parser\AtelierTomato.Markov.Parser.csproj", "{30D7199A-0F79-4EFD-BA16-D314F4A284E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Parser.Test", "AtelierTomato.Markov.Parser.Test\AtelierTomato.Markov.Parser.Test.csproj", "{65C9AD8C-8BDC-4C77-97CE-B0F7E0AF3ED6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Parser.Test", "AtelierTomato.Markov.Parser.Test\AtelierTomato.Markov.Parser.Test.csproj", "{65C9AD8C-8BDC-4C77-97CE-B0F7E0AF3ED6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Data.Test", "AtelierTomato.Markov.Data.Test\AtelierTomato.Markov.Data.Test.csproj", "{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Data.Test", "AtelierTomato.Markov.Data.Test\AtelierTomato.Markov.Data.Test.csproj", "{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Data.SQLite", "AtelierTomato.Markov.Data.SQLite\AtelierTomato.Markov.Data.SQLite.csproj", "{D09FD935-19DE-48E1-9799-C63BE64540EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D09FD935-19DE-48E1-9799-C63BE64540EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D09FD935-19DE-48E1-9799-C63BE64540EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D09FD935-19DE-48E1-9799-C63BE64540EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D09FD935-19DE-48E1-9799-C63BE64540EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

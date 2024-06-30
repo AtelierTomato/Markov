@@ -16,9 +16,9 @@ namespace AtelierTomato.Markov.Generation.Test
 			var options = Options.Create(new MarkovGenerationOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
 
-			var target = new GenerateMarkovSentence(sentenceAccess, options);
+			var target = new MarkovChain(sentenceAccess, options);
 
-			target.Should().NotBeNull().And.BeOfType<GenerateMarkovSentence>();
+			target.Should().NotBeNull().And.BeOfType<MarkovChain>();
 		}
 
 		[Fact]
@@ -31,7 +31,7 @@ namespace AtelierTomato.Markov.Generation.Test
 
 			Func<Task> action = async () =>
 			{
-				var target = new GenerateMarkovSentence(sentenceAccess, options);
+				var target = new MarkovChain(sentenceAccess, options);
 
 				var result = await target.Generate(filter);
 
@@ -70,7 +70,7 @@ namespace AtelierTomato.Markov.Generation.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
-			GenerateMarkovSentence generator = new(sentenceAccess, Options.Create(new MarkovGenerationOptions { }));
+			MarkovChain generator = new(sentenceAccess, Options.Create(new MarkovGenerationOptions { }));
 			var result = generator.Generate(new SentenceFilter(null, null, null), "lol").Result;
 			result.Should().Be("lol this is my head");
 		}
@@ -105,7 +105,7 @@ namespace AtelierTomato.Markov.Generation.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
-			GenerateMarkovSentence generator = new(sentenceAccess, Options.Create(new MarkovGenerationOptions { }));
+			MarkovChain generator = new(sentenceAccess, Options.Create(new MarkovGenerationOptions { }));
 			var result = generator.Generate(new SentenceFilter(null, null, null)).Result;
 			result.Should().StartWith("look at this");
 			result.Should().NotBe("look at this");

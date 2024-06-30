@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Generation
 {
-	public class GenerateMarkovSentence(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
+	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
 	{
 		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
 		private readonly MarkovGenerationOptions options = options.Value;

@@ -1,9 +1,12 @@
 ﻿using AtelierTomato.Markov.Data.Model;
+using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Data.SQLite
 {
-	public class SQLiteSentenceAccess : ISentenceAccess
+	public class SQLiteSentenceAccess(IOptions<SQLiteSentenceAccessOptions> options) : ISentenceAccess
 	{
+		private readonly SQLiteSentenceAccessOptions options = options.Value;
+
 		public Task DeleteSentenceRange(SentenceFilter filter)
 		{
 			throw new NotImplementedException();

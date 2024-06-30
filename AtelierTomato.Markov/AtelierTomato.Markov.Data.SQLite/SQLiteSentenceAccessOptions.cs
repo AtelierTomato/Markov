@@ -1,6 +1,6 @@
-﻿namespace AtelierTomato.Markov.Data.SQLite
+﻿namespace AtelierTomato.Markov.Data.Sqlite
 {
-	public class SQLiteSentenceAccessOptions
+	public class SqliteSentenceAccessOptions
 	{
 		public string ConnectionString { get; set; } = "YOU NEED TO SET THIS!";
 	}

@@ -18,7 +18,7 @@ namespace AtelierTomato.Markov.Data.Sqlite
 DELETE FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
-( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %'
+( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' )
 ",
 			new
 			{
@@ -44,7 +44,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
-( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %'
+( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' )
 ORDER BY RANDOM() LIMIT 1
 ",
 			new
@@ -68,7 +68,7 @@ ORDER BY RANDOM() LIMIT 1
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
-( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %'
+( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' )
 ",
 			new
 			{

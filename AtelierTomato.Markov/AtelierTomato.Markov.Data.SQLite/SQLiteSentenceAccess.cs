@@ -26,6 +26,8 @@ DELETE FROM {nameof(Sentence)} WHERE
 				author = filter.Author,
 				searchTerm = filter.SearchString
 			});
+
+			connection.Close();
 		}
 
 		public Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)

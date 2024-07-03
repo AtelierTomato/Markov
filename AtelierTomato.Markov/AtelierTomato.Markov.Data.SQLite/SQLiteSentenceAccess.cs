@@ -40,9 +40,27 @@ DELETE FROM {nameof(Sentence)} WHERE
 			throw new NotImplementedException();
 		}
 
-		public Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)
+		public async Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)
 		{
-			throw new NotImplementedException();
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<Sentence>($@"
+SELECT * FROM {nameof(Sentence)} WHERE
+( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
+( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %'
+",
+			new
+			{
+				oid = filter.OID,
+				author = filter.Author,
+				searchTerm = filter.SearchString
+			});
+
+			connection.Close();
+
+			return result;
 		}
 
 		public async Task WriteSentence(Sentence sentence) => await WriteSentenceRange([sentence]);

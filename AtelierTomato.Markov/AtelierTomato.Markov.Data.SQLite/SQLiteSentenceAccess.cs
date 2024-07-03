@@ -11,7 +11,21 @@ namespace AtelierTomato.Markov.Data.Sqlite
 
 		public async Task DeleteSentenceRange(SentenceFilter filter)
 		{
-			throw new NotImplementedException();
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			await connection.ExecuteAsync($@"
+DELETE FROM {nameof(Sentence)} WHERE
+( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
+( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %'
+",
+			new
+			{
+				oid = filter.OID,
+				author = filter.Author,
+				searchTerm = filter.SearchString
+			});
 		}
 
 		public Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)

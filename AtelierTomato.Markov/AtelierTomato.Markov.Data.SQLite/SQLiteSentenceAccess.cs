@@ -5,11 +5,11 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Data.Sqlite
 {
-	public class SqliteSentenceAccess(IOptions<SqliteSentenceAccessOptions> options) : ISentenceAccess
+	public class SqliteSentenceAccess(IOptions<SqliteAccessOptions> options) : ISentenceAccess
 	{
-		private readonly SqliteSentenceAccessOptions options = options.Value;
+		private readonly SqliteAccessOptions options = options.Value;
 
-		public Task DeleteSentenceRange(SentenceFilter filter)
+		public async Task DeleteSentenceRange(SentenceFilter filter)
 		{
 			throw new NotImplementedException();
 		}

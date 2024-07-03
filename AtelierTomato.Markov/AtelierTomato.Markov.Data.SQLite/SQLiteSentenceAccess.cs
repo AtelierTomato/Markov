@@ -30,9 +30,32 @@ DELETE FROM {nameof(Sentence)} WHERE
 			connection.Close();
 		}
 
-		public Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)
+		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)
 		{
-			throw new NotImplementedException();
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QuerySingleOrDefaultAsync<Sentence?>($@"
+SELECT * FROM {nameof(Sentence)} WHERE
+( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
+( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' ) AND
+( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
+( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
+ORDER BY RANDOM() LIMIT 1
+",
+			new
+			{
+				oid = filter.OID,
+				author = filter.Author,
+				searchTerm = filter.SearchString,
+				previousIDs,
+				prevList = string.Join(' ', prevList)
+			});
+
+			connection.Close();
+
+			return result;
 		}
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter)

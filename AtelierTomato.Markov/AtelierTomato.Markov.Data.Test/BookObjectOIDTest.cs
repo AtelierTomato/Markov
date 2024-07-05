@@ -94,38 +94,38 @@ namespace AtelierTomato.Markov.Data.Test
 		[Fact]
 		public void BookParseTooLongTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2:4"));
-			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
+			Action act = () => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2:4");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid DiscordObjectOID. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseEmptyTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse(string.Empty));
-			Assert.Equal("The OID given is empty.", exception.Message);
+			Action act = () => BookObjectOID.Parse(string.Empty);
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is empty. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseNotABookTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg"));
-			Assert.Equal("The OID given is not a BookObjectOID, as it does not begin with Book.", exception.Message);
+			Action act = () => BookObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a BookObjectOID, as it does not begin with Book. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseOnlyHasSerivceTypeTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book"));
-			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
+			Action act = () => BookObjectOID.Parse("Book");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid DiscordObjectOID. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseParagraphNotIntTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:Lol"));
-			Assert.Equal("The part of the BookObjectOID corresponding to the paragraph was not able to be parsed into an integer value.", exception.Message);
+			Action act = () => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:Lol");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the BookObjectOID corresponding to the paragraph was not able to be parsed into an integer value. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseSentenceNotIntTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:Wrong"));
-			Assert.Equal("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value.", exception.Message);
+			Action act = () => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:Wrong");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value. (Parameter 'OID')");
 		}
 	}
 }

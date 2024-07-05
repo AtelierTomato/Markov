@@ -4,7 +4,7 @@
 	{
 		public TOidCategory Parse(string input) =>
 			parsers.FirstOrDefault(parser => parser.CanParse(input))
-			?.Parse(input) ?? throw new ArgumentException($"The MultiParser was not able to find any {typeof(TOidCategory).Name} that it could parse.");
+			?.Parse(input) ?? throw new ArgumentException($"The MultiParser was not able to find any {typeof(TOidCategory).Name} that it could parse.", nameof(input));
 	}
 
 	public interface IParser<out TOidCategory>

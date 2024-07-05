@@ -100,62 +100,62 @@ namespace AtelierTomato.Markov.Data.Test
 		[Fact]
 		public void DiscordParseTooLongTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:1254633446295207966:2:Appleseed"));
-			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:1254633446295207966:2:Appleseed");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid DiscordObjectOID. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseEmptyTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse(String.Empty));
-			Assert.Equal("The OID given is empty.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse(String.Empty);
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is empty. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseNotADiscordTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg"));
-			Assert.Equal("The OID given is not a DiscordObjectOID, as it does not begin with Discord.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a DiscordObjectOID, as it does not begin with Discord. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseOnlyHasSerivceTypeTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord"));
-			Assert.Equal("The OID given is not a valid DiscordObjectOID.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid DiscordObjectOID. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseServerNotUlongTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:Atelier Tomato"));
-			Assert.Equal("The part of the DiscordObjectOID corresponding to the server was not able to be parsed into a ulong value.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:Atelier Tomato");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the server was not able to be parsed into a ulong value. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseCategoryNotUlongTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:channels"));
-			Assert.Equal("The part of the DiscordObjectOID corresponding to the category was not able to be parsed into a ulong value.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:channels");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the category was not able to be parsed into a ulong value. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseChannelNotUlongTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:programming"));
-			Assert.Equal("The part of the DiscordObjectOID corresponding to the channel was not able to be parsed into a ulong value.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:programming");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the channel was not able to be parsed into a ulong value. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseThreadNotUlongTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:test thread lol"));
-			Assert.Equal("The part of the DiscordObjectOID corresponding to the thread was not able to be parsed into a ulong value.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:test thread lol");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the thread was not able to be parsed into a ulong value. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseMessageNotUlongTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:MyNewSentence"));
-			Assert.Equal("The part of the DiscordObjectOID corresponding to the message was not able to be parsed into a ulong value.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:MyNewSentence");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the message was not able to be parsed into a ulong value. (Parameter 'OID')");
 		}
 		[Fact]
 		public void DiscordParseSentenceNotIntTest()
 		{
-			var exception = Assert.Throws<ArgumentException>(() => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:1254631778308849716:Four"));
-			Assert.Equal("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value.", exception.Message);
+			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:1254631778308849716:Four");
+			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value. (Parameter 'OID')");
 		}
 	}
 }

@@ -8,7 +8,7 @@ namespace AtelierTomato.Markov.Data.Model
 		public static Regex Generate(IList<string> fields)
 		{
 			if (fields.Count() < 2)
-				throw new ArgumentException("OIDPattern failed to construct as less than 2 fields were given.");
+				throw new ArgumentException("OIDPattern failed to construct as less than 2 fields were given.", nameof(fields));
 
 			StringBuilder sb = new();
 			sb.Append($@"

@@ -37,7 +37,7 @@ namespace AtelierTomato.Markov.Data.Model.ObjectOID
 		{
 			if (string.IsNullOrWhiteSpace(OID))
 			{
-				throw new ArgumentException("The OID given is empty.");
+				throw new ArgumentException("The OID given is empty.", nameof(OID));
 			}
 
 			Regex bookOIDRegex = OIDPattern.Generate([nameof(ServiceType), nameof(Instance), nameof(Series), nameof(Book), nameof(Chapter), nameof(Paragraph), nameof(Sentence)]);
@@ -45,10 +45,10 @@ namespace AtelierTomato.Markov.Data.Model.ObjectOID
 			var match = bookOIDRegex.Match(OID);
 
 			if (!match.Success)
-				throw new ArgumentException("The OID given is not a valid DiscordObjectOID.");
+				throw new ArgumentException("The OID given is not a valid DiscordObjectOID.", nameof(OID));
 
 			if (match.Groups[nameof(ServiceType)].Value != ServiceType.Book.ToString())
-				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.");
+				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.", nameof(OID));
 
 			var instance = OIDEscapement.Unescape(match.Groups[nameof(Instance)].Value);
 
@@ -75,14 +75,14 @@ namespace AtelierTomato.Markov.Data.Model.ObjectOID
 				return ForChapter(instance, series, book, chapter);
 			}
 			if (!int.TryParse(match.Groups[nameof(Paragraph)].Value, out var paragraph))
-				throw new ArgumentException("The part of the BookObjectOID corresponding to the paragraph was not able to be parsed into an integer value.");
+				throw new ArgumentException("The part of the BookObjectOID corresponding to the paragraph was not able to be parsed into an integer value.", nameof(OID));
 
 			if (!match.Groups[nameof(Sentence)].Success)
 			{
 				return ForParagraph(instance, series, book, chapter, paragraph);
 			}
 			if (!int.TryParse(match.Groups[nameof(Sentence)].Value, out var sentence))
-				throw new ArgumentException("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value.");
+				throw new ArgumentException("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value.", nameof(OID));
 
 			return ForSentence(instance, series, book, chapter, paragraph, sentence);
 		}

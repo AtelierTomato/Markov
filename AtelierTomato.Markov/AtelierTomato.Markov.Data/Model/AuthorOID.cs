@@ -13,20 +13,20 @@
 			string[] stringRange = OIDEscapement.Split(OID).ToArray();
 			if (stringRange.Length > 3)
 			{
-				throw new ArgumentException("The OID given has too many members to be a valid AuthorOID.");
+				throw new ArgumentException("The OID given has too many members to be a valid AuthorOID.", nameof(OID));
 			}
-			if (stringRange[0] == string.Empty)
+			if (string.IsNullOrWhiteSpace(stringRange[0]))
 			{
-				throw new ArgumentException("The OID given is empty");
+				throw new ArgumentException("The OID given is empty", nameof(OID));
 			}
 			if (!Enum.TryParse(stringRange.First(), out ServiceType serviceType))
 			{
-				throw new ArgumentException("The ServiceType was not able to be parsed from the given OID.");
+				throw new ArgumentException("The ServiceType was not able to be parsed from the given OID.", nameof(OID));
 			} else
 			{
 				if (serviceType == ServiceType.Invalid)
 				{
-					throw new ArgumentException("The AuthorOID given is of ServiceType Invalid, which is not a valid ServiceType.");
+					throw new ArgumentException("The AuthorOID given is of ServiceType Invalid, which is not a valid ServiceType.", nameof(OID));
 				} else
 				{
 					return new AuthorOID(serviceType, stringRange[1], stringRange[2]);

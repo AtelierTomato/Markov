@@ -12,6 +12,7 @@ namespace AtelierTomato.Markov.Data.Test
 		{
 			MultiParser<IObjectOID> oidParser = new([new BookObjectOIDParser(), new InvalidObjectOIDParser(), new DiscordObjectOIDParser()]);
 			IObjectOID OID = oidParser.Parse("Discord:discord.com:1253189664655806606:1253189664655806610");
+			OID.Should().BeOfType<DiscordObjectOID>();
 			OID.Should().BeEquivalentTo(DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610"));
 		}
 		[Fact]
@@ -19,6 +20,7 @@ namespace AtelierTomato.Markov.Data.Test
 		{
 			MultiParser<IObjectOID> oidParser = new([new BookObjectOIDParser(), new InvalidObjectOIDParser(), new DiscordObjectOIDParser()]);
 			IObjectOID OID = oidParser.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1");
+			OID.Should().BeOfType<BookObjectOID>();
 			OID.Should().BeEquivalentTo(BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1"));
 		}
 

@@ -25,7 +25,7 @@ namespace AtelierTomato.Markov.Generation
 			{
 				// We need the prevIDs list to not be empty, but if a firstWord is given, it will be empty on first run, and could potentially fail to query.
 				// So we give prevIDs an OID we know can never exist.
-				prevIDs.Add(DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"));
+				prevIDs.Add(DiscordObjectOID.Parse("Discord:discord.com:0:0:0:0:0:0"));
 			}
 			List<string> tokenizedSentence = [firstWord];
 			List<string> prevList = [firstWord];

@@ -3,7 +3,7 @@ using AtelierTomato.Markov.Data.Model.ObjectOID;
 
 namespace AtelierTomato.Markov.Data.Test
 {
-    public class InMemorySentenceAccessTest
+	public class InMemorySentenceAccessTest
 	{
 		[Fact]
 		public void SentenceAddTest()

@@ -30,7 +30,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 			connection.Close();
 		}
 
-		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)
+		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -49,7 +49,7 @@ ORDER BY RANDOM() LIMIT 1
 				oid = filter.OID,
 				author = filter.Author,
 				searchTerm = filter.SearchString,
-				previousIDs,
+				previousIDs = previousIDs.Select(x => x.ToString()),
 				prevList = string.Join(' ', prevList)
 			});
 

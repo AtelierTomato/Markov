@@ -17,7 +17,7 @@ namespace AtelierTomato.Markov.Data
 		/// <param name="previousIDs">A list of previous IDs of <see cref="Sentence"/>s that will be excluded from the query.</param>
 		/// <param name="filter">The <see cref="SentenceFilter"/> that the resulting <see cref="Sentence"/> must match.</param>
 		/// <returns></returns>
-		Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter);
+		Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter);
 
 		/// <summary>
 		/// Reads all <see cref="Sentence"/>s that match the given <paramref name="filter"/>.

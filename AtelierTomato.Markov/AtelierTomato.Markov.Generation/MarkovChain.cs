@@ -1,5 +1,6 @@
 ﻿using AtelierTomato.Markov.Data;
 using AtelierTomato.Markov.Data.Model;
+using AtelierTomato.Markov.Data.Model.ObjectOID;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Generation
@@ -13,18 +14,18 @@ namespace AtelierTomato.Markov.Generation
 		public async Task<string> Generate(SentenceFilter filter, string? firstWord = null)
 		{
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
-			List<string> prevIDs = [];
+			List<IObjectOID> prevIDs = [];
 			Sentence? sentence;
 			if (firstWord is null)
 			{
 				sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
-				prevIDs.Add(sentence.OID.ToString());
+				prevIDs.Add(sentence.OID);
 			} else
 			{
 				// We need the prevIDs list to not be empty, but if a firstWord is given, it will be empty on first run, and could potentially fail to query.
-				// So we give prevIDs an Invalid OID to check against.
-				prevIDs.Add("Invalid");
+				// So we give prevIDs an OID we know can never exist.
+				prevIDs.Add(DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"));
 			}
 			List<string> tokenizedSentence = [firstWord];
 			List<string> prevList = [firstWord];
@@ -45,7 +46,7 @@ namespace AtelierTomato.Markov.Generation
 				sentence = await GetNextSentence(prevList, prevIDs, filter);
 				if (sentence is not null)
 				{
-					prevIDs.Add(sentence.OID.ToString());
+					prevIDs.Add(sentence.OID);
 					currentPastaLength++;
 
 					var spacedText = ' ' + sentence.Text + ' ';
@@ -108,7 +109,7 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter) => await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter) => await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
 
 		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter) => await sentenceAccess.ReadRandomSentence(filter);
 	}

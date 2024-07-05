@@ -15,12 +15,12 @@ namespace AtelierTomato.Markov.Data
 			return Task.CompletedTask;
 		}
 
-		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter)
+		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter)
 		{
-			List<Sentence> sentenceRange = ReadSentenceRange(filter).Result.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID.ToString())).ToList();
+			List<Sentence> sentenceRange = ReadSentenceRange(filter).Result.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			if (sentenceRange.Count == 0)
 			{
-				sentenceRange = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID.ToString())).ToList();
+				sentenceRange = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			}
 			if (sentenceRange.Count == 0)
 			{

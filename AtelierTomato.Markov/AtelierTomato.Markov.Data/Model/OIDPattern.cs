@@ -5,7 +5,7 @@ namespace AtelierTomato.Markov.Data.Model
 {
 	public class OIDPattern
 	{
-		public static Regex Generate(IEnumerable<string> fields)
+		public static Regex Generate(IList<string> fields)
 		{
 			if (fields.Count() < 2)
 				throw new ArgumentException("OIDPattern failed to construct as less than 2 fields were given.");
@@ -13,9 +13,9 @@ namespace AtelierTomato.Markov.Data.Model
 			StringBuilder sb = new();
 			sb.Append($@"
 ^
-(?<{fields.ElementAt(0)}>(?:[^:]|\^:)+)
+(?<{fields[0]}>(?:[^:]|\^:)+)
 (?<!\^):
-(?<{fields.ElementAt(1)}>(?:[^:]|\^:)+)
+(?<{fields[1]}>(?:[^:]|\^:)+)
 ");
 			foreach (var field in fields.Skip(2))
 			{

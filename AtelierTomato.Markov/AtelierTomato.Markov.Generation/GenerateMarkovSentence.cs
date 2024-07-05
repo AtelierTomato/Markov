@@ -4,31 +4,21 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Generation
 {
-	public class GenerateMarkovSentence
+	public class GenerateMarkovSentence(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
 	{
-		private readonly ISentenceAccess sentenceAccess;
-		private readonly MarkovGenerationOptions options;
-		private static Random random = new Random();
+		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
+		private readonly MarkovGenerationOptions options = options.Value;
+		private static readonly Random random = new();
 
-		public GenerateMarkovSentence(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
+		public async Task<string> Generate(SentenceFilter filter)
 		{
-			this.sentenceAccess = sentenceAccess;
-			this.options = options.Value;
-		}
-
-		public async Task<string> Generate()
-		{
-			Sentence? sentence = await GetFirstSentence();
-			if (sentence is null)
-			{
-				throw new Exception("Couldn't query any messages.");
-			}
+			Sentence? sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
 			string firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 			var tokenizedSentence = new List<string> { firstWord };
 			var prevList = tokenizedSentence;
 
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
-			var prevIDs = new List<Guid> { sentence.ID };
+			var prevIDs = new List<string> { sentence.OID.ToString() };
 			var rerolls = 0;
 
 			// Gets reset whenever the list of previous words has to be modified or the randomized copypasta killer takes action
@@ -42,10 +32,10 @@ namespace AtelierTomato.Markov.Generation
 					currentPastaLength = 0;
 				}
 
-				sentence = await GetNextSentence(prevList, prevIDs);
+				sentence = await GetNextSentence(prevList, prevIDs, filter);
 				if (sentence is not null)
 				{
-					prevIDs.Add(sentence.ID);
+					prevIDs.Add(sentence.OID.ToString());
 					currentPastaLength++;
 
 					var spacedText = ' ' + sentence.Text + ' ';
@@ -87,7 +77,7 @@ namespace AtelierTomato.Markov.Generation
 						rerolls++;
 						currentPastaLength = 0;
 					}
-				} else if (prevList.Any())
+				} else if (prevList.Count != 0)
 				{
 					// If the prevList can't be used to match to anything, remove the first word from the prevList.
 					prevList.RemoveAt(0);
@@ -108,8 +98,8 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<Guid> previousIDs) => await sentenceAccess.ReadNextSentence(prevList, previousIDs);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
 
-		private async Task<Sentence?> GetFirstSentence() => await sentenceAccess.ReadSentence();
+		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter) => await sentenceAccess.ReadSentence(filter);
 	}
 }

@@ -1,16 +1,16 @@
 ﻿namespace AtelierTomato.Markov.Data.Model
 {
-	public class MultiParser<TOID>(IEnumerable<IParser<TOID>> parsers) where TOID : class
+	public class MultiParser<TOidCategory>(IEnumerable<IParser<TOidCategory>> parsers) where TOidCategory : class
 	{
-		public TOID Parse(string input) =>
+		public TOidCategory Parse(string input) =>
 			parsers.FirstOrDefault(parser => parser.CanParse(input))
-			?.Parse(input) ?? throw new ArgumentException($"The MultiParser was not able to find any {typeof(TOID).Name} that it could parse.");
+			?.Parse(input) ?? throw new ArgumentException($"The MultiParser was not able to find any {typeof(TOidCategory).Name} that it could parse.");
 	}
 
-	public interface IParser<TOID>
+	public interface IParser<out TOidCategory>
 	{
 		public bool CanParse(string input);
 
-		public TOID Parse(string input);
+		public TOidCategory Parse(string input);
 	}
 }

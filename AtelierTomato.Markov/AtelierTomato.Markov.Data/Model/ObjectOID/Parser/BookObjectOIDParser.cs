@@ -1,9 +1,9 @@
 ﻿namespace AtelierTomato.Markov.Data.Model.ObjectOID.Parser
 {
-	public class BookObjectOIDParser : IParser<IObjectOID>
+	public class BookObjectOIDParser : IParser<BookObjectOID>
 	{
 		public bool CanParse(string input) => OIDEscapement.Split(input).First() == ServiceType.Book.ToString();
 
-		public IObjectOID Parse(string input) => BookObjectOID.Parse(input);
+		public BookObjectOID Parse(string input) => BookObjectOID.Parse(input);
 	}
 }

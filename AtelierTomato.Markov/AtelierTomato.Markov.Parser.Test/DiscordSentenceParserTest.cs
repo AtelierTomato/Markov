@@ -88,8 +88,7 @@ namespace AtelierTomato.Markov.Parser.Test
 			new string[] {
 				@"i am gonna put a code block okay here",
 				@"this is my under tale"
-			},
-			2
+			}
 		)]
 		[InlineData(
 			@"
@@ -103,17 +102,16 @@ namespace AtelierTomato.Markov.Parser.Test
 			",
 			new string[] {
 				@"yeah so if you want to use foreach it 's like this",
-				@"hope that helps and happy programming" },
-			2
+				@"hope that helps and happy programming" }
 		)]
-		public void ParseCodeBlocksTest(string input, string[] output, int count)
+		public void ParseCodeBlocksTest(string input, string[] output)
 		{
 			var options = new SentenceParserOptions();
 			var target = new DiscordSentenceParser(Options.Create(options));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
-			result.Count().Should().Be(count);
+			result.Count().Should().Be(output.Length);
 			result.Should().Contain(output);
 		}
 	}

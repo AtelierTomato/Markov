@@ -18,7 +18,7 @@ namespace AtelierTomato.Markov.Parser.Test
 			result.Should().ContainSingle().And.Contain(output);
 		}
 
-		// These two tests only have what I remember off the top of my head, check if Discord has any others later.
+		// For the below tests, they only have what I remember off the top of my head, check if Discord has any others later.
 		[Theory]
 		[InlineData(@"hello world how are *you*", @"hello world how are you")]
 		[InlineData(@"we didn't have one for _single underscore italics_ so i added one in!", @"we didn 't have one for single apostrophe italics so i added one in !")]
@@ -44,6 +44,32 @@ namespace AtelierTomato.Markov.Parser.Test
 		[InlineData(@"this is how to spoiler: \|\|snape killed dumbledore\|\|", @"this is how to spoiler : ||snape killed dumbledore||")]
 		[InlineData(@"wow \*\*bold\*\* and \*\*\*italicized bold\*\*\*", @"wow **bold** and ***italicized bold***")]
 		public void ParseEscapedSurroundingMarkdownTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().ContainSingle().And.Contain(output);
+		}
+
+		[Theory]
+		[InlineData(@"# lol this text is so big!", @"lol this text is so big !")]
+		[InlineData(@"# discord is so dumb and stupd#", @"discord is so dumb and stupd")]
+		public void ParsePrecedingMarkdownTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().ContainSingle().And.Contain(output);
+		}
+
+		[Theory]
+		[InlineData(@"\# lol this text is so big!", @"# lol this text is so big !")]
+		[InlineData(@"\# discord is so dumb and stupd\#", @"# discord is so dumb and stupd#")]
+		public void ParseEscapedPrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
 			var target = new DiscordSentenceParser(Options.Create(options));

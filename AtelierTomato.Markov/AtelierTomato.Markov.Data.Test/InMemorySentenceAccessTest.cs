@@ -50,6 +50,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
+			sentenceAccess.SentenceRange.Count.Should().Be(sentenceRange.Count);
 			sentenceAccess.SentenceRange.Should().Contain(sentenceRange);
 		}
 
@@ -85,6 +86,7 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null));
+			sentenceAccess.SentenceRange.Count.Should().Be(2);
 			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[0], sentenceRange[1]]);
 			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[2], sentenceRange[3]]);
 		}
@@ -120,6 +122,7 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null));
+			sentenceAccess.SentenceRange.Count.Should().Be(2);
 			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[3]]);
 			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[2]]);
 		}
@@ -155,6 +158,7 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, null, "sentence"));
+			sentenceAccess.SentenceRange.Should().ContainSingle();
 			sentenceAccess.SentenceRange.Should().Contain(sentenceRange[1]);
 			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[2], sentenceRange[3]]);
 		}
@@ -196,6 +200,7 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1"), null));
+			sentenceAccess.SentenceRange.Count.Should().Be(3);
 			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[4]]);
 		}
@@ -237,6 +242,7 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), "sentence"));
+			sentenceAccess.SentenceRange.Count.Should().Be(3);
 			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[3], sentenceRange[4]]);
 			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[2]]);
 		}
@@ -278,6 +284,7 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null, "so"));
+			sentenceAccess.SentenceRange.Count.Should().Be(3);
 			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[4]]);
 		}
@@ -319,6 +326,7 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2"), "so"));
+			sentenceAccess.SentenceRange.Count.Should().Be(4);
 			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[0], sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 			sentenceAccess.SentenceRange.Should().NotContain(sentenceRange[4]);
 		}
@@ -357,6 +365,7 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
+			sentenceReturn!.Count().Should().Be(2);
 			sentenceReturn.Should().Contain([sentenceRange[2], sentenceRange[3]]);
 			sentenceReturn.Should().NotContain([sentenceRange[0], sentenceRange[1]]);
 		}
@@ -394,6 +403,7 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
+			sentenceReturn!.Count().Should().Be(2);
 			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[2]]);
 			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[3]]);
 		}
@@ -431,6 +441,7 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, null, "sentence"))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
+			sentenceReturn!.Count().Should().Be(3);
 			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[2], sentenceRange[3]]);
 			sentenceReturn.Should().NotContain(sentenceRange[1]);
 		}
@@ -474,6 +485,7 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1"), null))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
+			sentenceReturn!.Count().Should().Be(2);
 			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[4]]);
 			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 		}
@@ -517,6 +529,7 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), "sentence"))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
+			sentenceReturn!.Count().Should().Be(2);
 			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[2]]);
 			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[3], sentenceRange[4]]);
 		}
@@ -560,6 +573,7 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null, "so"))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
+			sentenceReturn!.Count().Should().Be(2);
 			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[4]]);
 			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 		}
@@ -603,6 +617,7 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2"), "so"))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
+			sentenceReturn.Should().ContainSingle();
 			sentenceReturn.Should().Contain(sentenceRange[4]);
 			sentenceReturn.Should().NotContain([sentenceRange[0], sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 		}

@@ -81,22 +81,26 @@ namespace AtelierTomato.Markov.Parser.Test
 		}
 
 		[Theory]
-		[InlineData(@"
-			i am gonna put a code block okay here ```yeah this is my code woo``` this is my under tale",
+		[InlineData(
+			@"
+				i am gonna put a code block okay here ```yeah this is my code woo``` this is my under tale
+			",
 			new string[] {
 				@"i am gonna put a code block okay here",
 				@"this is my under tale"
 			},
 			2
 		)]
-		[InlineData(@"
-			yeah so if you want to use foreach it's like this
-			```cs
-			foreach (var str in stringRange)
-			{
-				// do something
-			}```
-			hope that helps and happy programming",
+		[InlineData(
+			@"
+				yeah so if you want to use foreach it's like this
+				```cs
+				foreach (var str in stringRange)
+				{
+					// do something
+				}```
+				hope that helps and happy programming
+			",
 			new string[] {
 				@"yeah so if you want to use foreach it 's like this",
 				@"hope that helps and happy programming" },
@@ -109,7 +113,6 @@ namespace AtelierTomato.Markov.Parser.Test
 
 			var result = target.ParseIntoSentenceTexts(input);
 
-			// Only add tests that will result in 
 			result.Count().Should().Be(count);
 			result.Should().Contain(output);
 		}

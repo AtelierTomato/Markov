@@ -76,7 +76,42 @@ namespace AtelierTomato.Markov.Parser.Test
 
 			var result = target.ParseIntoSentenceTexts(input);
 
+
 			result.Should().ContainSingle().And.Contain(output);
+		}
+
+		[Theory]
+		[InlineData(@"
+			i am gonna put a code block okay here ```yeah this is my code woo``` this is my under tale",
+			new string[] {
+				@"i am gonna put a code block okay here",
+				@"this is my under tale"
+			},
+			2
+		)]
+		[InlineData(@"
+			yeah so if you want to use foreach it's like this
+			```cs
+			foreach (var str in stringRange)
+			{
+				// do something
+			}```
+			hope that helps and happy programming",
+			new string[] {
+				@"yeah so if you want to use foreach it 's like this",
+				@"hope that helps and happy programming" },
+			2
+		)]
+		public void ParseCodeBlocksTest(string input, string[] output, int count)
+		{
+			var options = new SentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			// Only add tests that will result in 
+			result.Count().Should().Be(count);
+			result.Should().Contain(output);
 		}
 	}
 }

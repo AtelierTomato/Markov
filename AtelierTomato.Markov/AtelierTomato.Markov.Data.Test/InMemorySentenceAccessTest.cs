@@ -17,7 +17,7 @@ namespace AtelierTomato.Markov.Data.Test
 			);
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentence(sentence);
-			Assert.Contains(sentence, sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain(sentence);
 		}
 		[Fact]
 		public void SentenceRangeAddTest()
@@ -50,10 +50,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
-			foreach (Sentence sentence in sentenceRange)
-			{
-				Assert.Contains(sentence, sentenceAccess.SentenceRange);
-			}
+			sentenceAccess.SentenceRange.Should().Contain(sentenceRange);
 		}
 
 		[Fact]
@@ -88,10 +85,8 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null));
-			Assert.Contains(sentenceRange[0], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[3], sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[0], sentenceRange[1]]);
+			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[2], sentenceRange[3]]);
 		}
 		[Fact]
 		public void SentenceDeleteByAuthorOIDTest()
@@ -125,10 +120,8 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null));
-			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[3]]);
+			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[2]]);
 		}
 		[Fact]
 		public void SentenceDeleteBySearchStringTest()
@@ -162,10 +155,8 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, null, "sentence"));
-			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[3], sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain(sentenceRange[1]);
+			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[2], sentenceRange[3]]);
 		}
 		[Fact]
 		public void SentenceDeleteByObjectAndAuthorTest()
@@ -205,11 +196,8 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1"), null));
-			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[2], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[4], sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
+			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[4]]);
 		}
 		[Fact]
 		public void SentenceDeleteByAuthorAndSearchTermTest()
@@ -249,11 +237,8 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), "sentence"));
-			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[2], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[4], sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[3], sentenceRange[4]]);
+			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[2]]);
 		}
 		[Fact]
 		public void SentenceDeleteByObjectAndSearchTermTest()
@@ -293,11 +278,8 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null, "so"));
-			Assert.DoesNotContain(sentenceRange[0], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[2], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[4], sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
+			sentenceAccess.SentenceRange.Should().NotContain([sentenceRange[0], sentenceRange[4]]);
 		}
 		[Fact]
 		public void SentenceDeleteByFullFilterTermTest()
@@ -337,11 +319,8 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2"), "so"));
-			Assert.Contains(sentenceRange[0], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[1], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[2], sentenceAccess.SentenceRange);
-			Assert.Contains(sentenceRange[3], sentenceAccess.SentenceRange);
-			Assert.DoesNotContain(sentenceRange[4], sentenceAccess.SentenceRange);
+			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[0], sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
+			sentenceAccess.SentenceRange.Should().NotContain(sentenceRange[4]);
 		}
 
 		[Fact]
@@ -378,10 +357,8 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
-			Assert.DoesNotContain(sentenceRange[0], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[1], sentenceReturn!);
-			Assert.Contains(sentenceRange[2], sentenceReturn!);
-			Assert.Contains(sentenceRange[3], sentenceReturn!);
+			sentenceReturn.Should().Contain([sentenceRange[2], sentenceRange[3]]);
+			sentenceReturn.Should().NotContain([sentenceRange[0], sentenceRange[1]]);
 		}
 		[Fact]
 		public void SentenceSearchByAuthorOIDTest()
@@ -417,10 +394,8 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
-			Assert.Contains(sentenceRange[0], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[1], sentenceReturn!);
-			Assert.Contains(sentenceRange[2], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[3], sentenceReturn!);
+			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[2]]);
+			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[3]]);
 		}
 		[Fact]
 		public void SentenceSearchBySearchStringTest()
@@ -456,10 +431,8 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, null, "sentence"))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
-			Assert.Contains(sentenceRange[0], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[1], sentenceReturn!);
-			Assert.Contains(sentenceRange[2], sentenceReturn!);
-			Assert.Contains(sentenceRange[3], sentenceReturn!);
+			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[2], sentenceRange[3]]);
+			sentenceReturn.Should().NotContain(sentenceRange[1]);
 		}
 		[Fact]
 		public void SentenceSearchByObjectAndAuthorTest()
@@ -501,11 +474,8 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1"), null))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
-			Assert.Contains(sentenceRange[0], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[1], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[2], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[3], sentenceReturn!);
-			Assert.Contains(sentenceRange[4], sentenceReturn!);
+			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[4]]);
+			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 		}
 		[Fact]
 		public void SentenceReadByAuthorAndSearchTermTest()
@@ -547,11 +517,8 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), "sentence"))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
-			Assert.Contains(sentenceRange[0], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[1], sentenceReturn!);
-			Assert.Contains(sentenceRange[2], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[3], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[4], sentenceReturn!);
+			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[2]]);
+			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[3], sentenceRange[4]]);
 		}
 		[Fact]
 		public void SentenceSearchByObjectAndSearchTermTest()
@@ -593,11 +560,8 @@ namespace AtelierTomato.Markov.Data.Test
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null, "so"))?.Result ?? null;
 
 			sentenceReturn.Should().NotBeNull();
-			Assert.Contains(sentenceRange[0], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[1], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[2], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[3], sentenceReturn!);
-			Assert.Contains(sentenceRange[4], sentenceReturn!);
+			sentenceReturn.Should().Contain([sentenceRange[0], sentenceRange[4]]);
+			sentenceReturn.Should().NotContain([sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 		}
 		[Fact]
 		public void SentenceSearchByFullFilterTermTest()
@@ -637,11 +601,10 @@ namespace AtelierTomato.Markov.Data.Test
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceRange);
 			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2"), "so"))?.Result ?? null;
-			Assert.DoesNotContain(sentenceRange[0], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[1], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[2], sentenceReturn!);
-			Assert.DoesNotContain(sentenceRange[3], sentenceReturn!);
-			Assert.Contains(sentenceRange[4], sentenceReturn!);
+
+			sentenceReturn.Should().NotBeNull();
+			sentenceReturn.Should().Contain(sentenceRange[4]);
+			sentenceReturn.Should().NotContain([sentenceRange[0], sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 		}
 
 	}

@@ -111,7 +111,7 @@ namespace AtelierTomato.Markov.Parser.Test
 
 			var result = target.ParseIntoSentenceTexts(input);
 
-			result.Count().Should().Be(output.Length);
+			result.Should().HaveCount(output.Length);
 			result.Should().Contain(output);
 		}
 	}

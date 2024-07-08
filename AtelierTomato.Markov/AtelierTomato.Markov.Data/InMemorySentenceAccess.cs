@@ -8,6 +8,9 @@ namespace AtelierTomato.Markov.Data
 		public List<Sentence> SentenceRange = [];
 		public Task DeleteSentenceRange(SentenceFilter filter)
 		{
+			if (filter.OID is null && filter.Author is null && filter.SearchString is null)
+				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
+
 			SentenceRange.RemoveAll(s =>
 				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString())) &&
 				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&

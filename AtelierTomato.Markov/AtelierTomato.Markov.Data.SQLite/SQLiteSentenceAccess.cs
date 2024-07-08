@@ -11,6 +11,9 @@ namespace AtelierTomato.Markov.Data.Sqlite
 
 		public async Task DeleteSentenceRange(SentenceFilter filter)
 		{
+			if (filter.OID is null && filter.Author is null && filter.SearchString is null)
+				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
+
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 

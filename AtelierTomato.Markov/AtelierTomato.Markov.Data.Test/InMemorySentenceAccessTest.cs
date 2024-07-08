@@ -330,7 +330,46 @@ namespace AtelierTomato.Markov.Data.Test
 			sentenceAccess.SentenceRange.Should().Contain([sentenceRange[0], sentenceRange[1], sentenceRange[2], sentenceRange[3]]);
 			sentenceAccess.SentenceRange.Should().NotContain(sentenceRange[4]);
 		}
-
+		[Fact]
+		public void SentenceDeleteAllTest()
+		{
+			List<Sentence> sentenceRange = [
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"lol this sentence is so cool"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"wow i do not like to be in a list."
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:1"),
+					AuthorOID.Parse("Discord:discord.com:1"),
+					DateTimeOffset.Now,
+					"wow this sentence is so bad"
+				),
+				new(
+					DiscordObjectOID.Parse("Discord:discord.com:1:2:1:1:1:2"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"oh this sentence is not cool"
+				),
+				new (
+					DiscordObjectOID.Parse("Discord:discord.com:1:1:1:1:1:3"),
+					AuthorOID.Parse("Discord:discord.com:2"),
+					DateTimeOffset.Now,
+					"i don 't want to be in a database so i 'm happy"
+				)
+			];
+			InMemorySentenceAccess sentenceAccess = new();
+			sentenceAccess.WriteSentenceRange(sentenceRange);
+			Action act = () => sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, null, null));
+			act.Should().Throw<ArgumentException>().WithMessage("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value. (Parameter 'filter')");
+		}
 		[Fact]
 		public void SentenceSearchByOIDTest()
 		{

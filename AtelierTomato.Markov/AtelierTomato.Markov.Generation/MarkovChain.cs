@@ -1,6 +1,5 @@
 ﻿using AtelierTomato.Markov.Data;
 using AtelierTomato.Markov.Data.Model;
-using AtelierTomato.Markov.Data.Model.ObjectOID;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Generation
@@ -21,11 +20,6 @@ namespace AtelierTomato.Markov.Generation
 				sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 				prevIDs.Add(sentence.OID);
-			} else
-			{
-				// We need the prevIDs list to not be empty, but if a firstWord is given, it will be empty on first run, and could potentially fail to query.
-				// So we give prevIDs an OID we know can never exist.
-				prevIDs.Add(DiscordObjectOID.Parse("Discord:discord.com:0:0:0:0:0:0"));
 			}
 			List<string> tokenizedSentence = [firstWord];
 			List<string> prevList = [firstWord];

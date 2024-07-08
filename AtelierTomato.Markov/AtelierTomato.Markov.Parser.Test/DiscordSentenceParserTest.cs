@@ -26,6 +26,7 @@ namespace AtelierTomato.Markov.Parser.Test
 		[InlineData(@"i separated out the __underscore__ test because it made me mad", @"i separated out the underscore test because it made me mad")]
 		[InlineData(@"b||elgiu||m and the netherlands are countries in europe", @"belgium and the netherlands are countries in europe")]
 		[InlineData(@"wow **bold** and ***italicized bold***", @"wow bold and italicized bold")]
+		[InlineData(@"this is an ~~apple~~ wait no it's an orange", @"this is an apple wait no it 's an orange")]
 		public void ParseSurroundingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -43,6 +44,7 @@ namespace AtelierTomato.Markov.Parser.Test
 		[InlineData(@"nobody has ever underlined before but you do it like this: \_\_yeah\_\_", @"nobody has ever underlined before but you do it like this : __yeah__")]
 		[InlineData(@"this is how to spoiler: \|\|snape killed dumbledore\|\|", @"this is how to spoiler : ||snape killed dumbledore||")]
 		[InlineData(@"wow \*\*bold\*\* and \*\*\*italicized bold\*\*\*", @"wow **bold** and ***italicized bold***")]
+		[InlineData(@"this is an \~\~apple\~\~ wait no it's an orange", @"this is an ~~apple~~ wait no it 's an orange")]
 		public void ParseEscapedSurroundingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -56,6 +58,9 @@ namespace AtelierTomato.Markov.Parser.Test
 		[Theory]
 		[InlineData(@"# lol this text is so big!", @"lol this text is so big !")]
 		[InlineData(@"# discord is so dumb and stupd#", @"discord is so dumb and stupd")]
+		[InlineData(@"## for no reason they also support this", @"for no reason they also support this")]
+		[InlineData(@"### and nobody even uses this one, it's just bold", @"and nobody even uses this one , it 's just bold")]
+		[InlineData(@">>> this is a big block quote multi-line just kill it", @"this is a big block quote multi- line just kill it")]
 		public void ParsePrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -69,6 +74,9 @@ namespace AtelierTomato.Markov.Parser.Test
 		[Theory]
 		[InlineData(@"\# lol this text is so big!", @"# lol this text is so big !")]
 		[InlineData(@"\# discord is so dumb and stupd\#", @"# discord is so dumb and stupd#")]
+		[InlineData(@"\#\# for no reason they also support this", @"## for no reason they also support this")]
+		[InlineData(@"\#\#\# and nobody even uses this one, it's just bold", @"### and nobody even uses this one , it 's just bold")]
+		[InlineData(@"\>\>\> this is a big block quote multi-line just kill it", @">>> this is a big block quote multi- line just kill it")]
 		public void ParseEscapedPrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();

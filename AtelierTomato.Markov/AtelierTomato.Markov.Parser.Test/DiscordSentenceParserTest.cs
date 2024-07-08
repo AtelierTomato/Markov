@@ -1,24 +1,12 @@
-﻿using FluentAssertions;
+﻿using Discord;
+using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace AtelierTomato.Markov.Parser.Test
 {
 	public class DiscordSentenceParserTest
 	{
-		[Theory]
-		[InlineData(@"one two three four <:smimsy:1166315314548576306>", @"one two three four e:smimsy:")]
-		[InlineData(@"satoko-chan is so cute <:hauuu:1082459047397171311>", @"satoko- chan is so cute e:hauuu:")]
-		public void ParseEmojiTest(string input, string output)
-		{
-			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
-
-			var result = target.ParseIntoSentenceTexts(input);
-
-			result.Should().ContainSingle().And.Contain(output);
-		}
-
-		// For the below tests, they only have what I remember off the top of my head, check if Discord has any others later.
 		[Theory]
 		[InlineData(@"hello world how are *you*", @"hello world how are you")]
 		[InlineData(@"we didn't have one for _single underscore italics_ so i added one in!", @"we didn 't have one for single apostrophe italics so i added one in !")]
@@ -121,6 +109,55 @@ namespace AtelierTomato.Markov.Parser.Test
 
 			result.Should().HaveCount(output.Length);
 			result.Should().Contain(output);
+		}
+
+		[Fact]
+		public void ParseTextWithTagsTest()
+		{
+			var options = new SentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options));
+
+			var input = @"yo <@!302915036492333067> and <@&308492793825853441>  can you <:ShihoLook:402558230427074560>  in <#614165694090838035> and get me some burgers or something";
+			var output = @"yo Sandra and ice fairy can you e:ShihoLook: in fairy- land and get me some burgers or something";
+
+			var mentionUser = Mock.Of<IUser>();
+			Mock.Get(mentionUser).SetupGet(u => u.Username).Returns("Sandra").Verifiable();
+
+			var userMentionTag = Mock.Of<ITag>();
+			Mock.Get(userMentionTag).SetupGet(t => t.Index).Returns(3).Verifiable();
+			Mock.Get(userMentionTag).SetupGet(t => t.Length).Returns(22).Verifiable();
+			Mock.Get(userMentionTag).SetupGet(t => t.Type).Returns(TagType.UserMention).Verifiable();
+			Mock.Get(userMentionTag).SetupGet(t => t.Value).Returns(mentionUser).Verifiable();
+
+			var roleMentionTag = Mock.Of<ITag>();
+			Mock.Get(roleMentionTag).SetupGet(t => t.Index).Returns(30).Verifiable();
+			Mock.Get(roleMentionTag).SetupGet(t => t.Length).Returns(22).Verifiable();
+			Mock.Get(roleMentionTag).SetupGet(t => t.Type).Returns(TagType.RoleMention).Verifiable();
+			Mock.Get(roleMentionTag).SetupGet(t => t.Value).Returns("ice fairy").Verifiable();
+
+			var emojiTag = Mock.Of<ITag>();
+			Mock.Get(emojiTag).SetupGet(t => t.Index).Returns(62).Verifiable();
+			Mock.Get(emojiTag).SetupGet(t => t.Length).Returns(31).Verifiable();
+			Mock.Get(emojiTag).SetupGet(t => t.Type).Returns(TagType.Emoji).Verifiable();
+			Mock.Get(emojiTag).SetupGet(t => t.Value).Returns("ShihoLook");
+
+			var channelTag = Mock.Of<ITag>();
+			Mock.Get(channelTag).SetupGet(t => t.Index).Returns(98).Verifiable();
+			Mock.Get(channelTag).SetupGet(t => t.Length).Returns(21).Verifiable();
+			Mock.Get(channelTag).SetupGet(t => t.Type).Returns(TagType.ChannelMention).Verifiable();
+			Mock.Get(channelTag).SetupGet(t => t.Value).Returns("fairy-land").Verifiable();
+
+			var tags = new List<ITag> { userMentionTag, roleMentionTag, emojiTag, channelTag };
+
+			var result = target.ParseIntoSentenceTexts(input, tags);
+
+			result.Should().ContainSingle().And.Contain(output);
+
+			Mock.Get(mentionUser).Verify();
+			Mock.Get(userMentionTag).Verify();
+			Mock.Get(roleMentionTag).Verify();
+			Mock.Get(emojiTag).Verify();
+			Mock.Get(channelTag).Verify();
 		}
 	}
 }

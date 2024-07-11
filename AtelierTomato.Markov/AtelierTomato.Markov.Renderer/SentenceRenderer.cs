@@ -14,7 +14,7 @@ namespace AtelierTomato.Markov.Renderer
 		private readonly Regex attachDashes = new Regex(@"(\w+-)(?: )(\w+)", RegexOptions.Compiled);
 		private readonly Regex attachQuoteArrow = new Regex(@"(?:^)(>)(?: )", RegexOptions.Compiled);
 
-		public string Render(string text)
+		public virtual string Render(string text)
 		{
 			text = RenderDetachCharacters(text);
 			text = RenderEmojis(text);

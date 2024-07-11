@@ -22,11 +22,11 @@ namespace AtelierTomato.Markov.Data
 		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter)
 		{
 			List<Sentence>? sentenceQueryResult = ReadSentenceRange(filter).Result?.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
-			if (sentenceQueryResult is null || sentenceQueryResult.Count is 0)
+			if (sentenceQueryResult is null or [])
 			{
 				sentenceQueryResult = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result?.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			}
-			if (sentenceQueryResult is null || sentenceQueryResult.Count is 0)
+			if (sentenceQueryResult is null or [])
 			{
 				return null;
 			}
@@ -37,11 +37,11 @@ namespace AtelierTomato.Markov.Data
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
 		{
 			List<Sentence>? sentenceQueryResult = ReadSentenceRange(filter).Result?.ToList();
-			if (sentenceQueryResult is null || sentenceQueryResult.Count is 0)
+			if (sentenceQueryResult is null or [])
 			{
-				sentenceQueryResult = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result?.ToList();
+				sentenceQueryResult = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result?.ToList() ?? null;
 			}
-			if (sentenceQueryResult is null || sentenceQueryResult.Count is 0)
+			if (sentenceQueryResult is null or [])
 			{
 				return null;
 			}

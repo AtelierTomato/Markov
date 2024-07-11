@@ -30,10 +30,7 @@ namespace AtelierTomato.Markov.Parser
 			return result;
 		}
 
-		private string ReplaceEmoji(string text)
-		{
-			return replaceEmojiPattern.Replace(text, m => "e:" + m.Groups[2].Value + ":");
-		}
+		private string ReplaceEmoji(string text) => replaceEmojiPattern.Replace(text, m => "e:" + m.Groups[2].Value + ":");
 
 		private static string ReplaceTagEntities(string text, IEnumerable<ITag> tags)
 		{

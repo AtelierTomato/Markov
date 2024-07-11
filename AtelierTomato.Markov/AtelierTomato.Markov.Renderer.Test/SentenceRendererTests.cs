@@ -62,6 +62,7 @@ namespace AtelierTomato.Markov.Renderer.Test
 
 		[Theory]
 		[InlineData("e:ShihoLook: at the sky", "ShihoLook at the sky")]
+		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "ShihoLook ShihoLook ShihoLook")]
 		[InlineData("e:apple2:", "apple2")]
 		[InlineData("e:__:", "__")]
 		public void RenderEmojis(string input, string output)

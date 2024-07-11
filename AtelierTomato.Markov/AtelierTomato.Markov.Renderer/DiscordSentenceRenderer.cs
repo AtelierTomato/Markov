@@ -4,9 +4,9 @@ namespace AtelierTomato.Markov.Renderer
 {
 	public class DiscordSentenceRenderer : SentenceRenderer
 	{
-		public string Render(string text, IGuild currentGuild, IEnumerable<IGuild> allGuilds)
+		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)
 		{
-			text = RenderEmojis(text, currentGuild, allGuilds);
+			text = RenderEmojis(text, currentEmojis, allEmojis);
 			return Render(text);
 
 		}
@@ -22,22 +22,19 @@ namespace AtelierTomato.Markov.Renderer
 			return text;
 		}
 
-		public string RenderEmojis(string text, IGuild currentGuild, IEnumerable<IGuild> allGuilds) => renderEmojiRegex.Replace(text, m =>
+		public string RenderEmojis(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis) => renderEmojiRegex.Replace(text, m =>
 		{
 			string emojiName = m.Groups[1].Value;
-			GuildEmote? emoji = currentGuild.Emotes.FirstOrDefault(e => e.Name == emojiName);
+			Emote? emoji = currentEmojis.FirstOrDefault(e => e.Name == emojiName);
 			if (emoji is not null)
 			{
 				return emoji.ToString();
 			} else
 			{
-				foreach (IGuild guild in allGuilds)
+				emoji = allEmojis.FirstOrDefault(e => e.Name == emojiName);
+				if (emoji is not null)
 				{
-					emoji = guild.Emotes.FirstOrDefault(e => e.Name == emojiName);
-					if (emoji is not null)
-					{
-						return emoji.ToString();
-					}
+					return emoji.ToString();
 				}
 			}
 			return emojiName;

@@ -1,6 +1,5 @@
 ﻿using Discord;
 using FluentAssertions;
-using Moq;
 
 namespace AtelierTomato.Markov.Renderer.Test
 {
@@ -82,23 +81,15 @@ namespace AtelierTomato.Markov.Renderer.Test
 		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "<:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560>")]
 		public void RenderEmojisInCurrentTest(string input, string output)
 		{
-			var emote = Mock.Of<GuildEmote>();
-			Mock.Get(emote).SetupGet(e => e.Name).Returns("ShihoLook").Verifiable();
-			Mock.Get(emote).SetupGet(e => e.Id).Returns(402558230427074560).Verifiable();
-			Mock.Get(emote).SetupGet(e => e.Animated).Returns(false).Verifiable();
+			var emote = new Emote(402558230427074560, "ShihoLook");
 
-			var currentGuild = Mock.Of<IGuild>();
-			Mock.Get(currentGuild).SetupGet(g => g.Emotes).Returns([emote]).Verifiable();
-
-			IEnumerable<IGuild> allGuilds = [currentGuild];
+			IEnumerable<Emote> currentEmojis = [emote];
+			IEnumerable<Emote> allEmojis = [];
 
 			var target = new DiscordSentenceRenderer();
 
-			var result = target.Render(input, currentGuild, allGuilds);
+			var result = target.Render(input, currentEmojis, allEmojis);
 			result.Should().Be(output);
-
-			Mock.Get(emote).Verify();
-			Mock.Get(currentGuild).Verify();
 		}
 
 		[Theory]
@@ -107,27 +98,15 @@ namespace AtelierTomato.Markov.Renderer.Test
 		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "<:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560>")]
 		public void RenderEmojisInOtherTest(string input, string output)
 		{
-			var emote = Mock.Of<GuildEmote>();
-			Mock.Get(emote).SetupGet(e => e.Name).Returns("ShihoLook").Verifiable();
-			Mock.Get(emote).SetupGet(e => e.Id).Returns(402558230427074560).Verifiable();
-			Mock.Get(emote).SetupGet(e => e.Animated).Returns(false).Verifiable();
+			var emote = new Emote(402558230427074560, "ShihoLook");
 
-			var currentGuild = Mock.Of<IGuild>();
-			Mock.Get(currentGuild).SetupGet(g => g.Emotes).Returns([]).Verifiable();
-
-			var otherGuild = Mock.Of<IGuild>();
-			Mock.Get(otherGuild).SetupGet(g => g.Emotes).Returns([emote]).Verifiable();
-
-			IEnumerable<IGuild> allGuilds = [currentGuild, otherGuild];
+			IEnumerable<Emote> currentEmojis = [];
+			IEnumerable<Emote> allEmojis = [emote];
 
 			var target = new DiscordSentenceRenderer();
 
-			var result = target.Render(input, currentGuild, allGuilds);
+			var result = target.Render(input, currentEmojis, allEmojis);
 			result.Should().Be(output);
-
-			Mock.Get(emote).Verify();
-			Mock.Get(currentGuild).Verify();
-			Mock.Get(otherGuild).Verify();
 		}
 	}
 }

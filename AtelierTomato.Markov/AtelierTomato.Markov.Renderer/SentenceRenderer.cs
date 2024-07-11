@@ -7,6 +7,8 @@ namespace AtelierTomato.Markov.Renderer
 	{
 		private readonly Regex renderEmojiRegex = new Regex(@"(e:)((?:(?!:).)+)(:)", RegexOptions.Compiled);
 		private readonly Regex attachToPreviousWord = new Regex(@"(?: |^)([.\}\)\];:]|[?!,]+)(?: |$)", RegexOptions.Compiled);
+		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(])(?: |$)", RegexOptions.Compiled);
+
 		public string Render(string text)
 		{
 			text = RenderDetachCharacters(text);
@@ -17,6 +19,7 @@ namespace AtelierTomato.Markov.Renderer
 		private string RenderDetachCharacters(string text)
 		{
 			text = attachToPreviousWord.Replace(text, m => m.Groups[1] + " ");
+			text = attachToNextWord.Replace(text, m => " " + m.Groups[1]);
 
 			return text.Trim();
 		}

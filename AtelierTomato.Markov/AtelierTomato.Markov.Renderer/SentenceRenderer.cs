@@ -11,6 +11,7 @@ namespace AtelierTomato.Markov.Renderer
 		private readonly Regex attachQuotes = new Regex(@"(?: |^)("")(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachContractions = new Regex(@"(?: )('\w+)", RegexOptions.Compiled);
 		private readonly Regex attachPluralContractions = new Regex(@"(?: )(')(?: |$)", RegexOptions.Compiled);
+		private readonly Regex attachDashes = new Regex(@"(\w+-)(?: )(\w+)", RegexOptions.Compiled);
 
 		public string Render(string text)
 		{
@@ -31,6 +32,7 @@ namespace AtelierTomato.Markov.Renderer
 			});
 			text = attachContractions.Replace(text, m => "" + m.Groups[1]);
 			text = attachPluralContractions.Replace(text, m => m.Groups[1] + " ");
+			text = attachDashes.Replace(text, m => m.Groups[1] + "" + m.Groups[2]);
 
 			return text.Trim();
 		}

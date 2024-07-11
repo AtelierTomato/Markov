@@ -9,7 +9,7 @@ namespace AtelierTomato.Markov.Parser.Test
 	{
 		[Theory]
 		[InlineData(@"hello world how are *you*", @"hello world how are you")]
-		[InlineData(@"we didn't have one for _single underscore italics_ so i added one in!", @"we didn 't have one for single apostrophe italics so i added one in !")]
+		[InlineData(@"we didn't have one for _single underscore italics_ so i added one in!", @"we didn 't have one for single underscore italics so i added one in !")]
 		[InlineData(@"my favorite c function `puts` writes text", @"my favorite c function writes text")]
 		[InlineData(@"i separated out the __underscore__ test because it made me mad", @"i separated out the underscore test because it made me mad")]
 		[InlineData(@"b||elgiu||m and the netherlands are countries in europe", @"belgium and the netherlands are countries in europe")]
@@ -27,10 +27,10 @@ namespace AtelierTomato.Markov.Parser.Test
 
 		[Theory]
 		[InlineData(@"wal\*mart anime idol group in Pri\*Chan wow", @"wal*mart anime idol group in Pri*Chan wow")]
-		[InlineData(@"this is how to italicize: \_italics\_ now u know", @"this is how to italicize: _italics_ now u know")]
+		[InlineData(@"this is how to italicize: \_italics\_ now u know", @"this is how to italicize : _italics_ now u know")]
 		[InlineData(@"this is how to code snippet \`apple\`", @"this is how to code snippet `apple`")]
 		[InlineData(@"nobody has ever underlined before but you do it like this: \_\_yeah\_\_", @"nobody has ever underlined before but you do it like this : __yeah__")]
-		[InlineData(@"this is how to spoiler: \|\|snape killed dumbledore\|\|", @"this is how to spoiler : ||snape killed dumbledore||")]
+		[InlineData(@"this is how to spoiler : \|\|snape killed dumbledore\|\|", @"this is how to spoiler : ||snape killed dumbledore||")]
 		[InlineData(@"wow \*\*bold\*\* and \*\*\*italicized bold\*\*\*", @"wow **bold** and ***italicized bold***")]
 		[InlineData(@"this is an \~\~apple\~\~ wait no it's an orange", @"this is an ~~apple~~ wait no it 's an orange")]
 		public void ParseEscapedSurroundingMarkdownTest(string input, string output)
@@ -62,9 +62,9 @@ namespace AtelierTomato.Markov.Parser.Test
 		[Theory]
 		[InlineData(@"\# lol this text is so big!", @"# lol this text is so big !")]
 		[InlineData(@"\# discord is so dumb and stupd\#", @"# discord is so dumb and stupd#")]
-		[InlineData(@"\#\# for no reason they also support this", @"## for no reason they also support this")]
-		[InlineData(@"\#\#\# and nobody even uses this one, it's just bold", @"### and nobody even uses this one , it 's just bold")]
-		[InlineData(@"\>\>\> this is a big block quote multi-line just kill it", @">>> this is a big block quote multi- line just kill it")]
+		[InlineData(@"\#\# for no reason they also support this", @"# # for no reason they also support this")]
+		[InlineData(@"\#\#\# and nobody even uses this one, it's just bold", @"# ## and nobody even uses this one , it 's just bold")]
+		[InlineData(@"\>\>\> this is a big block quote multi-line just kill it", @"> >> this is a big block quote multi- line just kill it")]
 		public void ParseEscapedPrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();

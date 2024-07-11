@@ -62,23 +62,12 @@ namespace AtelierTomato.Markov.Renderer.Test
 		}
 
 		[Theory]
-		[InlineData("e:ShihoLook: at the sky", "ShihoLook at the sky")]
-		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "ShihoLook ShihoLook ShihoLook")]
-		[InlineData("e:apple2:", "apple2")]
-		[InlineData("e:__:", "\\_\\_")]
-		public void RenderEmojisNotFoundTest(string input, string output)
-		{
-			var target = new DiscordSentenceRenderer();
-
-			var result = target.Render(input);
-
-			result.Should().Be(output);
-		}
-
-		[Theory]
 		[InlineData("e:ShihoLook:", "<:ShihoLook:402558230427074560>")]
+		[InlineData("e:ShihoLook: e:applesauce:", "<:ShihoLook:402558230427074560> applesauce")]
 		[InlineData("appe:ShihoLook:le", "app<:ShihoLook:402558230427074560>le")]
 		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "<:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560>")]
+		[InlineData("e:apple2:", "apple2")]
+		[InlineData("e:__:", "\\_\\_")]
 		public void RenderEmojisInCurrentTest(string input, string output)
 		{
 			var emote = new Emote(402558230427074560, "ShihoLook");
@@ -94,8 +83,11 @@ namespace AtelierTomato.Markov.Renderer.Test
 
 		[Theory]
 		[InlineData("e:ShihoLook:", "<:ShihoLook:402558230427074560>")]
+		[InlineData("e:ShihoLook: e:applesauce:", "<:ShihoLook:402558230427074560> applesauce")]
 		[InlineData("appe:ShihoLook:le", "app<:ShihoLook:402558230427074560>le")]
 		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "<:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560>")]
+		[InlineData("e:apple2:", "apple2")]
+		[InlineData("e:__:", "\\_\\_")]
 		public void RenderEmojisInOtherTest(string input, string output)
 		{
 			var emote = new Emote(402558230427074560, "ShihoLook");

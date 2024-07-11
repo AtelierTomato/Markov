@@ -22,7 +22,7 @@ namespace AtelierTomato.Markov.Renderer.Test
 		[InlineData("# besties !!!", "#besties!!!")]
 		[InlineData("> implying", ">implying")]
 		[InlineData("5 > 2", "5 > 2")]
-		public void RenderSimpleText(string input, string output)
+		public void RenderSimpleTextTest(string input, string output)
 		{
 			var target = new SentenceRenderer();
 
@@ -37,7 +37,7 @@ namespace AtelierTomato.Markov.Renderer.Test
 		[InlineData("i am god [ citation needed ] and you are stupid { you are DUMB }", "i am god [citation needed] and you are stupid {you are DUMB}")]
 		[InlineData("\" who are you quoting ? \"", "\"who are you quoting?\"")]
 		[InlineData("god \" jimmy \" jesus here with another minecraft video", "god \"jimmy\" jesus here with another minecraft video")]
-		public void RenderSurroundingCharacters(string input, string output)
+		public void RenderSurroundingCharactersTest(string input, string output)
 		{
 			var target = new SentenceRenderer();
 
@@ -51,7 +51,7 @@ namespace AtelierTomato.Markov.Renderer.Test
 		[InlineData("what 's up gamers , I 'm out here gaming", "what's up gamers, I'm out here gaming")]
 		[InlineData("the students ' council decided you die today", "the students' council decided you die today")]
 		[InlineData("and i can tell that doki doki literature club is shitty faux- anime normie garbage", "and i can tell that doki doki literature club is shitty faux-anime normie garbage")]
-		public void RenderContractions(string input, string output)
+		public void RenderContractionsTest(string input, string output)
 		{
 			var target = new SentenceRenderer();
 
@@ -65,7 +65,7 @@ namespace AtelierTomato.Markov.Renderer.Test
 		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "ShihoLook ShihoLook ShihoLook")]
 		[InlineData("e:apple2:", "apple2")]
 		[InlineData("e:__:", "__")]
-		public void RenderEmojis(string input, string output)
+		public void RenderEmojisTest(string input, string output)
 		{
 			var target = new SentenceRenderer();
 

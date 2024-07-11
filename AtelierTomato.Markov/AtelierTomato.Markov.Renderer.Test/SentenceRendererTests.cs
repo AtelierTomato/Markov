@@ -30,5 +30,34 @@ namespace AtelierTomato.Markov.Renderer.Test
 
 			result.Should().Be(output);
 		}
+
+
+		[Theory]
+		[InlineData("( this sentence is in parentheses )", "(this sentence is in parentheses)")]
+		[InlineData("i am god [ citation needed ] and you are stupid { you are DUMB }", "i am god [citation needed] and you are stupid {you are DUMB}")]
+		[InlineData("\" who are you quoting ? \"", "\"who are you quoting?\"")]
+		[InlineData("god \" jimmy \" jesus here with another minecraft video", "god \"jimmy\" jesus here with another minecraft video")]
+		public void RenderSurroundingCharacters(string input, string output)
+		{
+			var target = new SentenceRenderer();
+
+			var result = target.Render(input);
+
+			result.Should().Be(output);
+		}
+
+		[Theory]
+		[InlineData("i 've found a million dollars", "i've found a million dollars")]
+		[InlineData("what 's up gamers , I 'm out here gaming", "what's up gamers, I'm out here gaming")]
+		[InlineData("the students ' council decided you die today", "the students' council decided you die today")]
+		[InlineData("and i can tell that doki doki literature club is shitty faux- anime normie garbage", "and i can tell that doki doki literature club is shitty faux-anime normie garbage")]
+		public void RenderContractions(string input, string output)
+		{
+			var target = new SentenceRenderer();
+
+			var result = target.Render(input);
+
+			result.Should().Be(output);
+		}
 	}
 }

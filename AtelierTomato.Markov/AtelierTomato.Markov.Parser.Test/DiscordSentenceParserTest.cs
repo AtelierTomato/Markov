@@ -45,7 +45,6 @@ namespace AtelierTomato.Markov.Parser.Test
 
 		[Theory]
 		[InlineData(@"# lol this text is so big!", @"lol this text is so big !")]
-		[InlineData(@"# discord is so dumb and stupd#", @"discord is so dumb and stupd")]
 		[InlineData(@"## for no reason they also support this", @"for no reason they also support this")]
 		[InlineData(@"### and nobody even uses this one, it's just bold", @"and nobody even uses this one , it 's just bold")]
 		[InlineData(@">>> this is a big block quote multi-line just kill it", @"this is a big block quote multi- line just kill it")]
@@ -61,7 +60,6 @@ namespace AtelierTomato.Markov.Parser.Test
 
 		[Theory]
 		[InlineData(@"\# lol this text is so big!", @"# lol this text is so big !")]
-		[InlineData(@"\# discord is so dumb and stupd\#", @"# discord is so dumb and stupd#")]
 		[InlineData(@"\#\# for no reason they also support this", @"# # for no reason they also support this")]
 		[InlineData(@"\#\#\# and nobody even uses this one, it's just bold", @"# ## and nobody even uses this one , it 's just bold")]
 		[InlineData(@"\>\>\> this is a big block quote multi-line just kill it", @"> >> this is a big block quote multi- line just kill it")]

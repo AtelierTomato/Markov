@@ -22,9 +22,25 @@ namespace AtelierTomato.Markov.Renderer
 			return text;
 		}
 
-		public string RenderEmojis(string text, IGuild currentGuild, IEnumerable<IGuild> allGuilds)
+		public string RenderEmojis(string text, IGuild currentGuild, IEnumerable<IGuild> allGuilds) => renderEmojiRegex.Replace(text, m =>
 		{
-			return text;
-		}
+			string emojiName = m.Groups[1].Value;
+			GuildEmote? emoji = currentGuild.Emotes.FirstOrDefault(e => e.Name == emojiName);
+			if (emoji is not null)
+			{
+				return emoji.ToString();
+			} else
+			{
+				foreach (IGuild guild in allGuilds)
+				{
+					emoji = guild.Emotes.FirstOrDefault(e => e.Name == emojiName);
+					if (emoji is not null)
+					{
+						return emoji.ToString();
+					}
+				}
+			}
+			return emojiName;
+		});
 	}
 }

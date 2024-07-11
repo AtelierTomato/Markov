@@ -9,6 +9,7 @@ namespace AtelierTomato.Markov.Renderer
 		private readonly Regex attachToPreviousWord = new Regex(@"(?: |^)([.\}\)\];:]|[?!,]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(])(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachQuotes = new Regex(@"(?: |^)("")(?: |$)", RegexOptions.Compiled);
+		private readonly Regex attachContractions = new Regex(@"(?: )('\w+)", RegexOptions.Compiled);
 
 		public string Render(string text)
 		{
@@ -27,6 +28,7 @@ namespace AtelierTomato.Markov.Renderer
 				opening = !opening;
 				if (opening) { return " " + m.Groups[1]; } else { return m.Groups[1] + " "; }
 			});
+			text = attachContractions.Replace(text, m => "" + m.Groups[1]);
 
 			return text.Trim();
 		}

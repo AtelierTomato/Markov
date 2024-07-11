@@ -51,7 +51,7 @@ namespace AtelierTomato.Markov.Parser
 						text = text.Remove(tag.Index, tag.Length).Insert(tag.Index, "here");
 						break;
 					case TagType.Emoji:
-						// Ignore, emojis will be processed later using the raw text, the tags are unecessary. This is just here to mark that.
+						// Ignore, emojis will be processed later using the raw text, the tags are unnecessary. This is just here to mark that.
 						// Note: This MUST be done later, because we must do it after tokenization that splits off some formatting, in order to store emojis in the database.
 						break;
 					default:

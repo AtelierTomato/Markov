@@ -278,5 +278,19 @@ Life in the Vault is about to change.";
 
 			result.Should().BeEquivalentTo(Enumerable.Empty<string>());
 		}
+
+		[Theory]
+		[InlineData("<:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560>", "e:ShihoLook: e:ShihoLook: e:ShihoLook: e:ShihoLook: e:ShihoLook:")]
+		[InlineData("<:Discord:emoji:234593190> 2 3 4 5", "e:Discord:emoji: 2 3 4 5")]
+		[InlineData("<:__:402558230427074560> 2 3 4 5", "e:__: 2 3 4 5")]
+		public void AdvancedEmojiTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
+		}
 	}
 }

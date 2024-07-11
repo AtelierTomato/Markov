@@ -283,6 +283,8 @@ Life in the Vault is about to change.";
 		[InlineData("<:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560> <:ShihoLook:402558230427074560>", "e:ShihoLook: e:ShihoLook: e:ShihoLook: e:ShihoLook: e:ShihoLook:")]
 		[InlineData("<:Discord:emoji:234593190> 2 3 4 5", "e:Discord:emoji: 2 3 4 5")]
 		[InlineData("<:__:402558230427074560> 2 3 4 5", "e:__: 2 3 4 5")]
+		[InlineData("<:ShihoLook:402558230427074560><:ShihoLook:402558230427074560> 2 3 4 5", "e:ShihoLook:e:ShihoLook: 2 3 4 5")]
+		[InlineData("app<:ShihoLook:402558230427074560>le 2 3 4 5", "appe:ShihoLook:le 2 3 4 5")]
 		public void AdvancedEmojiTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();

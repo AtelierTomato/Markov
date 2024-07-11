@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Markdig;
 using Markdig.Extensions.EmphasisExtras;
+using MarkovBot.Core.MessageParsing.Markdig;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
@@ -14,7 +15,7 @@ namespace AtelierTomato.Markov.Parser
 		private readonly MarkdownPipeline pipeline;
 		public DiscordSentenceParser(IOptions<SentenceParserOptions> options) : base(options)
 		{
-			pipeline = new MarkdownPipelineBuilder().UseEmphasisExtras(EmphasisExtraOptions.Strikethrough).Build();
+			pipeline = new MarkdownPipelineBuilder().UseEmphasisExtras(EmphasisExtraOptions.Strikethrough).Use<SpoilerExtension>().Build();
 		}
 
 		public IEnumerable<string> ParseIntoSentenceTexts(string text, IEnumerable<ITag> tags)

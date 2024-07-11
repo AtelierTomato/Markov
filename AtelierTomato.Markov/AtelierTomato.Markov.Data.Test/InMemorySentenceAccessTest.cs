@@ -401,7 +401,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null))?.Result ?? null;
+			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null, null))?.Result;
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -439,7 +439,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null))?.Result ?? null;
+			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), null))?.Result;
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -477,7 +477,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, null, "sentence"))?.Result ?? null;
+			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, null, "sentence"))?.Result;
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(3);
@@ -521,7 +521,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1"), null))?.Result ?? null;
+			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1"), null))?.Result;
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -565,7 +565,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), "sentence"))?.Result ?? null;
+			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1"), "sentence"))?.Result;
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -609,7 +609,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null, "so"))?.Result ?? null;
+			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null, "so"))?.Result;
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -653,7 +653,7 @@ namespace AtelierTomato.Markov.Data.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2"), "so"))?.Result ?? null;
+			IEnumerable<Sentence>? sentenceReturn = sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2"), "so"))?.Result;
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().ContainSingle();

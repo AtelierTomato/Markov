@@ -7,7 +7,7 @@ namespace AtelierTomato.Markov.Parser
 	{
 		public IEnumerable<string> ParseIntoSentenceTexts(string input, IEnumerable<ITag> tags)
 		{
-			throw new NotImplementedException();
+			return ParseIntoSentenceTexts(input);
 		}
 	}
 }

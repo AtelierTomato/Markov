@@ -1,9 +1,11 @@
 ﻿using Discord;
+using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Renderer
 {
 	public class DiscordSentenceRenderer : SentenceRenderer
 	{
+		private readonly Regex escapeRegex = new Regex(@"(^|[^\d\sa-zA-Z])?([\d\sa-zA-Z]+)?((<a?:.*?(?=:[0-9]+>):[0-9]+>)+)?", RegexOptions.Compiled);
 		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)
 		{
 			text = RenderEmojis(text, currentEmojis, allEmojis);
@@ -17,10 +19,16 @@ namespace AtelierTomato.Markov.Renderer
 			return Escape(text);
 		}
 
-		private string Escape(string text)
+		private string Escape(string text) => escapeRegex.Replace(" " + text, m =>
 		{
-			return text;
-		}
+			if (!(m.Groups[1].Value == string.Empty))
+			{
+				return "\\" + m.Groups[1].Value + m.Groups[2].Value + m.Groups[3].Value;
+			} else
+			{
+				return m.Groups[1].Value + m.Groups[2].Value + m.Groups[3].Value;
+			}
+		}).Trim();
 
 		public string RenderEmojis(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis) => renderEmojiRegex.Replace(text, m =>
 		{

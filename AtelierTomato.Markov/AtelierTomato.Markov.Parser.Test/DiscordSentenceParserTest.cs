@@ -137,9 +137,9 @@ namespace AtelierTomato.Markov.Parser.Test
 
 			var emojiTag = Mock.Of<ITag>();
 			Mock.Get(emojiTag).SetupGet(t => t.Index).Returns(62).Verifiable();
-			Mock.Get(emojiTag).SetupGet(t => t.Length).Returns(31).Verifiable();
+			Mock.Get(emojiTag).SetupGet(t => t.Length).Returns(31);
 			Mock.Get(emojiTag).SetupGet(t => t.Type).Returns(TagType.Emoji).Verifiable();
-			Mock.Get(emojiTag).SetupGet(t => t.Value).Returns("ShihoLook");
+			Mock.Get(emojiTag).SetupGet(t => t.Value).Returns("ShihoLook").Verifiable();
 
 			var channelTag = Mock.Of<ITag>();
 			Mock.Get(channelTag).SetupGet(t => t.Index).Returns(98).Verifiable();

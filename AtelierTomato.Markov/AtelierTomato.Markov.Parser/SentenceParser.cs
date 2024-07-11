@@ -54,7 +54,7 @@ namespace AtelierTomato.Markov.Parser
 		/// <summary>
 		/// Parses the given text into multiple sentence texts.
 		/// </summary>
-		public IEnumerable<string> ParseIntoSentenceTexts(string text)
+		public virtual IEnumerable<string> ParseIntoSentenceTexts(string text)
 		{
 			text = ProcessText(text);
 

@@ -78,7 +78,7 @@ namespace AtelierTomato.Markov.Parser
 			text = DeleteLinks(text);
 			text = CleanWhitespace(text);
 
-			text = EscapeAndDetachQuoteArrows(text);
+			text = DetachQuoteArrows(text);
 
 			text = ProcessHashtags(text);
 
@@ -117,20 +117,20 @@ namespace AtelierTomato.Markov.Parser
 		/// <param name="text"></param>
 		private string CleanWhitespace(string text) => whitespaceCleanerPattern.Replace(text, " ");
 
-		private string EscapeAndDetachQuoteArrows(string messageText) => detachQuoteArrowsPattern.Replace(messageText, m => m.Groups[1].Value + " ");
+		private string DetachQuoteArrows(string text) => detachQuoteArrowsPattern.Replace(text, m => m.Groups[1].Value + " ");
 
-		private string ProcessHashtags(string messageText) => processHashtagPattern.Replace(messageText, "# ");
+		private string ProcessHashtags(string text) => processHashtagPattern.Replace(text, "# ");
 
-		private string ProcessDetachCharacters(string messageText) => processDetachCharactersPattern.Replace(messageText, m => m.Groups[1].Success ? m.Groups[1].Value : " " + m.Groups[2].Value + " ");
+		private string ProcessDetachCharacters(string text) => processDetachCharactersPattern.Replace(text, m => m.Groups[1].Success ? m.Groups[1].Value : " " + m.Groups[2].Value + " ");
 
-		private string ProcessDetachFromPreceding(string messageText) => processDetachFromPrecedingPattern.Replace(messageText, m => " " + m.Groups[1].Value);
+		private string ProcessDetachFromPreceding(string text) => processDetachFromPrecedingPattern.Replace(text, m => " " + m.Groups[1].Value);
 
-		private string ProcessDetachFromSucceeding(string messageText) => processDetachFromSucceedingPattern.Replace(messageText, m => m.Groups[1].Value + " ");
+		private string ProcessDetachFromSucceeding(string text) => processDetachFromSucceedingPattern.Replace(text, m => m.Groups[1].Value + " ");
 
-		private string SplitOffApostropheSequences(string messageText) => splitOffApostropheSequencesPattern.Replace(messageText, " '");
+		private string SplitOffApostropheSequences(string text) => splitOffApostropheSequencesPattern.Replace(text, " '");
 
-		private string SplitOffDashSequences(string messageText) => splitOffDashSequencesPattern.Replace(messageText, "- ");
+		private string SplitOffDashSequences(string text) => splitOffDashSequencesPattern.Replace(text, "- ");
 
-		private string NormalizeEllipses(string messageText) => normalizeEllipsesPattern.Replace(messageText, string.Empty);
+		private string NormalizeEllipses(string text) => normalizeEllipsesPattern.Replace(text, string.Empty);
 	}
 }

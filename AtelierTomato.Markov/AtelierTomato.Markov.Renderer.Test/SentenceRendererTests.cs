@@ -59,5 +59,18 @@ namespace AtelierTomato.Markov.Renderer.Test
 
 			result.Should().Be(output);
 		}
+
+		[Theory]
+		[InlineData("e:ShihoLook: at the sky", "ShihoLook at the sky")]
+		[InlineData("e:apple2:", "apple2")]
+		[InlineData("e:__:", "__")]
+		public void RenderEmojis(string input, string output)
+		{
+			var target = new SentenceRenderer();
+
+			var result = target.Render(input);
+
+			result.Should().Be(output);
+		}
 	}
 }

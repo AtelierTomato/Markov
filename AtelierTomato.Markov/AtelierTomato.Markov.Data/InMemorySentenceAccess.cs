@@ -5,13 +5,14 @@ namespace AtelierTomato.Markov.Data
 	public class InMemorySentenceAccess : ISentenceAccess
 	{
 		private readonly Random random = new Random();
-		public List<Sentence> SentenceStorage = [];
+		private readonly List<Sentence> sentenceStorage = [];
+		public IReadOnlyList<Sentence> SentenceStorage { get => sentenceStorage; }
 		public Task DeleteSentenceRange(SentenceFilter filter)
 		{
 			if (filter.OID is null && filter.Author is null && filter.SearchString is null)
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
-			SentenceStorage.RemoveAll(s =>
+			sentenceStorage.RemoveAll(s =>
 				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString())) &&
 				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
 				(filter.SearchString is null || s.Text.Contains(filter.SearchString)));
@@ -49,7 +50,7 @@ namespace AtelierTomato.Markov.Data
 
 		public async Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)
 		{
-			return SentenceStorage.Where(s =>
+			return sentenceStorage.Where(s =>
 				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString())) &&
 				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
 				(filter.SearchString is null || s.Text.Contains(filter.SearchString))
@@ -58,7 +59,7 @@ namespace AtelierTomato.Markov.Data
 
 		public Task WriteSentence(Sentence sentence)
 		{
-			SentenceStorage.Add(sentence);
+			sentenceStorage.Add(sentence);
 			return Task.CompletedTask;
 		}
 

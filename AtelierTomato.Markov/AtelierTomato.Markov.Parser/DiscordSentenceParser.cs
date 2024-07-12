@@ -12,7 +12,7 @@ namespace AtelierTomato.Markov.Parser
 		private readonly Regex codeBlockPattern = new Regex(@"(```)((?:(?!```)[\s\S])+|)(```)", RegexOptions.Compiled);
 		private readonly Regex inlineCodeBlockPattern = new Regex(@"((^|[^\\])`([^`]|\\`)*[^\\]`|(^|[^\\])``)", RegexOptions.Compiled);
 		private readonly Regex escapeQuoteArrowPattern = new Regex(@"(?<=^|\n)(>)(?=\S)(?!>)", RegexOptions.Compiled);
-		private readonly Regex replaceEmojiPattern = new Regex(@"(<a?:)(.*?)(?=(:[0-9]+>))(:[0-9]+>)", RegexOptions.Compiled);
+		private readonly Regex replaceEmojiPattern = new Regex(@"<a?:(.*?)(?=:[0-9]+>):[0-9]+>", RegexOptions.Compiled);
 
 		private readonly MarkdownPipeline pipeline;
 		public DiscordSentenceParser(IOptions<SentenceParserOptions> options) : base(options)
@@ -75,6 +75,6 @@ namespace AtelierTomato.Markov.Parser
 		private string DeleteCodeBlocks(string text) => codeBlockPattern.Replace(text, Environment.NewLine);
 		private string DeleteInlineCodeBlocks(string text) => inlineCodeBlockPattern.Replace(text, " ");
 		private string EscapeQuoteArrow(string text) => escapeQuoteArrowPattern.Replace(text, m => "\\" + m.Groups[1].Value);
-		private string ReplaceEmoji(string text) => replaceEmojiPattern.Replace(text, m => "e:" + m.Groups[2].Value + ":");
+		private string ReplaceEmoji(string text) => replaceEmojiPattern.Replace(text, m => "e:" + m.Groups[1].Value + ":");
 	}
 }

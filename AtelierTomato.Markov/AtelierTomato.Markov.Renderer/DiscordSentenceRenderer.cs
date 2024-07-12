@@ -5,7 +5,7 @@ namespace AtelierTomato.Markov.Renderer
 {
 	public class DiscordSentenceRenderer : SentenceRenderer
 	{
-		private readonly Regex escapeRegex = new Regex(@"(^|[^\d\sa-zA-Z])?([\d\sa-zA-Z]+)?((<a?:.+?(?=:[0-9]+>):[0-9]+>)+)?", RegexOptions.Compiled);
+		private readonly Regex escapeRegex = new Regex(@"(^|[^\d\sa-zA-Z])?([\d\sa-zA-Z]+)?(<a?:.+?(?=:[0-9]+>):[0-9]+>+)?", RegexOptions.Compiled);
 		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)
 		{
 			text = RenderEmojis(text, currentEmojis, allEmojis);

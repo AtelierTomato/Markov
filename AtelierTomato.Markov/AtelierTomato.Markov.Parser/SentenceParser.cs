@@ -107,7 +107,7 @@ namespace AtelierTomato.Markov.Parser
 			return spaceifyEllipsesPattern.Replace(messageText,
 				m => " " + m.Groups[1].Value);
 		}
-		private static IEnumerable<string> TokenizeProcessedSentence(string s) => s.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		protected virtual IEnumerable<string> TokenizeProcessedSentence(string s) => s.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 		private string DeleteLinks(string text) => deleteLinkPattern.Replace(text, "");
 

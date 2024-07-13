@@ -366,7 +366,6 @@ Life in the Vault is about to change.";
 		[InlineData("Septapus")]
 		[InlineData("s.")]
 		[InlineData("ch!")]
-		[InlineData("#")]
 		[InlineData("$")]
 		[InlineData("/")]
 		[InlineData("%")]

@@ -30,6 +30,13 @@ namespace AtelierTomato.Markov.Parser
 
 		public override IEnumerable<string> ParseIntoSentenceTexts(string text)
 		{
+			text = ReplacePrefixes(text);
+			text = RemovePrefixes(text);
+			// If this message is prefixed with a prefix we want to ignore, cancel processing and instead return an empty list.
+			if (discordOptions.IgnorePrefixes.Any(text.StartsWith))
+			{
+				return [];
+			}
 			text = DeleteCodeBlocks(text);
 			text = DeleteInlineCodeBlocks(text);
 			text = EscapeQuoteArrow(text);
@@ -74,9 +81,29 @@ namespace AtelierTomato.Markov.Parser
 
 			return text;
 		}
+
+		private string ReplacePrefixes(string text)
+		{
+			for (int i = 0; i < discordOptions.ReplacePrefixFrom.Count; i++)
+			{
+				if (i > discordOptions.ReplacePrefixTo.Count)
+					throw new Exception("The list for DiscordSentenceParserOptions.ReplacePrefixFrom is longer than DiscordSentenceParserOptions.ReplacePrefixTo, they must be the same length.");
+				text = text.Replace(discordOptions.ReplacePrefixFrom[i], discordOptions.ReplacePrefixTo[i]);
+			}
+			return text;
+		}
+		private string RemovePrefixes(string text)
+		{
+			while (discordOptions.RemovePrefixes.FirstOrDefault(p => text.StartsWith(p)) is not null and var prefix)
+			{
+				text = text.Remove(0, prefix.Length).TrimStart();
+			}
+			return text;
+		}
 		private string DeleteCodeBlocks(string text) => codeBlockPattern.Replace(text, Environment.NewLine);
 		private string DeleteInlineCodeBlocks(string text) => inlineCodeBlockPattern.Replace(text, " ");
 		private string EscapeQuoteArrow(string text) => escapeQuoteArrowPattern.Replace(text, m => "\\" + m.Groups[1].Value);
 		private string ReplaceEmoji(string text) => replaceEmojiPattern.Replace(text, m => "e:" + m.Groups[1].Value + ":");
+		protected override IEnumerable<string> TokenizeProcessedSentence(string s) => s.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Where(w => !w.Contains("discord.gg"));
 	}
 }

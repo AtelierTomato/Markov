@@ -28,7 +28,7 @@ select * from {nameof(Word)} where {nameof(Word.Name)} = @name
 			return result ?? new Word(name, Appearances: 0);
 		}
 
-		public async Task<IEnumerable<Word>> ReadWordRange(IEnumerable<Word> names)
+		public async Task<IEnumerable<Word>> ReadWordRange(IEnumerable<string> names)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();

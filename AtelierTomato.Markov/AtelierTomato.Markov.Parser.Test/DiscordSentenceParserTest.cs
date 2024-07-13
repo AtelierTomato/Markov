@@ -310,5 +310,103 @@ Life in the Vault is about to change.";
 
 			result.Should().BeEquivalentTo(output);
 		}
+
+		[Theory]
+		[InlineData("t!remindme to get dailies in 1 day 2 hours and 32 minutes", "remind me to get dailies in 1 day 2 hours and 32 minutes")]
+		[InlineData("t!remind to get dailies in 1 day 2 hours and 32 minutes", "remind me to get dailies in 1 day 2 hours and 32 minutes")]
+		public void ReplacePrefixesTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
+		}
+
+		[Theory]
+		[InlineData("whs")]
+		[InlineData("whr")]
+		[InlineData("\u0026meme")]
+		[InlineData("\u0026caption2")]
+		[InlineData("\u0026caption")]
+		[InlineData("\u0026motivation")]
+		[InlineData("Septapus wormhole send")]
+		[InlineData("Septapus wormhole reply")]
+		[InlineData("t!8ball")]
+		[InlineData("666^8ball")]
+		[InlineData("777^8ball")]
+		[InlineData(".meme")]
+		[InlineData(".caption")]
+		[InlineData(".recaption")]
+		public void RemovePrefixesTest(string prefix)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var text = "1 2 3 4 5 6";
+			var result = target.ParseIntoSentenceTexts(prefix + text);
+
+			result.Should().BeEquivalentTo(text);
+		}
+
+		[Theory]
+		[InlineData("t!")]
+		[InlineData("t@")]
+		[InlineData("m?")]
+		[InlineData(")")]
+		[InlineData("!")]
+		[InlineData(".")]
+		[InlineData("&")]
+		[InlineData("dlm!")]
+		[InlineData("y!")]
+		[InlineData("s?")]
+		[InlineData("Septapus")]
+		[InlineData("s.")]
+		[InlineData("ch!")]
+		[InlineData("#")]
+		[InlineData("$")]
+		[InlineData("/")]
+		[InlineData("%")]
+		[InlineData("666^")]
+		[InlineData("777^")]
+		[InlineData("?")]
+		[InlineData("e!")]
+		[InlineData("ed!")]
+		[InlineData("d!")]
+		[InlineData("h!")]
+		[InlineData("a!")]
+		[InlineData("o!")]
+		[InlineData("p!")]
+		[InlineData("m!")]
+		[InlineData("b!")]
+		[InlineData("~>")]
+		[InlineData("->")]
+		public void IgnorePrefixesTest(string prefix)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var text = "1 2 3 4 5 6";
+			var result = target.ParseIntoSentenceTexts(prefix + text);
+
+			result.Should().BeEquivalentTo(Enumerable.Empty<string>());
+		}
+
+		[Theory]
+		[InlineData("lol this is my server discord.gg/horseradish", "lol this is my server")]
+		public void RemoveDiscordServersTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
+		}
 	}
 }

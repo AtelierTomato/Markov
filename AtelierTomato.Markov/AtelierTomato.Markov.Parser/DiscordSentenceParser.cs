@@ -14,9 +14,11 @@ namespace AtelierTomato.Markov.Parser
 		private readonly Regex escapeQuoteArrowPattern = new Regex(@"(?<=^|\n)(>)(?=\S)(?!>)", RegexOptions.Compiled);
 		private readonly Regex replaceEmojiPattern = new Regex(@"<a?:(.+?)(?=:[0-9]+>):[0-9]+>", RegexOptions.Compiled);
 
+		private readonly DiscordSentenceParserOptions discordOptions;
 		private readonly MarkdownPipeline pipeline;
-		public DiscordSentenceParser(IOptions<SentenceParserOptions> options) : base(options)
+		public DiscordSentenceParser(IOptions<SentenceParserOptions> options, IOptions<DiscordSentenceParserOptions> discordOptions) : base(options)
 		{
+			this.discordOptions = discordOptions.Value;
 			pipeline = new MarkdownPipelineBuilder().UseEmphasisExtras(EmphasisExtraOptions.Strikethrough).Use<SpoilerExtension>().Build();
 		}
 

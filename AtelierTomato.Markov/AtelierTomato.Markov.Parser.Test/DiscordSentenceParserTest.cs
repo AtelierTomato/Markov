@@ -18,7 +18,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParseSurroundingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
@@ -36,7 +37,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParseEscapedSurroundingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
@@ -51,7 +53,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParsePrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
@@ -66,7 +69,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParseEscapedPrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
@@ -101,7 +105,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParseCodeBlocksTest(string input, string[] output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
@@ -113,7 +118,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParseTextWithTagsTest()
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var input = @"yo <@!302915036492333067> and <@&308492793825853441>  can you <:ShihoLook:402558230427074560>  in <#614165694090838035> and get me some burgers or something";
 			var output = @"yo Sandra and ice fairy can you e:ShihoLook: in fairy- land and get me some burgers or something";
@@ -170,7 +176,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParseSimpleText(string input, string output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
@@ -181,7 +188,8 @@ namespace AtelierTomato.Markov.Parser.Test
 		public void ParseMultiSentenceText()
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var input = @"
 War. War never changes.
@@ -225,7 +233,8 @@ Life in the Vault is about to change.";
 		public void CaptureSentenceEnders(string input, IEnumerable<string> output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 
@@ -271,7 +280,8 @@ Life in the Vault is about to change.";
 		public void TokenizeEdgeCasesTest(string input)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 
 			var result = target.ParseIntoSentenceTexts(input);
@@ -293,7 +303,8 @@ Life in the Vault is about to change.";
 		public void AdvancedEmojiTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
-			var target = new DiscordSentenceParser(Options.Create(options));
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
 

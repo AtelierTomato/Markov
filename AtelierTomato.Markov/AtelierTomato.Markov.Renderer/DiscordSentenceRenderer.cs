@@ -5,7 +5,7 @@ namespace AtelierTomato.Markov.Renderer
 {
 	public class DiscordSentenceRenderer : SentenceRenderer
 	{
-		private readonly Regex escapeRegex = new Regex(@"(^|[^\d\sa-zA-Z])?([\d\sa-zA-Z]+)?(<a?:.+?(?=:[0-9]+>):[0-9]+>+)?", RegexOptions.Compiled);
+		private readonly Regex escapeRegex = new Regex(@"(<a?:[^:]+:[0-9]+>)?([^\d\sa-zA-Z])?", RegexOptions.Compiled);
 		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)
 		{
 			text = RenderEmojis(text, currentEmojis, allEmojis);
@@ -19,15 +19,21 @@ namespace AtelierTomato.Markov.Renderer
 			return Escape(text);
 		}
 
-		private string Escape(string text) => escapeRegex.Replace(" " + text, m =>
+		private string Escape(string text) => escapeRegex.Replace(text, m =>
 		{
-			if (!(m.Groups[1].Value == string.Empty))
+			if (m.Groups[1].Success && m.Groups[2].Success)
 			{
-				return "\\" + m.Groups[1].Value + m.Groups[2].Value + m.Groups[3].Value;
-			} else
-			{
-				return m.Groups[1].Value + m.Groups[2].Value + m.Groups[3].Value;
+				throw new Exception("Developers don't understand regex oops.");
 			}
+			else if (m.Groups[2].Success)
+			{
+				return "\\" + m.Groups[2].Value;
+			}
+			else if (m.Groups[1].Success)
+			{
+				return m.Groups[1].Value;
+			}
+			return m.Value;
 		}).Trim();
 
 		public string RenderEmojis(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis) => renderEmojiRegex.Replace(text, m =>

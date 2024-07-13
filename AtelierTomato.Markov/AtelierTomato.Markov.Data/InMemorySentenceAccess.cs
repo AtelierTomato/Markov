@@ -48,13 +48,13 @@ namespace AtelierTomato.Markov.Data
 			return sentenceQueryResult[random.Next(sentenceQueryResult.Count - 1)];
 		}
 
-		public async Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)
+		public Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)
 		{
-			return sentenceStorage.Where(s =>
+			return Task.FromResult((IEnumerable<Sentence>?)sentenceStorage.Where(s =>
 				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString())) &&
 				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
 				(filter.SearchString is null || s.Text.Contains(filter.SearchString))
-			).ToList();
+			));
 		}
 
 		public Task WriteSentence(Sentence sentence)

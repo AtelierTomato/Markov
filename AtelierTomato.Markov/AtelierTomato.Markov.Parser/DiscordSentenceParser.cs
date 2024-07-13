@@ -1,7 +1,7 @@
-﻿using Discord;
+﻿using AtelierTomato.Markov.Parser.MarkdigExtensions;
+using Discord;
 using Markdig;
 using Markdig.Extensions.EmphasisExtras;
-using MarkovBot.Core.MessageParsing.Markdig;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 

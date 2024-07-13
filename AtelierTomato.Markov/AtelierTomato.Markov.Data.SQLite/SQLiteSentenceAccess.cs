@@ -85,7 +85,7 @@ ORDER BY RANDOM() LIMIT 1
 			return result;
 		}
 
-		public async Task<IEnumerable<Sentence>?> ReadSentenceRange(SentenceFilter filter)
+		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();

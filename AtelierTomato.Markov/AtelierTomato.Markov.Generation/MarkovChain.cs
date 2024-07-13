@@ -4,21 +4,26 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Generation
 {
-	public class GenerateMarkovSentence(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
+	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
 	{
 		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
 		private readonly MarkovGenerationOptions options = options.Value;
 		private static readonly Random random = new();
 
-		public async Task<string> Generate(SentenceFilter filter)
+		public async Task<string> Generate(SentenceFilter filter, string? firstWord = null)
 		{
-			Sentence? sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
-			string firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
-			var tokenizedSentence = new List<string> { firstWord };
-			var prevList = tokenizedSentence;
-
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
-			var prevIDs = new List<string> { sentence.OID.ToString() };
+			List<IObjectOID> prevIDs = [];
+			Sentence? sentence;
+			if (firstWord is null)
+			{
+				sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
+				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
+				prevIDs.Add(sentence.OID);
+			}
+			List<string> tokenizedSentence = [firstWord];
+			List<string> prevList = [firstWord];
+
 			var rerolls = 0;
 
 			// Gets reset whenever the list of previous words has to be modified or the randomized copypasta killer takes action
@@ -35,7 +40,7 @@ namespace AtelierTomato.Markov.Generation
 				sentence = await GetNextSentence(prevList, prevIDs, filter);
 				if (sentence is not null)
 				{
-					prevIDs.Add(sentence.OID.ToString());
+					prevIDs.Add(sentence.OID);
 					currentPastaLength++;
 
 					var spacedText = ' ' + sentence.Text + ' ';
@@ -98,8 +103,8 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<string> previousIDs, SentenceFilter filter) => await sentenceAccess.ReadNextSentence(prevList, previousIDs, filter);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter) => await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
 
-		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter) => await sentenceAccess.ReadSentence(filter);
+		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter) => await sentenceAccess.ReadRandomSentence(filter);
 	}
 }

@@ -24,7 +24,7 @@ namespace AtelierTomato.Markov.Data
 			List<Sentence>? sentenceQueryResult = ReadSentenceRange(filter).Result?.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			if (sentenceQueryResult is null or [])
 			{
-				sentenceQueryResult = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result?.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
+				sentenceQueryResult = (await ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)))?.Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			}
 			if (sentenceQueryResult is null or [])
 			{
@@ -39,7 +39,7 @@ namespace AtelierTomato.Markov.Data
 			List<Sentence>? sentenceQueryResult = ReadSentenceRange(filter).Result?.ToList();
 			if (sentenceQueryResult is null or [])
 			{
-				sentenceQueryResult = ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)).Result?.ToList() ?? null;
+				sentenceQueryResult = (await ReadSentenceRange(new SentenceFilter(filter.OID, filter.Author, null)))?.ToList();
 			}
 			if (sentenceQueryResult is null or [])
 			{

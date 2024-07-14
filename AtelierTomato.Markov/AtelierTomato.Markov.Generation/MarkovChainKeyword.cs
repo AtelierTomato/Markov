@@ -6,7 +6,7 @@ namespace AtelierTomato.Markov.Generation
 	public class MarkovChainKeyword(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options, Keyword keyword) : MarkovChain(sentenceAccess, options)
 	{
 		private readonly Keyword keyword = keyword;
-		public async Task<string> Generate(SentenceFilter filter, string str, string? firstWord = null)
+		public async Task<string> Generate(SentenceFilter filter, string str, string? firstWord)
 		{
 			if (filter.SearchString is not null)
 			{

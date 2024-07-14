@@ -5,7 +5,7 @@ namespace AtelierTomato.Markov.Renderer
 {
 	public class SentenceRenderer
 	{
-		protected readonly Regex renderEmojiRegex = new Regex(@"e:((?:(?!:).)+):", RegexOptions.Compiled);
+		protected readonly Regex renderEmojiRegex = new Regex(@"e:([^:]+):", RegexOptions.Compiled); // Matches to "e:anyCharactersExceptColon:", our custom emoji storage format.
 		private readonly Regex attachToPreviousWord = new Regex(@"(?: |^)([.\}\)\];:]|[?!,]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(])(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachQuotes = new Regex(@"(?: |^)("")(?: |$)", RegexOptions.Compiled);

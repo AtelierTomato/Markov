@@ -12,7 +12,7 @@ namespace AtelierTomato.Markov.Parser
 		private readonly Regex codeBlockPattern = new Regex(@"(```)((?:(?!```)[\s\S])+|)(```)", RegexOptions.Compiled);
 		private readonly Regex inlineCodeBlockPattern = new Regex(@"((^|[^\\])`([^`]|\\`)*[^\\]`|(^|[^\\])``)", RegexOptions.Compiled);
 		private readonly Regex escapeQuoteArrowPattern = new Regex(@"(?<=^|\n)(>)(?=\S)(?!>)", RegexOptions.Compiled);
-		private readonly Regex replaceEmojiPattern = new Regex(@"<a?:(.+?)(?=:[0-9]+>):[0-9]+>", RegexOptions.Compiled);
+		private readonly Regex replaceEmojiPattern = new Regex(@"<a?:([^:]+):[0-9]+>", RegexOptions.Compiled);
 
 		private readonly DiscordSentenceParserOptions discordOptions;
 		private readonly MarkdownPipeline pipeline;

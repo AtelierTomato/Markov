@@ -100,5 +100,39 @@ namespace AtelierTomato.Markov.Renderer.Test
 			var result = target.Render(input, currentEmojis, allEmojis);
 			result.Should().Be(output);
 		}
+		[Theory]
+		[InlineData("e:1234____:", "<:1234____:402558230427074560>")]
+		[InlineData("e:1234____: e:applesauce:", "<:1234____:402558230427074560> applesauce")]
+		[InlineData("appe:1234____:le", "app<:1234____:402558230427074560>le")]
+		[InlineData("e:1234____: e:1234____: e:1234____:", "<:1234____:402558230427074560> <:1234____:402558230427074560> <:1234____:402558230427074560>")]
+		public void RenderEmojisNumeric(string input, string output)
+		{
+			var emote = new Emote(402558230427074560, "1234____");
+
+			IEnumerable<Emote> currentEmojis = [];
+			IEnumerable<Emote> allEmojis = [emote];
+
+			var target = new DiscordSentenceRenderer();
+
+			var result = target.Render(input, currentEmojis, allEmojis);
+			result.Should().Be(output);
+		}
+		[Theory]
+		[InlineData("e:ShihoLook:", "<a:ShihoLook:402558230427074560>")]
+		[InlineData("e:ShihoLook: e:applesauce:", "<a:ShihoLook:402558230427074560> applesauce")]
+		[InlineData("appe:ShihoLook:le", "app<a:ShihoLook:402558230427074560>le")]
+		[InlineData("e:ShihoLook: e:ShihoLook: e:ShihoLook:", "<a:ShihoLook:402558230427074560> <a:ShihoLook:402558230427074560> <a:ShihoLook:402558230427074560>")]
+		public void RenderEmojisInAnimated(string input, string output)
+		{
+			var emote = new Emote(402558230427074560, "ShihoLook", true);
+
+			IEnumerable<Emote> currentEmojis = [];
+			IEnumerable<Emote> allEmojis = [emote];
+
+			var target = new DiscordSentenceRenderer();
+
+			var result = target.Render(input, currentEmojis, allEmojis);
+			result.Should().Be(output);
+		}
 	}
 }

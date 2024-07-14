@@ -102,6 +102,19 @@ namespace AtelierTomato.Markov.Parser.Test
 				@"yeah so if you want to use foreach it 's like this",
 				@"hope that helps and happy programming" }
 		)]
+		[InlineData(
+			@"
+				okay so here's code block 1
+				```wow gaming```
+				get ready for code block 2!
+				```hello wrodl!```
+				that's all for today i guess
+			",
+			new string[] {
+				@"okay so here 's code block 1",
+				@"get ready for code block 2 !",
+				@"that 's all for today i guess"
+			})]
 		public void ParseCodeBlocksTest(string input, string[] output)
 		{
 			var options = new SentenceParserOptions();

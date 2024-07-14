@@ -84,11 +84,9 @@ namespace AtelierTomato.Markov.Parser
 
 		private string ReplacePrefixes(string text)
 		{
-			for (int i = 0; i < discordOptions.ReplacePrefixFrom.Count; i++)
+			foreach (ReplacePrefix replacePrefix in discordOptions.ReplacePrefixes)
 			{
-				if (i > discordOptions.ReplacePrefixTo.Count)
-					throw new Exception("The list for DiscordSentenceParserOptions.ReplacePrefixFrom is longer than DiscordSentenceParserOptions.ReplacePrefixTo, they must be the same length.");
-				text = text.Replace(discordOptions.ReplacePrefixFrom[i], discordOptions.ReplacePrefixTo[i]);
+				text = text.Replace(replacePrefix.From, replacePrefix.To);
 			}
 			return text;
 		}

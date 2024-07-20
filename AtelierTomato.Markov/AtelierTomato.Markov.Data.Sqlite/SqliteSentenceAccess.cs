@@ -25,8 +25,8 @@ DELETE FROM {nameof(Sentence)} WHERE
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString
 			});
 
@@ -49,8 +49,8 @@ ORDER BY RANDOM() LIMIT 1
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString,
 				previousIDs = previousIDs.Select(x => x.ToString()),
 				prevList = string.Join(' ', prevList)
@@ -75,8 +75,8 @@ ORDER BY RANDOM() LIMIT 1
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString
 			});
 
@@ -98,8 +98,8 @@ SELECT * FROM {nameof(Sentence)} WHERE
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString
 			});
 

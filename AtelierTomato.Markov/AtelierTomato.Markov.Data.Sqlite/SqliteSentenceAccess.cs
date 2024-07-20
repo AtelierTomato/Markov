@@ -58,7 +58,7 @@ ORDER BY RANDOM() LIMIT 1
 
 			connection.Close();
 
-			throw new NotImplementedException();
+			return result?.ToSentence();
 		}
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
@@ -82,7 +82,7 @@ ORDER BY RANDOM() LIMIT 1
 
 			connection.Close();
 
-			throw new NotImplementedException();
+			return result?.ToSentence();
 		}
 
 		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter)
@@ -104,8 +104,7 @@ SELECT * FROM {nameof(Sentence)} WHERE
 			});
 
 			connection.Close();
-
-			throw new NotImplementedException();
+			return result.Select(s => s.ToSentence());
 		}
 
 		public async Task WriteSentence(Sentence sentence) => await WriteSentenceRange([sentence]);
@@ -126,6 +125,7 @@ SELECT * FROM {nameof(Sentence)} WHERE
 
 		private async Task WriteCore(Sentence sentence, SqliteConnection connection)
 		{
+			SentenceRaw sentenceRaw = new(sentence);
 			await connection.ExecuteAsync($@"
 insert into {nameof(Sentence)} ( {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} )
 Values ( @oid, @author, @date, @text )
@@ -135,10 +135,10 @@ on conflict ({nameof(Sentence.OID)}) do update set
 ",
 			new
 			{
-				oid = sentence.OID.ToString(),
-				author = sentence.Author.ToString(),
-				date = sentence.Date.ToString("o"),
-				text = sentence.Text
+				oid = sentenceRaw.OID,
+				author = sentenceRaw.Author,
+				date = sentenceRaw.Date,
+				text = sentenceRaw.Text
 			}); ;
 		}
 	}

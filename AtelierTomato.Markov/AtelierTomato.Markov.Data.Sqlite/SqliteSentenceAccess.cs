@@ -38,7 +38,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<Sentence?>($@"
+			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
@@ -58,7 +58,7 @@ ORDER BY RANDOM() LIMIT 1
 
 			connection.Close();
 
-			return result;
+			throw new NotImplementedException();
 		}
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
@@ -66,7 +66,7 @@ ORDER BY RANDOM() LIMIT 1
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<Sentence?>($@"
+			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
@@ -82,7 +82,7 @@ ORDER BY RANDOM() LIMIT 1
 
 			connection.Close();
 
-			return result;
+			throw new NotImplementedException();
 		}
 
 		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter)
@@ -90,7 +90,7 @@ ORDER BY RANDOM() LIMIT 1
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<Sentence>($@"
+			var result = await connection.QueryAsync<SentenceRaw>($@"
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
@@ -105,7 +105,7 @@ SELECT * FROM {nameof(Sentence)} WHERE
 
 			connection.Close();
 
-			return result;
+			throw new NotImplementedException();
 		}
 
 		public async Task WriteSentence(Sentence sentence) => await WriteSentenceRange([sentence]);

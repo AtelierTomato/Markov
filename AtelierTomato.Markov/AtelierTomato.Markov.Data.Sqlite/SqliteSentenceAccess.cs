@@ -25,8 +25,8 @@ DELETE FROM {nameof(Sentence)} WHERE
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString
 			});
 
@@ -38,7 +38,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<Sentence?>($@"
+			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
@@ -49,8 +49,8 @@ ORDER BY RANDOM() LIMIT 1
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString,
 				previousIDs = previousIDs.Select(x => x.ToString()),
 				prevList = string.Join(' ', prevList)
@@ -58,7 +58,7 @@ ORDER BY RANDOM() LIMIT 1
 
 			connection.Close();
 
-			return result;
+			return result?.ToSentence();
 		}
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
@@ -66,7 +66,7 @@ ORDER BY RANDOM() LIMIT 1
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<Sentence?>($@"
+			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
@@ -75,14 +75,14 @@ ORDER BY RANDOM() LIMIT 1
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString
 			});
 
 			connection.Close();
 
-			return result;
+			return result?.ToSentence();
 		}
 
 		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter)
@@ -90,7 +90,7 @@ ORDER BY RANDOM() LIMIT 1
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<Sentence>($@"
+			var result = await connection.QueryAsync<SentenceRaw>($@"
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
@@ -98,14 +98,13 @@ SELECT * FROM {nameof(Sentence)} WHERE
 ",
 			new
 			{
-				oid = filter.OID,
-				author = filter.Author,
+				oid = filter.OID?.ToString(),
+				author = filter.Author?.ToString(),
 				searchTerm = filter.SearchString
 			});
 
 			connection.Close();
-
-			return result;
+			return result.Select(s => s.ToSentence());
 		}
 
 		public async Task WriteSentence(Sentence sentence) => await WriteSentenceRange([sentence]);
@@ -126,6 +125,7 @@ SELECT * FROM {nameof(Sentence)} WHERE
 
 		private async Task WriteCore(Sentence sentence, SqliteConnection connection)
 		{
+			SentenceRaw sentenceRaw = new(sentence);
 			await connection.ExecuteAsync($@"
 insert into {nameof(Sentence)} ( {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} )
 Values ( @oid, @author, @date, @text )
@@ -135,10 +135,10 @@ on conflict ({nameof(Sentence.OID)}) do update set
 ",
 			new
 			{
-				oid = sentence.OID.ToString(),
-				author = sentence.Author.ToString(),
-				date = sentence.Date.ToString("o"),
-				text = sentence.Text
+				oid = sentenceRaw.OID,
+				author = sentenceRaw.Author,
+				date = sentenceRaw.Date,
+				text = sentenceRaw.Text
 			}); ;
 		}
 	}

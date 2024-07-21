@@ -422,16 +422,18 @@ Life in the Vault is about to change.";
 			result.Should().BeEquivalentTo(output);
 		}
 
-		[Fact]
-		public void ReplaceLinksTest()
+		[Theory]
+		[InlineData("[Google](<https://google.com>) is my favorite search engine", "Google is my favorite search engine")]
+		[InlineData("[Google](https://google.com) is my favorite search engine", "Google is my favorite search engine")]
+		public void ReplaceLinksTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
 			var discordOptions = new DiscordSentenceParserOptions();
 			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
-			var result = target.ParseIntoSentenceTexts("[Google](<https://google.com>) is my favorite search engine");
+			var result = target.ParseIntoSentenceTexts(input);
 
-			result.Should().BeEquivalentTo("Google is my favorite search engine");
+			result.Should().BeEquivalentTo(output);
 		}
 	}
 }

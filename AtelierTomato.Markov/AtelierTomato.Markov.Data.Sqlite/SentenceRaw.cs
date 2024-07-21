@@ -1,10 +1,11 @@
-﻿using AtelierTomato.Markov.Data.Model.ObjectOID.Parser;
+﻿using AtelierTomato.Markov.Data.Model;
+using AtelierTomato.Markov.Data.Model.ObjectOID.Parser;
 using System.Globalization;
 
-namespace AtelierTomato.Markov.Data.Model
+namespace AtelierTomato.Markov.Data.Sqlite
 {
 	// All string version of Sentence, used as a return type of queries that .ToString() the Sentence in however they store the Sentence.
-	public class SentenceRaw
+	internal class SentenceRaw
 	{
 		public string OID { get; set; }
 		public string Author { get; set; }

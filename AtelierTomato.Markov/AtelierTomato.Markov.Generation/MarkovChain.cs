@@ -10,7 +10,7 @@ namespace AtelierTomato.Markov.Generation
 		private readonly MarkovGenerationOptions options = options.Value;
 		private static readonly Random random = new();
 
-		public async Task<string> Generate(SentenceFilter filter, string? firstWord)
+		public async Task<string> Generate(SentenceFilter filter, string? firstWord = null)
 		{
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
 			List<IObjectOID> prevIDs = [];

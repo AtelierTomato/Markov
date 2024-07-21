@@ -47,6 +47,7 @@ namespace AtelierTomato.Markov.Parser.Test
 
 		[Theory]
 		[InlineData(@"# lol this text is so big!", @"lol this text is so big !")]
+		[InlineData(@"-# lol this text is so small!", @"lol this text is so small !")]
 		[InlineData(@"## for no reason they also support this", @"for no reason they also support this")]
 		[InlineData(@"### and nobody even uses this one, it's just bold", @"and nobody even uses this one , it 's just bold")]
 		[InlineData(@">>> this is a big block quote multi-line just kill it", @"this is a big block quote multi- line just kill it")]

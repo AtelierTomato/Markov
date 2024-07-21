@@ -9,9 +9,9 @@ namespace AtelierTomato.Markov.Data.Sqlite
 	{
 		private readonly SqliteAccessOptions options = options.Value;
 
-		public async Task DeleteSentenceRange(SentenceFilter filter)
+		public async Task DeleteSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
-			if (filter.OID is null && filter.Author is null && filter.SearchString is null)
+			if (filter.OID is null && filter.Author is null && searchString is null)
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
@@ -21,19 +21,19 @@ namespace AtelierTomato.Markov.Data.Sqlite
 DELETE FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
-( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' )
+( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
 			new
 			{
 				oid = filter.OID,
 				author = filter.Author,
-				searchTerm = filter.SearchString
+				searchString
 			});
 
 			connection.Close();
 		}
 
-		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter)
+		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -42,7 +42,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
-( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' ) AND
+( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' ) AND
 ( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
 ORDER BY RANDOM() LIMIT 1
@@ -51,7 +51,7 @@ ORDER BY RANDOM() LIMIT 1
 			{
 				oid = filter.OID,
 				author = filter.Author,
-				searchTerm = filter.SearchString,
+				keyword,
 				previousIDs = previousIDs.Select(x => x.ToString()),
 				prevList = string.Join(' ', prevList)
 			});
@@ -61,7 +61,7 @@ ORDER BY RANDOM() LIMIT 1
 			return result;
 		}
 
-		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter)
+		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -70,14 +70,14 @@ ORDER BY RANDOM() LIMIT 1
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
-( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' )
+( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' )
 ORDER BY RANDOM() LIMIT 1
 ",
 			new
 			{
 				oid = filter.OID,
 				author = filter.Author,
-				searchTerm = filter.SearchString
+				keyword
 			});
 
 			connection.Close();
@@ -85,7 +85,7 @@ ORDER BY RANDOM() LIMIT 1
 			return result;
 		}
 
-		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter)
+		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -94,13 +94,13 @@ ORDER BY RANDOM() LIMIT 1
 SELECT * FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
-( @searchTerm IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchTerm || ' %' )
+( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
 			new
 			{
 				oid = filter.OID,
 				author = filter.Author,
-				searchTerm = filter.SearchString
+				searchString
 			});
 
 			connection.Close();

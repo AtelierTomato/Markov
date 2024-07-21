@@ -103,8 +103,24 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter) => await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter)
+		{
+			Sentence? sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
+			if (sentence is null && filter.SearchString is not null)
+			{
+				sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, new SentenceFilter(filter.OID, filter.Author, null));
+			}
+			return sentence;
+		}
 
-		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter) => await sentenceAccess.ReadRandomSentence(filter);
+		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter)
+		{
+			Sentence? sentence = await sentenceAccess.ReadRandomSentence(filter);
+			if (sentence is null && filter.SearchString is not null)
+			{
+				sentence = await sentenceAccess.ReadRandomSentence(new SentenceFilter(filter.OID, filter.Author, null));
+			}
+			return sentence;
+		}
 	}
 }

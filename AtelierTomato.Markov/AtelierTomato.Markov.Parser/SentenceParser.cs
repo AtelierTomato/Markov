@@ -63,7 +63,7 @@ namespace AtelierTomato.Markov.Parser
 
 			var tokenizedSentences = sentences.Select(s => TokenizeProcessedSentence(s));
 			// Remove sentences where the minimum length of the sentence (not including punctuation) is less than the minimum input length for a sentence.
-			tokenizedSentences = tokenizedSentences.Where(s => s.Count(w => !ignoreCountPattern.IsMatch(w)) >= options.minimumInputLength);
+			tokenizedSentences = tokenizedSentences.Where(s => s.Count(w => !ignoreCountPattern.IsMatch(w)) >= options.MinimumInputLength);
 
 			var sentenceTexts = tokenizedSentences.Select(ts => string.Join(" ", ts));
 

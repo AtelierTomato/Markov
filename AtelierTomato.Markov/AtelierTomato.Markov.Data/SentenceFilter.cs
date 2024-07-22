@@ -2,10 +2,9 @@
 
 namespace AtelierTomato.Markov.Data
 {
-	public class SentenceFilter(IObjectOID? OID, AuthorOID? author, string? searchString)
+	public class SentenceFilter(IObjectOID? OID, AuthorOID? author)
 	{
-		public IObjectOID? OID { get; set; } = OID;
-		public AuthorOID? Author { get; set; } = author;
-		public string? SearchString { get; set; } = searchString;
+		public IObjectOID? OID { get; init; } = OID;
+		public AuthorOID? Author { get; init; } = author;
 	}
 }

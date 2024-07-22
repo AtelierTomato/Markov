@@ -10,14 +10,14 @@ namespace AtelierTomato.Markov.Generation
 		private readonly MarkovGenerationOptions options = options.Value;
 		private static readonly Random random = new();
 
-		public async Task<string> Generate(SentenceFilter filter, string? firstWord = null)
+		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null)
 		{
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
 			List<IObjectOID> prevIDs = [];
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await GetFirstSentence(filter) ?? throw new Exception("Couldn't query any messages.");
+				sentence = await GetFirstSentence(filter, keyword) ?? throw new Exception("Couldn't query any messages.");
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 				prevIDs.Add(sentence.OID);
 			}
@@ -37,7 +37,7 @@ namespace AtelierTomato.Markov.Generation
 					currentPastaLength = 0;
 				}
 
-				sentence = await GetNextSentence(prevList, prevIDs, filter);
+				sentence = await GetNextSentence(prevList, prevIDs, filter, keyword);
 				if (sentence is not null)
 				{
 					prevIDs.Add(sentence.OID);
@@ -103,8 +103,24 @@ namespace AtelierTomato.Markov.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter) => await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
+		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
+		{
+			Sentence? sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter, keyword);
+			if (sentence is null && keyword is not null)
+			{
+				sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
+			}
+			return sentence;
+		}
 
-		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter) => await sentenceAccess.ReadRandomSentence(filter);
+		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter, string? keyword = null)
+		{
+			Sentence? sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
+			if (sentence is null && keyword is not null)
+			{
+				sentence = await sentenceAccess.ReadRandomSentence(filter);
+			}
+			return sentence;
+		}
 	}
 }

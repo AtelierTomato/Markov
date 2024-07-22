@@ -15,6 +15,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Parser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Data.Test", "AtelierTomato.Markov.Data.Test\AtelierTomato.Markov.Data.Test.csproj", "{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Renderer", "AtelierTomato.Markov.Renderer\AtelierTomato.Markov.Renderer.csproj", "{BC96CEF8-9F83-40C8-BAE8-8286760FA192}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Renderer.Test", "AtelierTomato.Markov.Renderer.Test\AtelierTomato.Markov.Renderer.Test.csproj", "{4E2524B6-E15F-49C3-8BDB-90AF68F452C0}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Data.Sqlite", "AtelierTomato.Markov.Data.Sqlite\AtelierTomato.Markov.Data.Sqlite.csproj", "{D09FD935-19DE-48E1-9799-C63BE64540EF}"
 EndProject
 Global
@@ -47,6 +51,14 @@ Global
 		{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B08E9AD5-8DB8-4E94-B0AC-4CCC63BA3A1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC96CEF8-9F83-40C8-BAE8-8286760FA192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC96CEF8-9F83-40C8-BAE8-8286760FA192}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC96CEF8-9F83-40C8-BAE8-8286760FA192}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC96CEF8-9F83-40C8-BAE8-8286760FA192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E2524B6-E15F-49C3-8BDB-90AF68F452C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E2524B6-E15F-49C3-8BDB-90AF68F452C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E2524B6-E15F-49C3-8BDB-90AF68F452C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E2524B6-E15F-49C3-8BDB-90AF68F452C0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D09FD935-19DE-48E1-9799-C63BE64540EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D09FD935-19DE-48E1-9799-C63BE64540EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D09FD935-19DE-48E1-9799-C63BE64540EF}.Release|Any CPU.ActiveCfg = Release|Any CPU

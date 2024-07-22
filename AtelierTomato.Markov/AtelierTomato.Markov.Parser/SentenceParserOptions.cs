@@ -2,6 +2,6 @@
 {
 	public class SentenceParserOptions
 	{
-		public int minimumInputLength { get; set; } = 5;
+		public int MinimumInputLength { get; set; } = 5;
 	}
 }

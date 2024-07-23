@@ -4,6 +4,24 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AssemblyName>AtelierTomato.Markov.Storage.Sqlite</AssemblyName>
+		<RootNamespace>AtelierTomato.Markov.Storage.Sqlite</RootNamespace>
+		<PackageId>AtelierTomato.Markov.Storage.Sqlite</PackageId>
+		<Authors>AtelierTomato</Authors>
+		<Product>AtelierTomato.Markov</Product>
+		<Title>AtelierTomato Markov Storage Sqlite</Title>
+		<Version>1.0.0</Version>
+		<Company>AtelierTomato</Company>
+		<Copyright>GPL-3.0 license</Copyright>
+		<Description>Provides a storage implementation using Sqlite in order to store Sentences and WordStatistics.</Description>
+		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Markov;Chain;AtelierTomato;Sentence;Generation;Storage;Sqlite</PackageTags>
+		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Storage.Sqlite. This package provides a storage implementation using Sqlite in order to store Sentences and WordStatistics.</PackageReleaseNotes>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -13,6 +31,14 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\AtelierTomato.Markov.Core\AtelierTomato.Markov.Core.csproj" />
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

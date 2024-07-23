@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Data.Model
+namespace AtelierTomato.Markov.Core.Model
 {
 	public static class OIDEscapement
 	{

@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace AtelierTomato.Markov.Data.Model;
+namespace AtelierTomato.Markov.Core.Model;
 
 public class OIDBuilder
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace AtelierTomato.Markov.Data.Generation
+namespace AtelierTomato.Markov.Core.Generation
 {
 	public class KeywordProvider(IWordStatisticAccess wordStatisticAccess, IOptions<KeywordOptions> options)
 	{

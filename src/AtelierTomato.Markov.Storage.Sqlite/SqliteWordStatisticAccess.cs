@@ -1,9 +1,10 @@
-﻿using AtelierTomato.Markov.Data.Model;
+﻿using AtelierTomato.Markov.Core;
+using AtelierTomato.Markov.Core.Model;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
 
-namespace AtelierTomato.Markov.Data.Sqlite
+namespace AtelierTomato.Markov.Storage.Sqlite
 {
 	public class SqliteWordStatisticAccess : IWordStatisticAccess
 	{

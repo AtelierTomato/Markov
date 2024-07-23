@@ -1,11 +1,11 @@
-using AtelierTomato.Markov.Data.Generation;
-using AtelierTomato.Markov.Data.Model;
-using AtelierTomato.Markov.Data.Model.ObjectOID;
+using AtelierTomato.Markov.Core.Generation;
+using AtelierTomato.Markov.Core.Model;
+using AtelierTomato.Markov.Core.Model.ObjectOID;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace AtelierTomato.Markov.Data.Test
+namespace AtelierTomato.Markov.Core.Test
 {
 	public class MarkovTests
 	{

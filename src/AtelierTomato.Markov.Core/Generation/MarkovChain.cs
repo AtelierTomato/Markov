@@ -1,7 +1,7 @@
-﻿using AtelierTomato.Markov.Data.Model;
+﻿using AtelierTomato.Markov.Core.Model;
 using Microsoft.Extensions.Options;
 
-namespace AtelierTomato.Markov.Data.Generation
+namespace AtelierTomato.Markov.Core.Generation
 {
 	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
 	{

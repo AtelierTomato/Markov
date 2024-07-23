@@ -4,7 +4,7 @@ using Markdig.Renderers;
 using Markdig.Renderers.Html.Inlines;
 using Markdig.Syntax.Inlines;
 
-namespace AtelierTomato.Markov.Parser.MarkdigExtensions
+namespace AtelierTomato.Markov.Service.Discord.MarkdigExtensions
 {
 	public class SpoilerExtension : IMarkdownExtension
 	{

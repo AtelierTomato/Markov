@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Parser
+﻿namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceParserOptions
 	{

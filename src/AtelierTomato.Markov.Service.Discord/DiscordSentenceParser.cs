@@ -1,12 +1,12 @@
-﻿using AtelierTomato.Markov.Data;
-using AtelierTomato.Markov.Parser.MarkdigExtensions;
+﻿using AtelierTomato.Markov.Core;
+using AtelierTomato.Markov.Service.Discord.MarkdigExtensions;
 using Discord;
 using Markdig;
 using Markdig.Extensions.EmphasisExtras;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Parser
+namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceParser : SentenceParser
 	{

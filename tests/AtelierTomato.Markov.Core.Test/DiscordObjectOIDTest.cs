@@ -1,7 +1,7 @@
-﻿using AtelierTomato.Markov.Data.Model.ObjectOID;
+﻿using AtelierTomato.Markov.Core.Model.ObjectOID;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Data.Test
+namespace AtelierTomato.Markov.Core.Test
 {
 	public class DiscordObjectOIDTest
 	{

@@ -1,6 +1,6 @@
-﻿using AtelierTomato.Markov.Data.Model;
+﻿using AtelierTomato.Markov.Core.Model;
 
-namespace AtelierTomato.Markov.Data
+namespace AtelierTomato.Markov.Core
 {
 	public interface IWordStatisticAccess
 	{

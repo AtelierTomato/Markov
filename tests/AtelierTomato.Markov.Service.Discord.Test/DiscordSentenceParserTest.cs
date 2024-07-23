@@ -1,10 +1,10 @@
-﻿using AtelierTomato.Markov.Data;
+﻿using AtelierTomato.Markov.Core;
 using Discord;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace AtelierTomato.Markov.Parser.Test
+namespace AtelierTomato.Markov.Service.Discord.Test
 {
 	public class DiscordSentenceParserTest
 	{

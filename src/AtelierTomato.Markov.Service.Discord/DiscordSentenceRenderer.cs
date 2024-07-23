@@ -1,8 +1,8 @@
-﻿using AtelierTomato.Markov.Data;
+﻿using AtelierTomato.Markov.Core;
 using Discord;
 using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Parser
+namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceRenderer : SentenceRenderer
 	{

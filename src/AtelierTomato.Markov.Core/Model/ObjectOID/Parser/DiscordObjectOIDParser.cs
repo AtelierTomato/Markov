@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Data.Model.ObjectOID.Parser
+﻿namespace AtelierTomato.Markov.Core.Model.ObjectOID.Parser
 {
 	public class DiscordObjectOIDParser : IParser<DiscordObjectOID>
 	{

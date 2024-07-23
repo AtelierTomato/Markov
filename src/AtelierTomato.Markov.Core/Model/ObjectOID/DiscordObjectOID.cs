@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Data.Model.ObjectOID
+namespace AtelierTomato.Markov.Core.Model.ObjectOID
 {
 	public class DiscordObjectOID : IObjectOID
 	{

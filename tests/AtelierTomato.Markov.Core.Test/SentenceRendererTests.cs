@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Data.Test
+namespace AtelierTomato.Markov.Core.Test
 {
 	public class SentenceRendererTests
 	{

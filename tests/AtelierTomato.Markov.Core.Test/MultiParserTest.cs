@@ -1,9 +1,9 @@
-﻿using AtelierTomato.Markov.Data.Model;
-using AtelierTomato.Markov.Data.Model.ObjectOID;
-using AtelierTomato.Markov.Data.Model.ObjectOID.Parser;
+﻿using AtelierTomato.Markov.Core.Model;
+using AtelierTomato.Markov.Core.Model.ObjectOID;
+using AtelierTomato.Markov.Core.Model.ObjectOID.Parser;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Data.Test
+namespace AtelierTomato.Markov.Core.Test
 {
 	public class MultiParserTest
 	{

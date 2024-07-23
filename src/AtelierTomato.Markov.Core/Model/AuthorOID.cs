@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Data.Model
+﻿namespace AtelierTomato.Markov.Core.Model
 {
 	public class AuthorOID(ServiceType service, string instance, string author)
 	{

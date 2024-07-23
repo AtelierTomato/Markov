@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Data.Sqlite
+﻿namespace AtelierTomato.Markov.Storage.Sqlite
 {
 	public class SqliteAccessOptions
 	{

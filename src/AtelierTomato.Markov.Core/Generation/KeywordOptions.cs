@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Data.Generation
+﻿namespace AtelierTomato.Markov.Core.Generation
 {
 	public class KeywordOptions
 	{

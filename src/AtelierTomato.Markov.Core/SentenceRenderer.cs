@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Data
+namespace AtelierTomato.Markov.Core
 {
 	public class SentenceRenderer
 	{

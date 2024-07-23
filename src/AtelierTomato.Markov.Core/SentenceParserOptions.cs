@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Data
+﻿namespace AtelierTomato.Markov.Core
 {
 	public class SentenceParserOptions
 	{

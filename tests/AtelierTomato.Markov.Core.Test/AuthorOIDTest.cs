@@ -1,7 +1,7 @@
-﻿using AtelierTomato.Markov.Data.Model;
+﻿using AtelierTomato.Markov.Core.Model;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Data.Test
+namespace AtelierTomato.Markov.Core.Test
 {
 	public class AuthorOIDTest
 	{

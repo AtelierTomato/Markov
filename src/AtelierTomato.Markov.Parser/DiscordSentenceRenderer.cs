@@ -2,7 +2,7 @@
 using Discord;
 using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Renderer
+namespace AtelierTomato.Markov.Parser
 {
 	public class DiscordSentenceRenderer : SentenceRenderer
 	{

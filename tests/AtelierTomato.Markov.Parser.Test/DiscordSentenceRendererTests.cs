@@ -1,7 +1,8 @@
-﻿using Discord;
+﻿using AtelierTomato.Markov.Data;
+using Discord;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Renderer.Test
+namespace AtelierTomato.Markov.Parser.Test
 {
 	public class DiscordSentenceRendererTests
 	{

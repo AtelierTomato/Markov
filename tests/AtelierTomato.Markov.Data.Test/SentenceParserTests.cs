@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 
-namespace AtelierTomato.Markov.Parser.Test
+namespace AtelierTomato.Markov.Data.Test
 {
 	public class SentenceParserTests
 	{

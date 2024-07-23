@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Parser
+namespace AtelierTomato.Markov.Data
 {
 	/// <summary>
 	/// A class that contains various methods for parsing message contents.

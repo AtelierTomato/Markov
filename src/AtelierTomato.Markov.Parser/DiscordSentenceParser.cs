@@ -1,4 +1,5 @@
-﻿using AtelierTomato.Markov.Parser.MarkdigExtensions;
+﻿using AtelierTomato.Markov.Data;
+using AtelierTomato.Markov.Parser.MarkdigExtensions;
 using Discord;
 using Markdig;
 using Markdig.Extensions.EmphasisExtras;

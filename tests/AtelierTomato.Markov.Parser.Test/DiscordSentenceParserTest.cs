@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using AtelierTomato.Markov.Data;
+using Discord;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;

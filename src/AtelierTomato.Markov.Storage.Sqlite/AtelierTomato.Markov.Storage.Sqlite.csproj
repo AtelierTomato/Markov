@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net.Core" Version="3.15.2" />
-    <PackageReference Include="Markdig" Version="0.37.0" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.6" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AtelierTomato.Markov.Data\AtelierTomato.Markov.Data.csproj" />
+    <ProjectReference Include="..\AtelierTomato.Markov.Core\AtelierTomato.Markov.Core.csproj" />
   </ItemGroup>
 
 </Project>

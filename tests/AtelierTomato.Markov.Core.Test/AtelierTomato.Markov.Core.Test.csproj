@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AtelierTomato.Markov.Data\AtelierTomato.Markov.Data.csproj" />
+    <ProjectReference Include="..\..\src\AtelierTomato.Markov.Core\AtelierTomato.Markov.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

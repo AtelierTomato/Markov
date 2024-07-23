@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AtelierTomato.Markov.Parser\AtelierTomato.Markov.Parser.csproj" />
+    <ProjectReference Include="..\..\src\AtelierTomato.Markov.Service.Discord\AtelierTomato.Markov.Service.Discord.csproj" />
   </ItemGroup>
 
   <ItemGroup>

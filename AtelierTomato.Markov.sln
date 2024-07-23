@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Service.Discord.Test", "tests\AtelierTomato.Markov.Service.Discord.Test\AtelierTomato.Markov.Service.Discord.Test.csproj", "{65C9AD8C-8BDC-4C77-97CE-B0F7E0AF3ED6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Storage.Sqlite", "src\AtelierTomato.Markov.Data.Sqlite\AtelierTomato.Markov.Storage.Sqlite.csproj", "{D09FD935-19DE-48E1-9799-C63BE64540EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Storage.Sqlite", "src\AtelierTomato.Markov.Storage.Sqlite\AtelierTomato.Markov.Storage.Sqlite.csproj", "{D09FD935-19DE-48E1-9799-C63BE64540EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

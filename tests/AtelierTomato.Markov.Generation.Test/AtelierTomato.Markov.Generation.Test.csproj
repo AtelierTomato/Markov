@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\AtelierTomato.Markov.Generation\AtelierTomato.Markov.Generation.csproj" />
+	  <ProjectReference Include="..\..\src\AtelierTomato.Markov.Data\AtelierTomato.Markov.Data.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

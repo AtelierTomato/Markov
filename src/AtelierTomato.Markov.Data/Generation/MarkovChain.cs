@@ -1,8 +1,7 @@
-﻿using AtelierTomato.Markov.Data;
-using AtelierTomato.Markov.Data.Model;
+﻿using AtelierTomato.Markov.Data.Model;
 using Microsoft.Extensions.Options;
 
-namespace AtelierTomato.Markov.Generation
+namespace AtelierTomato.Markov.Data.Generation
 {
 	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
 	{
@@ -29,7 +28,7 @@ namespace AtelierTomato.Markov.Generation
 			// Gets reset whenever the list of previous words has to be modified or the randomized copypasta killer takes action
 			var currentPastaLength = 0;
 
-			while (tokenizedSentence.Count < options.maximumOutputLength)
+			while (tokenizedSentence.Count < options.MaximumOutputLength)
 			{
 				if (KillCopypasta(currentPastaLength))
 				{
@@ -68,14 +67,14 @@ namespace AtelierTomato.Markov.Generation
 						prevList.Add(nextWord);
 
 						// Trim prevList if it gets too long.
-						if (prevList.Count > options.maximumPrevListLength)
+						if (prevList.Count > options.MaximumPrevListLength)
 						{
 							prevList.RemoveAt(0);
 						}
 					} else
 					{
 						// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
-						if (rerolls > options.maximumMarkovRerolls || tokenizedSentence.Count > options.maximumLengthForReroll)
+						if (rerolls > options.MaximumMarkovRerolls || tokenizedSentence.Count > options.MaximumLengthForReroll)
 						{
 							return string.Join(' ', tokenizedSentence);
 						}
@@ -99,7 +98,7 @@ namespace AtelierTomato.Markov.Generation
 
 		private bool KillCopypasta(int currentPastaLength)
 		{
-			var discardThreshold = 1 - Math.Pow(1 - options.copyPastaKillingProbability, currentPastaLength);
+			var discardThreshold = 1 - Math.Pow(1 - options.CopyPastaKillingProbability, currentPastaLength);
 			return random.NextDouble() < discardThreshold;
 		}
 

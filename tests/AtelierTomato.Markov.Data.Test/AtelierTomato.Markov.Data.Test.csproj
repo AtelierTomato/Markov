@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AtelierTomato.Markov.Data\AtelierTomato.Markov.Data.csproj" />
+    <ProjectReference Include="..\..\src\AtelierTomato.Markov.Data\AtelierTomato.Markov.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,13 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>AtelierTomato.Markov.Storage</AssemblyName>
+		<RootNamespace>AtelierTomato.Markov.Storage</RootNamespace>
+		<PackageId>AtelierTomato.Markov.Storage</PackageId>
+		<Authors>AtelierTomato</Authors>
+		<Product>AtelierTomato.Markov</Product>
+		<Title>AtelierTomato Markov Core</Title>
+		<Version>1.0.0</Version>
+		<Company>AtelierTomato</Company>
+		<Copyright>GPL-3.0 license</Copyright>
+		<Description>Provides storage interfaces for the AtelierTomato.Markov project.</Description>
+		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Markov;Chain;Core;AtelierTomato;Sentence;Generation</PackageTags>
+		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Storage with storage interfaces for the AtelierTomato.Markov project.</PackageReleaseNotes>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AtelierTomato.Markov.Model\AtelierTomato.Markov.Model.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AtelierTomato.Markov.Model\AtelierTomato.Markov.Model.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>

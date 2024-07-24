@@ -13,11 +13,11 @@
 		<Version>1.0.0</Version>
 		<Company>AtelierTomato</Company>
 		<Copyright>GPL-3.0 license</Copyright>
-		<Description>Provides the core logic and data structures for the AtelierTomato.Markov project, a library for generating sentences using Markov chains.</Description>
+		<Description>Provides the core logic for the AtelierTomato.Markov project, a library for generating sentences using Markov chains.</Description>
 		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Markov;Chain;Core;AtelierTomato;Sentence;Generation</PackageTags>
-		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Core with core logic and data structures for Markov chain sentence generation.</PackageReleaseNotes>
+		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Core with core logic for Markov chain sentence generation.</PackageReleaseNotes>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>

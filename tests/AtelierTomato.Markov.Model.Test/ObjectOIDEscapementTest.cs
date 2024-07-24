@@ -1,4 +1,3 @@
-using AtelierTomato.Markov.Model;
 using FluentAssertions;
 
 namespace AtelierTomato.Markov.Model.Test

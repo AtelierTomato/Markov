@@ -1,5 +1,4 @@
-﻿using AtelierTomato.Markov.Model;
-using AtelierTomato.Markov.Model.ObjectOID;
+﻿using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Model.ObjectOID.Parser;
 using FluentAssertions;
 

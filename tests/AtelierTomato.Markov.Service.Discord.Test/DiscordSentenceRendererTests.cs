@@ -1,5 +1,4 @@
-﻿using AtelierTomato.Markov.Core;
-using Discord;
+﻿using Discord;
 using FluentAssertions;
 
 namespace AtelierTomato.Markov.Service.Discord.Test

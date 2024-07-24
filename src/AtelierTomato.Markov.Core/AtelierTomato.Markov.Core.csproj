@@ -39,4 +39,9 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\AtelierTomato.Markov.Model\AtelierTomato.Markov.Model.csproj" />
+	  <ProjectReference Include="..\AtelierTomato.Markov.Storage\AtelierTomato.Markov.Storage.csproj" />
+	</ItemGroup>
+
 </Project>

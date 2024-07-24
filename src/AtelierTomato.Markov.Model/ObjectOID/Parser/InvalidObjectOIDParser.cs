@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Core.Model.ObjectOID.Parser
+﻿namespace AtelierTomato.Markov.Model.ObjectOID.Parser
 {
 	public class InvalidObjectOIDParser : IParser<IObjectOID>
 	{

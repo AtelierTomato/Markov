@@ -1,5 +1,5 @@
-﻿using AtelierTomato.Markov.Core.Model;
-using AtelierTomato.Markov.Core.Model.ObjectOID.Parser;
+﻿using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Model.ObjectOID.Parser;
 using System.Globalization;
 
 namespace AtelierTomato.Markov.Storage.Sqlite

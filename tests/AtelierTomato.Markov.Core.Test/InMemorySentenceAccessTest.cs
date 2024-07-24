@@ -1,5 +1,6 @@
-﻿using AtelierTomato.Markov.Core.Model;
-using AtelierTomato.Markov.Core.Model.ObjectOID;
+﻿using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Model.ObjectOID;
+using AtelierTomato.Markov.Storage;
 using FluentAssertions;
 
 namespace AtelierTomato.Markov.Core.Test

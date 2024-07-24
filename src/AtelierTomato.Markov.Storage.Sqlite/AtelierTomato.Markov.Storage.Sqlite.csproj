@@ -27,10 +27,10 @@
 	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\AtelierTomato.Markov.Core\AtelierTomato.Markov.Core.csproj" />
 		<None Include="..\..\LICENSE">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -39,6 +39,10 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AtelierTomato.Markov.Storage\AtelierTomato.Markov.Storage.csproj" />
 	</ItemGroup>
 
 </Project>

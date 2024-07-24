@@ -1,6 +1,4 @@
-﻿using AtelierTomato.Markov.Core.Model;
-
-namespace AtelierTomato.Markov.Core
+﻿namespace AtelierTomato.Markov.Model
 {
 	public class SentenceFilter(IObjectOID? OID, AuthorOID? author)
 	{

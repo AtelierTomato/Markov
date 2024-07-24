@@ -1,7 +1,7 @@
-using AtelierTomato.Markov.Core.Model;
+using AtelierTomato.Markov.Model;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Core.Test
+namespace AtelierTomato.Markov.Model.Test
 {
 	public class ObjectOIDEscapementTest
 	{

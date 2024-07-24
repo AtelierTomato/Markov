@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace AtelierTomato.Markov.Core.Model;
+namespace AtelierTomato.Markov.Model;
 
 public class OIDBuilder
 {
@@ -9,14 +9,14 @@ public class OIDBuilder
 
 	public OIDBuilder(ServiceType serviceType)
 	{
-		this.stringBuilder = new StringBuilder(serviceType.ToString());
+		stringBuilder = new StringBuilder(serviceType.ToString());
 	}
 
 	public OIDBuilder Append(string field)
 	{
-		this.stringBuilder.Append(":").Append(OIDEscapement.Escape(field));
+		stringBuilder.Append(":").Append(OIDEscapement.Escape(field));
 		return this;
 	}
 
-	public string Build() => this.stringBuilder.ToString();
+	public string Build() => stringBuilder.ToString();
 }

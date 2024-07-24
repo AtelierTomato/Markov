@@ -1,6 +1,7 @@
 using AtelierTomato.Markov.Core.Generation;
-using AtelierTomato.Markov.Core.Model;
-using AtelierTomato.Markov.Core.Model.ObjectOID;
+using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Model.ObjectOID;
+using AtelierTomato.Markov.Storage;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;

@@ -1,7 +1,7 @@
-﻿using AtelierTomato.Markov.Core.Model.ObjectOID;
+﻿using AtelierTomato.Markov.Model.ObjectOID;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Core.Test
+namespace AtelierTomato.Markov.Model.Test
 {
 	public class BookObjectOIDTest
 	{

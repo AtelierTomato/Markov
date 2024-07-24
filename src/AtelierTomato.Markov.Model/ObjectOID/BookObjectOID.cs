@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Core.Model.ObjectOID
+namespace AtelierTomato.Markov.Model.ObjectOID
 {
 	public class BookObjectOID : IObjectOID
 	{

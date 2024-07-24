@@ -1,7 +1,7 @@
-﻿using AtelierTomato.Markov.Core.Model.ObjectOID;
+﻿using AtelierTomato.Markov.Model.ObjectOID;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Core.Test
+namespace AtelierTomato.Markov.Model.Test
 {
 	public class DiscordObjectOIDTest
 	{
@@ -106,7 +106,7 @@ namespace AtelierTomato.Markov.Core.Test
 		[Fact]
 		public void BookParseEmptyTest()
 		{
-			Action act = () => DiscordObjectOID.Parse(String.Empty);
+			Action act = () => DiscordObjectOID.Parse(string.Empty);
 			act.Should().Throw<ArgumentException>().WithMessage("The OID given is empty. (Parameter 'OID')");
 		}
 		[Fact]

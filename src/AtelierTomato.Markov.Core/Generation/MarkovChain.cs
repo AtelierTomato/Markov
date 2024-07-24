@@ -1,4 +1,5 @@
-﻿using AtelierTomato.Markov.Core.Model;
+﻿using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Storage;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core.Generation

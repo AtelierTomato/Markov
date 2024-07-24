@@ -1,9 +1,8 @@
-﻿using AtelierTomato.Markov.Core.Model;
-using AtelierTomato.Markov.Core.Model.ObjectOID;
+﻿using AtelierTomato.Markov.Model.ObjectOID;
 using FluentAssertions;
 using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Core.Test
+namespace AtelierTomato.Markov.Model.Test
 {
 	public class OIDPatternTest
 	{

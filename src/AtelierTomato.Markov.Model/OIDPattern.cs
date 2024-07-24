@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 
-namespace AtelierTomato.Markov.Core.Model
+namespace AtelierTomato.Markov.Model
 {
 	public class OIDPattern
 	{

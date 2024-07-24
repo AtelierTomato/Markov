@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Core.Model
+﻿namespace AtelierTomato.Markov.Model
 {
 	public class MultiParser<TOidCategory>(IEnumerable<IParser<TOidCategory>> parsers) where TOidCategory : class
 	{

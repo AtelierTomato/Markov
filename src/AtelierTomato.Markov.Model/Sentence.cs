@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Core.Model
+﻿namespace AtelierTomato.Markov.Model
 {
 	public record Sentence
 	(

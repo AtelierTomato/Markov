@@ -3,7 +3,6 @@ assembly-file-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{InformationalVersion}'
 
 mode: ContinuousDeployment
-branches: {}
 ignore:
   sha: []
 merge-message-formats: {}

@@ -11,11 +11,12 @@ A current list of all parsers we have and what they offer is below:
 - `SentenceParser`: Parses the English language in order to provide more efficient Markov chaining. Deletes links. Separates input into multiple sentences determined by punctuation marks or line breaks. Removes sentences that are smaller than a configurable MinimumInputLength.
 - `DiscordSentenceParser`: Removes all Discord markdown. Removes or replaces certain bot prefixes (configurable). Removes sentences that begin with certain bot prefixes (configurable). Stores custom emojis in our own format (looks like this: `e:EmojiName:`). Completely ignores all text inside of code blocks. Removes discord server links, even those that do not begin with `https://`.
 
-## OID building
-WIP, need to add classes for this.
+## Sentence building
+Before sentences can be stored in the database, they must be made into `Sentence`s, as in, the type in our `AtelierTomato.Markov.Model`. This type has 4 properties: `IObjectOID OID, AuthorOID Author, DateTimeOffset Date, string Text`. If you would like to write `Sentences` of type `BookObjectOID` to your storage solution, you must write the code to construct these `Sentence`s yourself. However, we offer `SentenceBuilder`s for the following, with explanations of what they need:
+- `DiscordSentenceBuilder` with function `Build()`: Needs to be given `ICommandContext` from `Discord.Commands`, can also be given a different `instance` as a string over the default `discord.com`, for futureproofing if different instances of Discord ever exist.
 
 ## Storage
-To use AtelierTomato.Markov, you must use a storage implementation that implements our model for `Sentence`, found in AtelierTomato.Markov.Model. We offer the interface `ISentenceAccess` that you may create implementations of if we do not have a storage solution that you prefer already offered. However, you must use something that extends from `ISentenceAccess`, and thus uses our model, as the Markov chain logic requires it. The base `AtelierTomato.Markov.Storage` package includes `InMemorySentenceAccess` as well as interfaces for Sentence and WordStatistic (more on this later) access. All other interface implementations are found in packages `AtelierTomato.Markov.Storage.X`.
+To use `AtelierTomato.Markov`, you must use a storage implementation that implements our model for `Sentence`. We offer the interface `ISentenceAccess` that you may create implementations of if we do not have a storage solution that you prefer already offered. However, you must use something that extends from `ISentenceAccess`, and thus uses our model, as the Markov chain logic requires it. The base `AtelierTomato.Markov.Storage` package includes `InMemorySentenceAccess` as well as interfaces for Sentence and WordStatistic (more on this later) access. All other interface implementations are found in packages `AtelierTomato.Markov.Storage.X`.
 Current offered storage solutions:
 - `SqliteSentenceAccess`
 - `InMemorySentenceAccess` NOTE: Should only be used for testing, will likely be removed in the future. Stores `Sentence`s in RAM, and they will be lost when the program is terminated.

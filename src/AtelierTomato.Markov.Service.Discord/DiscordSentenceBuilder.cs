@@ -6,9 +6,9 @@ namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceBuilder
 	{
-		public static IEnumerable<Sentence> Build(IEnumerable<string> sentenceTexts, ICommandContext context, string instance = "discord.com")
+		public static async Task<IEnumerable<Sentence>> Build(IEnumerable<string> sentenceTexts, ICommandContext context, string instance = "discord.com")
 		{
-			DiscordObjectOID OID = DiscordObjectOIDBuilder.Build(context, instance);
+			DiscordObjectOID OID = await DiscordObjectOIDBuilder.Build(context, instance);
 			AuthorOID Author = new(ServiceType.Discord, instance, context.User.Id.ToString());
 			return sentenceTexts.Select((text, index) =>
 				new Sentence(

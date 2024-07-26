@@ -1,13 +1,12 @@
 ﻿using AtelierTomato.Markov.Model.ObjectOID;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 
 namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordObjectOIDBuilder
 	{
-		public static DiscordObjectOID Build(ICommandContext context, string instance = "discord.com")
+		public static async Task<DiscordObjectOID> Build(ICommandContext context, string instance = "discord.com")
 		{
 			ulong server = context.Guild?.Id ?? 0;
 			ulong category = 0;
@@ -19,14 +18,9 @@ namespace AtelierTomato.Markov.Service.Discord
 				channel = context.Channel.Id;
 			} else if (context.Channel is IThreadChannel threadChannel)
 			{
-				// In IThreadChannels, the CategoryId always refers to the parent channel's ID rather than the actual category.
-				// Unfortunately Discord does not have ParentChannel as a property of IThreadChannel, only SocketThreadChannel.
-				if (context.Channel is SocketThreadChannel socketThreadChannel)
+				if (await context.Guild!.GetChannelAsync(threadChannel.CategoryId!.Value) is not null and INestedChannel parentChannel)
 				{
-					if (socketThreadChannel.ParentChannel is INestedChannel parentChannel)
-					{
-						category = parentChannel.CategoryId ?? 0;
-					}
+					category = parentChannel.CategoryId ?? 0;
 				} else
 				{
 					category = 0;

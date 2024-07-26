@@ -1,36 +1,38 @@
 ﻿using AtelierTomato.Markov.Model.ObjectOID;
 using Discord;
-using Discord.Commands;
 
 namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordObjectOIDBuilder
 	{
-		public static async Task<DiscordObjectOID> Build(ICommandContext context, string instance = "discord.com")
+		public static async Task<DiscordObjectOID> Build(IGuild? guild, IChannel channel, ulong messageID, string instance = "discord.com")
 		{
-			ulong server = context.Guild?.Id ?? 0;
-			ulong category = 0;
-			ulong channel = 0;
-			ulong thread = 0;
-			if (context.Channel is INestedChannel nestedChannel and not IThreadChannel)
+			ulong serverID = guild?.Id ?? 0;
+			ulong categoryID, channelID, threadID;
+			if (channel is INestedChannel nestedChannel and not IThreadChannel)
 			{
-				category = nestedChannel.CategoryId ?? 0;
-				channel = context.Channel.Id;
-			} else if (context.Channel is IThreadChannel threadChannel)
+				categoryID = nestedChannel.CategoryId ?? 0;
+				channelID = channel.Id;
+				threadID = 0;
+			} else if (channel is IThreadChannel threadChannel)
 			{
-				if (await context.Guild!.GetChannelAsync(threadChannel.CategoryId!.Value) is not null and INestedChannel parentChannel)
+				if (await guild!.GetChannelAsync(threadChannel.CategoryId!.Value) is not null and INestedChannel parentChannel)
 				{
-					category = parentChannel.CategoryId ?? 0;
+					categoryID = parentChannel.CategoryId ?? 0;
 				} else
 				{
-					category = 0;
+					categoryID = 0;
 				}
-				channel = threadChannel.CategoryId ?? 0;
-				thread = threadChannel.Id;
+				channelID = threadChannel.CategoryId ?? 0;
+				threadID = threadChannel.Id;
+			} else
+			{
+				categoryID = 0;
+				channelID = channel.Id;
+				threadID = 0;
 			}
-			ulong message = context.Message.Id;
 
-			return DiscordObjectOID.ForMessage(instance, server, category, channel, thread, message);
+			return DiscordObjectOID.ForMessage(instance, serverID, categoryID, channelID, threadID, messageID);
 		}
 	}
 }

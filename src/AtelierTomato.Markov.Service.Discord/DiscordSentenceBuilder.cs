@@ -1,20 +1,20 @@
 ﻿using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
-using Discord.Commands;
+using Discord;
 
 namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceBuilder
 	{
-		public static async Task<IEnumerable<Sentence>> Build(IEnumerable<string> sentenceTexts, ICommandContext context, string instance = "discord.com")
+		public static async Task<IEnumerable<Sentence>> Build(IGuild? guild, IChannel channel, ulong messageID, ulong userID, DateTimeOffset date, IEnumerable<string> sentenceTexts, string instance = "discord.com")
 		{
-			DiscordObjectOID OID = await DiscordObjectOIDBuilder.Build(context, instance);
-			AuthorOID Author = new(ServiceType.Discord, instance, context.User.Id.ToString());
+			DiscordObjectOID OID = await DiscordObjectOIDBuilder.Build(guild, channel, messageID, instance);
+			AuthorOID author = new(ServiceType.Discord, instance, userID.ToString());
 			return sentenceTexts.Select((text, index) =>
 				new Sentence(
 					DiscordObjectOID.ForSentence(OID.Instance, OID.Server!.Value, OID.Category!.Value, OID.Channel!.Value, OID.Thread!.Value, OID.Message!.Value, index),
-					Author,
-					context.Message.CreatedAt,
+					author,
+					date,
 					text
 				)
 			);

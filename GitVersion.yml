@@ -11,3 +11,11 @@ merge-message-formats: {}
 branches:
   master:
     regex: ^master$|^main$
+    increment: Inherit
+  develop:
+    regex: ^develop$
+    increment: Inherit
+  feature:
+    regex: ^feature?[/-](?<BranchName>.+)
+    increment: Inherit
+    label: '{BranchName}'

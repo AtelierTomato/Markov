@@ -1,0 +1,23 @@
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-scheme: MajorMinorPatchTag
+assembly-informational-format: '{InformationalVersion}'
+
+mode: ContinuousDeployment
+increment: Patch
+ignore:
+  sha: []
+merge-message-formats: {}
+
+branches:
+  master:
+    regex: ^master$|^main$
+    increment: Patch
+  develop:
+    regex: ^develop$
+    increment: Patch
+  feature:
+    regex: ^feature?[/-](?<BranchName>.+)
+    increment: Patch
+    label: '{BranchName}'
+  unknown:
+    increment: Patch

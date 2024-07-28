@@ -131,6 +131,8 @@ Life in the Vault is about to change.";
 		[InlineData("¡¿Alguien puede ayudarme por favor?!", "¡¿ Alguien puede ayudarme por favor ?!")]
 		[InlineData("¡¡¡¿¿¿Alguien puede ayudarme por favor???!!!", "¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!")]
 		[InlineData("¡ ¡ ¡ ¿ ¿ ¿Alguien puede ayudarme por favor? ? ? ! ! !", "¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!")]
+		[InlineData("«Je m'appelle Marinette, une fille comme les autres»", "« Je m 'appelle Marinette , une fille comme les autres »")]
+		[InlineData("»Je m'appelle Marinette, une fille comme les autres«", "» Je m 'appelle Marinette , une fille comme les autres «")]
 		public void ForeignTests(string input, string output)
 		{
 			var options = new SentenceParserOptions();

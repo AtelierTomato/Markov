@@ -38,6 +38,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData("i am god [ citation needed ] and you are stupid { you are DUMB }", "i am god \\[citation needed\\] and you are stupid \\{you are DUMB\\}")]
 		[InlineData("\" who are you quoting ? \"", "\\\"who are you quoting\\?\\\"")]
 		[InlineData("god \" jimmy \" jesus here with another minecraft video", "god \\\"jimmy\\\" jesus here with another minecraft video")]
+		[InlineData("1 \" 2 \" b \" 3 \" 4 5", "1 \\\"2\\\" b \\\"3\\\" 4 5")]
 		public void RenderSurroundingCharactersTest(string input, string output)
 		{
 			var target = new DiscordSentenceRenderer();
@@ -140,6 +141,10 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData("¡ No encuentro mi pierna izquierda !", "\\¡No encuentro mi pierna izquierda\\!")]
 		[InlineData("¡¿ Alguien puede ayudarme por favor ?!", "\\¡\\¿Alguien puede ayudarme por favor\\?\\!")]
 		[InlineData("¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!", "\\¡\\¡\\¡\\¿\\¿\\¿Alguien puede ayudarme por favor\\?\\?\\?\\!\\!\\!")]
+		[InlineData("« Je m 'appelle Marinette , une fille comme les autres »", "\\«Je m\\'appelle Marinette\\, une fille comme les autres\\»")]
+		[InlineData("» Je m 'appelle Marinette , une fille comme les autres «", "\\»Je m\\'appelle Marinette\\, une fille comme les autres\\«")]
+		[InlineData("» Je m 'appelle Marinette , une fille comme les autres »", "\\»Je m\\'appelle Marinette\\, une fille comme les autres\\»")]
+		[InlineData("« Je m 'appelle Marinette , une fille comme les autres «", "\\«Je m\\'appelle Marinette\\, une fille comme les autres\\«")]
 		public void RenderForeignTests(string input, string output)
 		{
 			var target = new DiscordSentenceRenderer();

@@ -8,6 +8,7 @@ namespace AtelierTomato.Markov.Core
 		private readonly Regex attachToPreviousWord = new Regex(@"(?: |^)([.\}\)\];:]|[?!,]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(]|[¿¡]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachQuotes = new Regex(@"(?: |^)("")(?: |$)", RegexOptions.Compiled);
+		private readonly Regex attachGuillemets = new Regex(@"(?: |^)([«»])(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachContractions = new Regex(@"(?: )('\w+)", RegexOptions.Compiled);
 		private readonly Regex attachPluralContractions = new Regex(@"(?: )(')(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachDashes = new Regex(@"(\w+-)(?: )(\w+)", RegexOptions.Compiled);
@@ -26,6 +27,12 @@ namespace AtelierTomato.Markov.Core
 			text = attachToNextWord.Replace(text, m => " " + m.Groups[1]);
 			bool opening = false;
 			text = attachQuotes.Replace(text, m =>
+			{
+				opening = !opening;
+				if (opening) { return " " + m.Groups[1]; } else { return m.Groups[1] + " "; }
+			});
+			opening = false;
+			text = attachGuillemets.Replace(text, m =>
 			{
 				opening = !opening;
 				if (opening) { return " " + m.Groups[1]; } else { return m.Groups[1] + " "; }

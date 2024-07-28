@@ -134,5 +134,19 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 			var result = target.Render(input, currentEmojis, allEmojis);
 			result.Should().Be(output);
 		}
+
+		[Theory]
+		[InlineData("¿ Dónde está mi gran sombrero ?", "\\¿D\\ónde est\\á mi gran sombrero\\?")]
+		[InlineData("¡ No encuentro mi pierna izquierda !", "\\¡No encuentro mi pierna izquierda\\!")]
+		[InlineData("¡¿ Alguien puede ayudarme por favor ?!", "\\¡\\¿Alguien puede ayudarme por favor\\?\\!")]
+		[InlineData("¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!", "\\¡\\¡\\¡\\¿\\¿\\¿Alguien puede ayudarme por favor\\?\\?\\?\\!\\!\\!")]
+		public void RenderForeignTests(string input, string output)
+		{
+			var target = new DiscordSentenceRenderer();
+
+			var result = target.Render(input);
+
+			result.Should().Be(output);
+		}
 	}
 }

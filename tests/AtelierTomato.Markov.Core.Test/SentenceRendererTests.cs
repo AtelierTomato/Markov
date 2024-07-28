@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace AtelierTomato.Markov.Core.Test
 {
@@ -66,6 +66,21 @@ namespace AtelierTomato.Markov.Core.Test
 		[InlineData("e:apple2:", "apple2")]
 		[InlineData("e:__:", "__")]
 		public void RenderEmojisTest(string input, string output)
+		{
+			var target = new SentenceRenderer();
+
+			var result = target.Render(input);
+
+			result.Should().Be(output);
+		}
+
+
+		[Theory]
+		[InlineData("¿ Dónde está mi gran sombrero ?", "¿Dónde está mi gran sombrero?")]
+		[InlineData("¡ No encuentro mi pierna izquierda !", "¡No encuentro mi pierna izquierda!")]
+		[InlineData("¡¿ Alguien puede ayudarme por favor ?!", "¡¿Alguien puede ayudarme por favor?!")]
+		[InlineData("¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!", "¡¡¡¿¿¿Alguien puede ayudarme por favor???!!!")]
+		public void RenderForeignTests(string input, string output)
 		{
 			var target = new SentenceRenderer();
 

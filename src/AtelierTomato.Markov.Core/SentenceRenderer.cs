@@ -6,7 +6,7 @@ namespace AtelierTomato.Markov.Core
 	{
 		protected readonly Regex renderEmojiRegex = new Regex(@"e:([^:]+):", RegexOptions.Compiled); // Matches to "e:anyCharactersExceptColon:", our custom emoji storage format.
 		private readonly Regex attachToPreviousWord = new Regex(@"(?: |^)([.\}\)\];:]|[?!,]+)(?: |$)", RegexOptions.Compiled);
-		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(])(?: |$)", RegexOptions.Compiled);
+		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(]|[¿¡]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachQuotes = new Regex(@"(?: |^)("")(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachContractions = new Regex(@"(?: )('\w+)", RegexOptions.Compiled);
 		private readonly Regex attachPluralContractions = new Regex(@"(?: )(')(?: |$)", RegexOptions.Compiled);

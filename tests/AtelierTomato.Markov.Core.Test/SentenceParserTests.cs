@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core.Test
@@ -123,6 +123,22 @@ Life in the Vault is about to change.";
 			var result = target.ParseIntoSentenceTexts(input);
 
 			result.Should().BeEquivalentTo(Enumerable.Empty<string>());
+		}
+
+		[Theory]
+		[InlineData("¿Dónde está mi gran sombrero?", "¿ Dónde está mi gran sombrero ?")]
+		[InlineData("¡No encuentro mi pierna izquierda!", "¡ No encuentro mi pierna izquierda !")]
+		[InlineData("¡¿Alguien puede ayudarme por favor?!", "¡¿ Alguien puede ayudarme por favor ?!")]
+		[InlineData("¡¡¡¿¿¿Alguien puede ayudarme por favor???!!!", "¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!")]
+		[InlineData("¡ ¡ ¡ ¿ ¿ ¿Alguien puede ayudarme por favor? ? ? ! ! !", "¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!")]
+		public void ForeignTests(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var target = new SentenceParser(Options.Create(options));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().ContainSingle().And.Contain(output);
 		}
 	}
 }

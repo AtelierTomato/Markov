@@ -21,7 +21,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().Contain(sentence);
 		}
 		[Fact]
-		public async void SentenceRangeAddTest()
+		public async Task SentenceRangeAddTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -56,7 +56,7 @@ namespace AtelierTomato.Markov.Core.Test
 		}
 
 		[Fact]
-		public async void SentenceDeleteByOIDTest()
+		public async Task SentenceDeleteByOIDTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -92,7 +92,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[2], sentenceStorage[3]]);
 		}
 		[Fact]
-		public async void SentenceDeleteByAuthorOIDTest()
+		public async Task SentenceDeleteByAuthorOIDTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -128,7 +128,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[2]]);
 		}
 		[Fact]
-		public async void SentenceDeleteBySearchStringTest()
+		public async Task SentenceDeleteBySearchStringTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -164,7 +164,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[2], sentenceStorage[3]]);
 		}
 		[Fact]
-		public async void SentenceDeleteByObjectAndAuthorTest()
+		public async Task SentenceDeleteByObjectAndAuthorTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -206,7 +206,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[4]]);
 		}
 		[Fact]
-		public async void SentenceDeleteByAuthorAndSearchTermTest()
+		public async Task SentenceDeleteByAuthorAndSearchTermTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -248,7 +248,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[2]]);
 		}
 		[Fact]
-		public async void SentenceDeleteByObjectAndSearchTermTest()
+		public async Task SentenceDeleteByObjectAndSearchTermTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -290,7 +290,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[4]]);
 		}
 		[Fact]
-		public async void SentenceDeleteByFullFilterTermTest()
+		public async Task SentenceDeleteByFullFilterTermTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -332,7 +332,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceAccess.SentenceStorage.Should().NotContain(sentenceStorage[4]);
 		}
 		[Fact]
-		public async void SentenceDeleteAllTest()
+		public async Task SentenceDeleteAllTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -372,7 +372,7 @@ namespace AtelierTomato.Markov.Core.Test
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value. (Parameter 'filter')");
 		}
 		[Fact]
-		public async void SentenceSearchByOIDTest()
+		public async Task SentenceSearchByOIDTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -410,7 +410,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceReturn.Should().NotContain([sentenceStorage[0], sentenceStorage[1]]);
 		}
 		[Fact]
-		public async void SentenceSearchByAuthorOIDTest()
+		public async Task SentenceSearchByAuthorOIDTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -448,7 +448,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceReturn.Should().NotContain([sentenceStorage[1], sentenceStorage[3]]);
 		}
 		[Fact]
-		public async void SentenceSearchBySearchStringTest()
+		public async Task SentenceSearchBySearchStringTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -486,7 +486,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceReturn.Should().NotContain(sentenceStorage[1]);
 		}
 		[Fact]
-		public async void SentenceSearchByObjectAndAuthorTest()
+		public async Task SentenceSearchByObjectAndAuthorTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -530,7 +530,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceReturn.Should().NotContain([sentenceStorage[1], sentenceStorage[2], sentenceStorage[3]]);
 		}
 		[Fact]
-		public async void SentenceReadByAuthorAndSearchTermTest()
+		public async Task SentenceReadByAuthorAndSearchTermTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -574,7 +574,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceReturn.Should().NotContain([sentenceStorage[1], sentenceStorage[3], sentenceStorage[4]]);
 		}
 		[Fact]
-		public async void SentenceSearchByObjectAndSearchTermTest()
+		public async Task SentenceSearchByObjectAndSearchTermTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(
@@ -618,7 +618,7 @@ namespace AtelierTomato.Markov.Core.Test
 			sentenceReturn.Should().NotContain([sentenceStorage[1], sentenceStorage[2], sentenceStorage[3]]);
 		}
 		[Fact]
-		public async void SentenceSearchByFullFilterTermTest()
+		public async Task SentenceSearchByFullFilterTermTest()
 		{
 			List<Sentence> sentenceStorage = [
 				new(

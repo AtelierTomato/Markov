@@ -13,11 +13,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Storage.Sqlite", "src\AtelierTomato.Markov.Storage.Sqlite\AtelierTomato.Markov.Storage.Sqlite.csproj", "{D09FD935-19DE-48E1-9799-C63BE64540EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Storage", "src\AtelierTomato.Markov.Storage\AtelierTomato.Markov.Storage.csproj", "{C24C6AFF-EB22-4741-A289-FE2D59E3C0AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Storage", "src\AtelierTomato.Markov.Storage\AtelierTomato.Markov.Storage.csproj", "{C24C6AFF-EB22-4741-A289-FE2D59E3C0AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Model", "src\AtelierTomato.Markov.Model\AtelierTomato.Markov.Model.csproj", "{92959115-C64A-448F-8361-15F271D4520A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Model", "src\AtelierTomato.Markov.Model\AtelierTomato.Markov.Model.csproj", "{92959115-C64A-448F-8361-15F271D4520A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Model.Test", "tests\AtelierTomato.Markov.Model.Test\AtelierTomato.Markov.Model.Test.csproj", "{80ED62A8-6B89-424F-AD8C-7CFF3A75B700}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Model.Test", "tests\AtelierTomato.Markov.Model.Test\AtelierTomato.Markov.Model.Test.csproj", "{80ED62A8-6B89-424F-AD8C-7CFF3A75B700}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A21016D9-61F4-4730-9027-0DAC0E9F1EC6}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

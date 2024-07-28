@@ -40,7 +40,7 @@ namespace AtelierTomato.Markov.Core.Test
 		}
 
 		[Fact]
-		public async void MarkovChainTestWithFirst()
+		public async Task MarkovChainTestWithFirst()
 		{
 			List<Sentence> sentenceRange = [
 				new(
@@ -75,7 +75,7 @@ namespace AtelierTomato.Markov.Core.Test
 			result.Should().Be("lol this is my head");
 		}
 		[Fact]
-		public async void MarkovChainTestWithoutFirst()
+		public async Task MarkovChainTestWithoutFirst()
 		{
 			List<Sentence> sentenceRange = [
 				new(

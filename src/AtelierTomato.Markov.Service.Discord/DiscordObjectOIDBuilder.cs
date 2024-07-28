@@ -16,9 +16,9 @@ namespace AtelierTomato.Markov.Service.Discord
 				threadID = 0;
 			} else if (channel is IThreadChannel threadChannel)
 			{
-				if (await guild!.GetChannelAsync(threadChannel.CategoryId!.Value) is not null and INestedChannel parentChannel)
+				if (guild is not null && await guild.GetChannelAsync(threadChannel.CategoryId!.Value) is not null and INestedChannel parentChannel && parentChannel.CategoryId is not null)
 				{
-					categoryID = parentChannel.CategoryId ?? 0;
+					categoryID = parentChannel.CategoryId.Value;
 				} else
 				{
 					categoryID = 0;

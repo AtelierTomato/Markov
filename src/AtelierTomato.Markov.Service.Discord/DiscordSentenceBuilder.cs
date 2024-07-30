@@ -10,9 +10,9 @@ namespace AtelierTomato.Markov.Service.Discord
 		{
 			DiscordObjectOID OID = await DiscordObjectOIDBuilder.Build(guild, channel, messageID, instance);
 			AuthorOID author = new(ServiceType.Discord, instance, userID.ToString());
-			return sentenceTexts.Select(text =>
+			return sentenceTexts.Select((text, index) =>
 				new Sentence(
-					OID.IncrementSentence(),
+					OID.WithSentence(index),
 					author,
 					date,
 					text

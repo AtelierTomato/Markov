@@ -127,5 +127,23 @@ namespace AtelierTomato.Markov.Model.Test
 			Action act = () => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:Wrong");
 			act.Should().Throw<ArgumentException>().WithMessage("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value. (Parameter 'OID')");
 		}
+		[Fact]
+		public void IncrementBookOID()
+		{
+			BookObjectOID oid = BookObjectOID.ForParagraph("_", "_", "_", "_", 1);
+			IEnumerable<string> strings = ["one", "two", "three"];
+
+			List<Sentence> result = strings.Select((text, index) =>
+				new Sentence(
+					oid.WithSentence(index),
+					new AuthorOID(ServiceType.Discord, "discord.com", "1"),
+					DateTimeOffset.Now,
+					text
+				)
+			).ToList();
+			result[0].OID.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "_", "_", "_", 1, 0));
+			result[1].OID.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "_", "_", "_", 1, 1));
+			result[2].OID.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "_", "_", "_", 1, 2));
+		}
 	}
 }

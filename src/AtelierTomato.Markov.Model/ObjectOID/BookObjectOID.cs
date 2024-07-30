@@ -128,20 +128,13 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			return oidBuilder.Build();
 		}
-		public BookObjectOID IncrementSentence()
+		public BookObjectOID WithSentence(int sentence)
 		{
 			if (Paragraph is null)
 			{
 				throw new Exception("A BookObjectOID cannot increment Sentence if there is no value in Paragraph.");
 			}
-			if (Sentence is null)
-			{
-				Sentence = 0;
-			} else
-			{
-				Sentence++;
-			}
-			return this;
+			return new BookObjectOID(Instance, Series, Book, Chapter, Paragraph, sentence);
 		}
 	}
 }

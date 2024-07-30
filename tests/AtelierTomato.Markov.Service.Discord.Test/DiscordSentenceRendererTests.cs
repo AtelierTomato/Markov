@@ -38,6 +38,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData("i am god [ citation needed ] and you are stupid { you are DUMB }", "i am god \\[citation needed\\] and you are stupid \\{you are DUMB\\}")]
 		[InlineData("\" who are you quoting ? \"", "\\\"who are you quoting\\?\\\"")]
 		[InlineData("god \" jimmy \" jesus here with another minecraft video", "god \\\"jimmy\\\" jesus here with another minecraft video")]
+		[InlineData("1 \" 2 \" b \" 3 \" 4 5", "1 \\\"2\\\" b \\\"3\\\" 4 5")]
 		public void RenderSurroundingCharactersTest(string input, string output)
 		{
 			var target = new DiscordSentenceRenderer();
@@ -51,7 +52,8 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData("i 've found a million dollars", "i\\'ve found a million dollars")]
 		[InlineData("what 's up gamers , I 'm out here gaming", "what\\'s up gamers\\, I\\'m out here gaming")]
 		[InlineData("the students ' council decided you die today", "the students\\' council decided you die today")]
-		[InlineData("and i can tell that doki doki literature club is shitty faux- anime normie garbage", "and i can tell that doki doki literature club is shitty faux\\-anime normie garbage")]
+		[InlineData("and i can tell that doki doki literature club is shitty faux - anime normie garbage", "and i can tell that doki doki literature club is shitty faux\\-anime normie garbage")]
+		[InlineData("i want to eat — drink water", "i want to eat\\—drink water")]
 		public void RenderContractionsTest(string input, string output)
 		{
 			var target = new DiscordSentenceRenderer();
@@ -132,6 +134,24 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 			var target = new DiscordSentenceRenderer();
 
 			var result = target.Render(input, currentEmojis, allEmojis);
+			result.Should().Be(output);
+		}
+
+		[Theory]
+		[InlineData("¿ Dónde está mi gran sombrero ?", "\\¿D\\ónde est\\á mi gran sombrero\\?")]
+		[InlineData("¡ No encuentro mi pierna izquierda !", "\\¡No encuentro mi pierna izquierda\\!")]
+		[InlineData("¡¿ Alguien puede ayudarme por favor ?!", "\\¡\\¿Alguien puede ayudarme por favor\\?\\!")]
+		[InlineData("¡¡¡¿¿¿ Alguien puede ayudarme por favor ???!!!", "\\¡\\¡\\¡\\¿\\¿\\¿Alguien puede ayudarme por favor\\?\\?\\?\\!\\!\\!")]
+		[InlineData("« Je m 'appelle Marinette , une fille comme les autres »", "\\«Je m\\'appelle Marinette\\, une fille comme les autres\\»")]
+		[InlineData("» Je m 'appelle Marinette , une fille comme les autres «", "\\»Je m\\'appelle Marinette\\, une fille comme les autres\\«")]
+		[InlineData("» Je m 'appelle Marinette , une fille comme les autres »", "\\»Je m\\'appelle Marinette\\, une fille comme les autres\\»")]
+		[InlineData("« Je m 'appelle Marinette , une fille comme les autres «", "\\«Je m\\'appelle Marinette\\, une fille comme les autres\\«")]
+		public void RenderForeignTests(string input, string output)
+		{
+			var target = new DiscordSentenceRenderer();
+
+			var result = target.Render(input);
+
 			result.Should().Be(output);
 		}
 	}

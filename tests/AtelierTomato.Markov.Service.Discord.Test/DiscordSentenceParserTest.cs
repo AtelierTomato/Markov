@@ -51,7 +51,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData(@"-# lol this text is so small!", @"lol this text is so small !")]
 		[InlineData(@"## for no reason they also support this", @"for no reason they also support this")]
 		[InlineData(@"### and nobody even uses this one, it's just bold", @"and nobody even uses this one , it 's just bold")]
-		[InlineData(@">>> this is a big block quote multi-line just kill it", @"this is a big block quote multi- line just kill it")]
+		[InlineData(@">>> this is a big block quote multi-line just kill it", @"this is a big block quote multi - line just kill it")]
 		public void ParsePrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -67,7 +67,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData(@"\# lol this text is so big!", @"# lol this text is so big !")]
 		[InlineData(@"\#\# for no reason they also support this", @"# # for no reason they also support this")]
 		[InlineData(@"\#\#\# and nobody even uses this one, it's just bold", @"# ## and nobody even uses this one , it 's just bold")]
-		[InlineData(@"\>\>\> this is a big block quote multi-line just kill it", @"> >> this is a big block quote multi- line just kill it")]
+		[InlineData(@"\>\>\> this is a big block quote multi-line just kill it", @"> >> this is a big block quote multi - line just kill it")]
 		public void ParseEscapedPrecedingMarkdownTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -137,7 +137,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var input = @"yo <@!302915036492333067> and <@&308492793825853441>  can you <:ShihoLook:402558230427074560>  in <#614165694090838035> and get me some burgers or something";
-			var output = @"yo Sandra and ice fairy can you e:ShihoLook: in fairy- land and get me some burgers or something";
+			var output = @"yo Sandra and ice fairy can you e:ShihoLook: in fairy - land and get me some burgers or something";
 
 			var mentionUser = Mock.Of<IUser>();
 			Mock.Get(mentionUser).SetupGet(u => u.Username).Returns("Sandra").Verifiable();
@@ -361,7 +361,7 @@ Life in the Vault is about to change.";
 				@"Hitler shaped a battered Germany into an economic superpower .",
 				@"In the 21st century , war was still waged over the resources that could be acquired .",
 				@"Only this time , the spoils of war were also its weapons : Petroleum and Uranium .",
-				@"For these resources , China would invade Alaska , the US would annex Canada , and the European Commonwealth would dissolve into quarreling , bickering nation- states , bent on controlling the last remaining resources on Earth .",
+				@"For these resources , China would invade Alaska , the US would annex Canada , and the European Commonwealth would dissolve into quarreling , bickering nation - states , bent on controlling the last remaining resources on Earth .",
 				@"In 2077 , the storm of world war had come again .",
 				@"In two brief hours , most of the planet was reduced to cinders .",
 				@"And from the ashes of nuclear devastation , a new civilization would struggle to arise .",
@@ -412,13 +412,14 @@ Life in the Vault is about to change.";
 				new object[] { "i've thought of some more that alice's branch should be handling, what're the chances of getting this?", new string[] { "i 've thought of some more that alice 's branch should be handling , what 're the chances of getting this ?" } },
 				new object[] { "nani the fuck ?!?!?!?!wtf ?!?!?!?! why", new string[] { "nani the fuck ?!?!?!?! wtf ?!?!?!?! why" } },
 				new object[] { " i am #dying over here", new string[] { "i am # dying over here" } },
-				new object[] { "listen to sleater-kinney on spotify", new string[] { "listen to sleater- kinney on spotify" } },
-				new object[] { "and i can tell that doki doki literature club is shitty faux-anime normie garbage", new string[] { "and i can tell that doki doki literature club is shitty faux- anime normie garbage" } },
+				new object[] { "listen to sleater-kinney on spotify", new string[] { "listen to sleater - kinney on spotify" } },
+				new object[] { "and i can tell that doki doki literature club is shitty faux-anime normie garbage", new string[] { "and i can tell that doki doki literature club is shitty faux - anime normie garbage" } },
 				new object[] { "dotlipses fu*king suck ...and so do commalipses", new string[] { "dotlipses fu*king suck ... and so do commalipses" } },
 				new object[] { "girlfriend in ,,,several commas i know", new string[] { "girlfriend in ,,, several commas i know" } },
 				new object[] { "lisp is (fun), unless you (defun x).", new string[] { "lisp is ( fun ) , unless you ( defun x ) ." } },
 				new object[] { ">implying that i'm implying", new string[] { "> implying that i 'm implying" } },
 				new object[] { ">implying that i am implying", new string[] { "> implying that i am implying" } },
+				new object[] { "i want to eat—drink water", new string[] { "i want to eat — drink water" } }
 			};
 		}
 

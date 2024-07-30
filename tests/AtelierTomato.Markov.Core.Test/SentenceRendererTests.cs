@@ -51,7 +51,8 @@ namespace AtelierTomato.Markov.Core.Test
 		[InlineData("i 've found a million dollars", "i've found a million dollars")]
 		[InlineData("what 's up gamers , I 'm out here gaming", "what's up gamers, I'm out here gaming")]
 		[InlineData("the students ' council decided you die today", "the students' council decided you die today")]
-		[InlineData("and i can tell that doki doki literature club is shitty faux- anime normie garbage", "and i can tell that doki doki literature club is shitty faux-anime normie garbage")]
+		[InlineData("and i can tell that doki doki literature club is shitty faux - anime normie garbage", "and i can tell that doki doki literature club is shitty faux-anime normie garbage")]
+		[InlineData("i want to eat — drink water", "i want to eat—drink water")]
 		public void RenderContractionsTest(string input, string output)
 		{
 			var target = new SentenceRenderer();

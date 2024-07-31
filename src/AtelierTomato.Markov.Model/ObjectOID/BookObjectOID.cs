@@ -94,35 +94,40 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			if (Series is not null)
 			{
 				oidBuilder.Append(Series);
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Book is not null)
 			{
 				oidBuilder.Append(Book);
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Chapter is not null)
 			{
 				oidBuilder.Append(Chapter);
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Paragraph.HasValue)
 			{
 				oidBuilder.Append(Paragraph.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Sentence.HasValue)
 			{
 				oidBuilder.Append(Sentence.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}

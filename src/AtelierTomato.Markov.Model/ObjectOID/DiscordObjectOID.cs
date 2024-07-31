@@ -107,42 +107,48 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			if (Server.HasValue)
 			{
 				oidBuilder.Append(Server.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Category.HasValue)
 			{
 				oidBuilder.Append(Category.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Channel.HasValue)
 			{
 				oidBuilder.Append(Channel.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Thread.HasValue)
 			{
 				oidBuilder.Append(Thread.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Message.HasValue)
 			{
 				oidBuilder.Append(Message.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Sentence.HasValue)
 			{
 				oidBuilder.Append(Sentence.Value.ToString());
-			} else
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}

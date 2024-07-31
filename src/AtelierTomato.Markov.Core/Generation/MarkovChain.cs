@@ -72,7 +72,8 @@ namespace AtelierTomato.Markov.Core.Generation
 						{
 							prevList.RemoveAt(0);
 						}
-					} else
+					}
+					else
 					{
 						// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
 						if (rerolls > options.MaximumMarkovRerolls || tokenizedSentence.Count > options.MaximumLengthForReroll)
@@ -82,12 +83,14 @@ namespace AtelierTomato.Markov.Core.Generation
 						rerolls++;
 						currentPastaLength = 0;
 					}
-				} else if (prevList.Count != 0)
+				}
+				else if (prevList.Count != 0)
 				{
 					// If the prevList can't be used to match to anything, remove the first word from the prevList.
 					prevList.RemoveAt(0);
 					currentPastaLength = 0;
-				} else
+				}
+				else
 				{
 					// If the prevList reaches 0, that means that there's only one instance of the word in the database/query, so output the message.
 					return string.Join(' ', tokenizedSentence);

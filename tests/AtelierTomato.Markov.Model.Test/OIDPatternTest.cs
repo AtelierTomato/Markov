@@ -1,6 +1,6 @@
-﻿using AtelierTomato.Markov.Model.ObjectOID;
+﻿using System.Text.RegularExpressions;
+using AtelierTomato.Markov.Model.ObjectOID;
 using FluentAssertions;
-using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Model.Test
 {

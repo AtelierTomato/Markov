@@ -22,12 +22,14 @@
 			if (!Enum.TryParse(stringRange.First(), out ServiceType serviceType))
 			{
 				throw new ArgumentException("The ServiceType was not able to be parsed from the given OID.", nameof(OID));
-			} else
+			}
+			else
 			{
 				if (serviceType == ServiceType.Invalid)
 				{
 					throw new ArgumentException("The AuthorOID given is of ServiceType Invalid, which is not a valid ServiceType.", nameof(OID));
-				} else
+				}
+				else
 				{
 					return new AuthorOID(serviceType, stringRange[1], stringRange[2]);
 				}

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core
 {

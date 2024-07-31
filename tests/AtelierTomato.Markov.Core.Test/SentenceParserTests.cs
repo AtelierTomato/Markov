@@ -80,36 +80,36 @@ Life in the Vault is about to change.";
 
 		public static IEnumerable<object[]> CaptureSentenceEndersData()
 		{
-			return new List<object[]> {
-				new object[] { "hello and welcome to the server.", new string[] { "hello and welcome to the server ." } },
-				new object[] { "i like trains a lot!", new string[] { "i like trains a lot !" } },
-				new object[] { "i like cars a lot. do you also like cars?", new string[] { "i like cars a lot .", "do you also like cars ?" } },
-				new object[] { "megaman.exe 3 is considered to be a modern classic", new string[] { "megaman.exe 3 is considered to be a modern classic" } },
-				new object[] { "i think you're..... kinda stupid bro", new string[] { "i think you 're ..... kinda stupid bro" } },
-				new object[] { "where all the gamers at tho????????? wtf where are y'all", new string[] { "where all the gamers at tho ?????????", "wtf where are y 'all" } },
-				new object[] { "remember to b!optin all so that your messages are stored in the database!!!!", new string[] { "remember to b!optin all so that your messages are stored in the database !!!!" } },
-				new object[] { "you know, i was an adventurer too once. but then i got shot death with a gun", new string[] { "you know , i was an adventurer too once .", "but then i got shot death with a gun" } },
-				new object[] { "this is how you win (this is how you die forever)", new string[] { "this is how you win ( this is how you die forever )" } },
-				new object[] { "and so i was talking about \"anime girls\", and this guy comes in and starts screaming", new string[] { "and so i was talking about \" anime girls \" , and this guy comes in and starts screaming" } },
-				new object[] { "\"so too doth the man cree,ch\"", new string[] { "\" so too doth the man cree,ch \"" } },
-				new object[] { "this code is making me cringe [citation needed]", new string[] { "this code is making me cringe [ citation needed ]" } },
-				new object[] { "i like the .hack// franchise and the steins;gate franchise", new string[] { "i like the .hack// franchise and the steins;gate franchise" } },
-				new object[] { "sometimes people even use {this} alice ! did you know that yet ?", new string[] { "sometimes people even use { this } alice !", "did you know that yet ?" } },
-				new object[] { "this one can be ignored . . . if it's too hard . i guess  wretg res b dfs fgwd g da", new string[] { "this one can be ignored ... if it 's too hard .", "i guess wretg res b dfs fgwd g da" } },
-				new object[] { "me: trying to live my life; you: dying", new string[] { "me : trying to live my life ; you : dying" } },
-				new object[] { "i;m too tired to make anything more,,,,,,, djustr get these ones done please", new string[] { "i;m too tired to make anything more ,,,,,,, djustr get these ones done please" } },
-				new object[] { "i've thought of some more that alice's branch should be handling, what're the chances of getting this?", new string[] { "i 've thought of some more that alice 's branch should be handling , what 're the chances of getting this ?" } },
-				new object[] { "nani the fuck ?!?!?!?!wtf ?!?!?!?! why", new string[] { "nani the fuck ?!?!?!?! wtf ?!?!?!?! why" } },
-				new object[] { " i am #dying over here", new string[] { "i am # dying over here" } },
-				new object[] { "listen to sleater-kinney on spotify", new string[] { "listen to sleater - kinney on spotify" } },
-				new object[] { "and i can tell that doki doki literature club is shitty faux-anime normie garbage", new string[] { "and i can tell that doki doki literature club is shitty faux - anime normie garbage" } },
-				new object[] { "dotlipses fu*king suck ...and so do commalipses", new string[] { "dotlipses fu*king suck ... and so do commalipses" } },
-				new object[] { "girlfriend in ,,,several commas i know", new string[] { "girlfriend in ,,, several commas i know" } },
-				new object[] { "lisp is (fun), unless you (defun x).", new string[] { "lisp is ( fun ) , unless you ( defun x ) ." } },
-				new object[] { ">implying that i'm implying", new string[] { "> implying that i 'm implying" } },
-				new object[] { ">implying that i am implying", new string[] { "> implying that i am implying" } },
-				new object[] { "i want to eat—drink water", new string[] { "i want to eat — drink water" } }
-			};
+			return [
+				["hello and welcome to the server.", new string[] { "hello and welcome to the server ." }],
+				["i like trains a lot!", new string[] { "i like trains a lot !" }],
+				["i like cars a lot. do you also like cars?", new string[] { "i like cars a lot .", "do you also like cars ?" }],
+				["megaman.exe 3 is considered to be a modern classic", new string[] { "megaman.exe 3 is considered to be a modern classic" }],
+				["i think you're..... kinda stupid bro", new string[] { "i think you 're ..... kinda stupid bro" }],
+				["where all the gamers at tho????????? wtf where are y'all", new string[] { "where all the gamers at tho ?????????", "wtf where are y 'all" }],
+				["remember to b!optin all so that your messages are stored in the database!!!!", new string[] { "remember to b!optin all so that your messages are stored in the database !!!!" }],
+				["you know, i was an adventurer too once. but then i got shot death with a gun", new string[] { "you know , i was an adventurer too once .", "but then i got shot death with a gun" }],
+				["this is how you win (this is how you die forever)", new string[] { "this is how you win ( this is how you die forever )" }],
+				["and so i was talking about \"anime girls\", and this guy comes in and starts screaming", new string[] { "and so i was talking about \" anime girls \" , and this guy comes in and starts screaming" }],
+				["\"so too doth the man cree,ch\"", new string[] { "\" so too doth the man cree,ch \"" }],
+				["this code is making me cringe [citation needed]", new string[] { "this code is making me cringe [ citation needed ]" }],
+				["i like the .hack// franchise and the steins;gate franchise", new string[] { "i like the .hack// franchise and the steins;gate franchise" }],
+				["sometimes people even use {this} alice ! did you know that yet ?", new string[] { "sometimes people even use { this } alice !", "did you know that yet ?" }],
+				["this one can be ignored . . . if it's too hard . i guess  wretg res b dfs fgwd g da", new string[] { "this one can be ignored ... if it 's too hard .", "i guess wretg res b dfs fgwd g da" }],
+				["me: trying to live my life; you: dying", new string[] { "me : trying to live my life ; you : dying" }],
+				["i;m too tired to make anything more,,,,,,, djustr get these ones done please", new string[] { "i;m too tired to make anything more ,,,,,,, djustr get these ones done please" }],
+				["i've thought of some more that alice's branch should be handling, what're the chances of getting this?", new string[] { "i 've thought of some more that alice 's branch should be handling , what 're the chances of getting this ?" }],
+				["nani the fuck ?!?!?!?!wtf ?!?!?!?! why", new string[] { "nani the fuck ?!?!?!?! wtf ?!?!?!?! why" }],
+				[" i am #dying over here", new string[] { "i am # dying over here" }],
+				["listen to sleater-kinney on spotify", new string[] { "listen to sleater - kinney on spotify" }],
+				["and i can tell that doki doki literature club is shitty faux-anime normie garbage", new string[] { "and i can tell that doki doki literature club is shitty faux - anime normie garbage" }],
+				["dotlipses fu*king suck ...and so do commalipses", new string[] { "dotlipses fu*king suck ... and so do commalipses" }],
+				["girlfriend in ,,,several commas i know", new string[] { "girlfriend in ,,, several commas i know" }],
+				["lisp is (fun), unless you (defun x).", new string[] { "lisp is ( fun ) , unless you ( defun x ) ." }],
+				[">implying that i'm implying", new string[] { "> implying that i 'm implying" }],
+				[">implying that i am implying", new string[] { "> implying that i am implying" }],
+				["i want to eat—drink water", new string[] { "i want to eat — drink water" }]
+			];
 		}
 
 		[Theory]

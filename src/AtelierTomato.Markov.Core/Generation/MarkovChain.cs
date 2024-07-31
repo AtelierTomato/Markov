@@ -17,7 +17,9 @@ namespace AtelierTomato.Markov.Core.Generation
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await GetFirstSentence(filter, keyword) ?? throw new Exception("Couldn't query any messages.");
+				sentence = await GetFirstSentence(filter, keyword);
+				if (sentence is null)
+					return string.Empty;
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 				prevIDs.Add(sentence.OID);
 			}

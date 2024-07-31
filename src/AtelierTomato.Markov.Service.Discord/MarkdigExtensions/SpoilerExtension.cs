@@ -43,17 +43,10 @@ namespace AtelierTomato.Markov.Service.Discord.MarkdigExtensions
 			}
 		}
 
-		private string? GetTag(EmphasisInline emphasisInline)
+		private static string? GetTag(EmphasisInline emphasisInline) => emphasisInline.DelimiterChar switch
 		{
-			var c = emphasisInline.DelimiterChar;
-			switch (c)
-			{
-				case '|':
-					// HACK: this uses <tt> as a sort of placeholder.
-					return "tt";
-			}
-
-			return null;
-		}
+			'|' => "tt",// HACK: this uses <tt> as a sort of placeholder.
+			_ => null,
+		};
 	}
 }

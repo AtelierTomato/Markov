@@ -4,7 +4,7 @@ namespace AtelierTomato.Markov.Core
 {
 	public class SentenceRenderer
 	{
-		protected readonly Regex renderEmojiRegex = new Regex(@"e:([^:]+):", RegexOptions.Compiled); // Matches to "e:anyCharactersExceptColon:", our custom emoji storage format.
+		private readonly Regex renderEmojiRegex = new Regex(@"e:([^:]+):", RegexOptions.Compiled); // Matches to "e:anyCharactersExceptColon:", our custom emoji storage format.
 		private readonly Regex attachToPreviousWord = new Regex(@"(?: |^)([.\}\)\];:]|[?!,]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(]|[¿¡]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachQuotes = new Regex(@"(?: |^)("")(?: |$)", RegexOptions.Compiled);
@@ -13,7 +13,7 @@ namespace AtelierTomato.Markov.Core
 		private readonly Regex attachPluralContractions = new Regex(@"(?: )(')(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachDashes = new Regex(@"(\w)(?: )([-—])(?: )(\w)", RegexOptions.Compiled);
 		private readonly Regex attachQuoteArrow = new Regex(@"(?:^)(>)(?: )", RegexOptions.Compiled);
-
+		protected Regex RenderEmojiRegex => renderEmojiRegex;
 		public virtual string Render(string text)
 		{
 			text = RenderDetachCharacters(text);
@@ -45,6 +45,6 @@ namespace AtelierTomato.Markov.Core
 			return text.Trim();
 		}
 
-		private string RenderEmojis(string text) => renderEmojiRegex.Replace(text, m => m.Groups[1].Value);
+		private string RenderEmojis(string text) => RenderEmojiRegex.Replace(text, m => m.Groups[1].Value);
 	}
 }

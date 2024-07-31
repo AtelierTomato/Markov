@@ -6,7 +6,7 @@ namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceRenderer : SentenceRenderer
 	{
-		private readonly Regex escapeRegex = new Regex(@"(<a?:[^:]+:[0-9]+>)?([^\d\sa-zA-Z])?", RegexOptions.Compiled);
+		private readonly Regex escapeRegex = new(@"(<a?:[^:]+:[0-9]+>)?([^\d\sa-zA-Z])?", RegexOptions.Compiled);
 		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)
 		{
 			text = RenderEmojis(text, currentEmojis, allEmojis);
@@ -24,7 +24,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		{
 			if (m.Groups[1].Success && m.Groups[2].Success)
 			{
-				throw new Exception("Developers don't understand regex oops.");
+				throw new NotImplementedException("Developers don't understand regex oops.");
 			}
 			else if (m.Groups[2].Success)
 			{
@@ -37,7 +37,7 @@ namespace AtelierTomato.Markov.Service.Discord
 			return m.Value;
 		}).Trim();
 
-		public string RenderEmojis(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis) => renderEmojiRegex.Replace(text, m =>
+		public string RenderEmojis(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis) => RenderEmojiRegex.Replace(text, m =>
 		{
 			string emojiName = m.Groups[1].Value;
 			Emote? emoji = currentEmojis.FirstOrDefault(e => e.Name == emojiName);

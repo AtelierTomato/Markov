@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Model.ObjectOID
 {
@@ -106,7 +107,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			oidBuilder.Append(Instance);
 			if (Server.HasValue)
 			{
-				oidBuilder.Append(Server.Value.ToString());
+				oidBuilder.Append(Server.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -114,7 +115,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			if (Category.HasValue)
 			{
-				oidBuilder.Append(Category.Value.ToString());
+				oidBuilder.Append(Category.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -122,7 +123,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			if (Channel.HasValue)
 			{
-				oidBuilder.Append(Channel.Value.ToString());
+				oidBuilder.Append(Channel.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -130,7 +131,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			if (Thread.HasValue)
 			{
-				oidBuilder.Append(Thread.Value.ToString());
+				oidBuilder.Append(Thread.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -138,7 +139,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			if (Message.HasValue)
 			{
-				oidBuilder.Append(Message.Value.ToString());
+				oidBuilder.Append(Message.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -146,7 +147,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			if (Sentence.HasValue)
 			{
-				oidBuilder.Append(Sentence.Value.ToString());
+				oidBuilder.Append(Sentence.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -158,7 +159,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		{
 			if (Message is null)
 			{
-				throw new Exception("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
+				throw new InvalidOperationException("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
 			}
 			return new DiscordObjectOID(Instance, Server, Category, Channel, Thread, Message, sentence);
 		}

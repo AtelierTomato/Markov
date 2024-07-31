@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Model.ObjectOID
 {
@@ -117,7 +118,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			if (Paragraph.HasValue)
 			{
-				oidBuilder.Append(Paragraph.Value.ToString());
+				oidBuilder.Append(Paragraph.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -125,7 +126,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			if (Sentence.HasValue)
 			{
-				oidBuilder.Append(Sentence.Value.ToString());
+				oidBuilder.Append(Sentence.Value.ToString(CultureInfo.InvariantCulture));
 			}
 			else
 			{
@@ -137,7 +138,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		{
 			if (Paragraph is null)
 			{
-				throw new Exception("A BookObjectOID cannot increment Sentence if there is no value in Paragraph.");
+				throw new InvalidOperationException("A BookObjectOID cannot increment Sentence if there is no value in Paragraph.");
 			}
 			return new BookObjectOID(Instance, Series, Book, Chapter, Paragraph, sentence);
 		}

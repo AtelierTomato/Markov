@@ -1,4 +1,5 @@
-﻿using AtelierTomato.Markov.Model;
+﻿using System.Globalization;
+using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using Discord;
 
@@ -9,7 +10,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		public static async Task<IEnumerable<Sentence>> Build(IGuild? guild, IChannel channel, ulong messageID, ulong userID, DateTimeOffset date, IEnumerable<string> sentenceTexts, string instance = "discord.com")
 		{
 			DiscordObjectOID OID = await DiscordObjectOIDBuilder.Build(guild, channel, messageID, instance);
-			AuthorOID author = new(ServiceType.Discord, instance, userID.ToString());
+			AuthorOID author = new(ServiceType.Discord, instance, userID.ToString(CultureInfo.InvariantCulture));
 			return sentenceTexts.Select((text, index) =>
 				new Sentence(
 					OID.WithSentence(index),

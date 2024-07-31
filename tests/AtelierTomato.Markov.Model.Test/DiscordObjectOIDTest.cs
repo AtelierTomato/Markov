@@ -170,5 +170,12 @@ namespace AtelierTomato.Markov.Model.Test
 			result.Message.Should().Be(14);
 			result.Sentence.Should().Be(0);
 		}
+		[Fact]
+		public void BookOIDWithSentenceFailTest()
+		{
+			DiscordObjectOID oid = DiscordObjectOID.ForThread("discord.com", 10, 11, 12, 13);
+			Action act = () => oid.WithSentence(0);
+			act.Should().Throw<Exception>().WithMessage("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
+		}
 	}
 }

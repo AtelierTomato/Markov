@@ -139,5 +139,12 @@ namespace AtelierTomato.Markov.Model.Test
 			result.Paragraph.Should().Be(1);
 			result.Sentence.Should().Be(0);
 		}
+		[Fact]
+		public void BookOIDWithSentenceFailTest()
+		{
+			BookObjectOID oid = BookObjectOID.ForChapter("Instance", "Series", "Book", "Chapter");
+			Action act = () => oid.WithSentence(0);
+			act.Should().Throw<Exception>().WithMessage("A BookObjectOID cannot increment Sentence if there is no value in Paragraph.");
+		}
 	}
 }

@@ -13,7 +13,7 @@ public class OIDBuilder
 
 	public OIDBuilder Append(string field)
 	{
-		stringBuilder.Append(":").Append(OIDEscapement.Escape(field));
+		stringBuilder.Append(':').Append(OIDEscapement.Escape(field));
 		return this;
 	}
 

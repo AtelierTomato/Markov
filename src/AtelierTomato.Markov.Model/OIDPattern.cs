@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Model
@@ -7,11 +8,11 @@ namespace AtelierTomato.Markov.Model
 	{
 		public static Regex Generate(IList<string> fields)
 		{
-			if (fields.Count() < 2)
+			if (fields.Count < 2)
 				throw new ArgumentException("OIDPattern failed to construct as less than 2 fields were given.", nameof(fields));
 
 			StringBuilder sb = new();
-			sb.Append($@"
+			sb.Append(CultureInfo.InvariantCulture, $@"
 ^
 (?<{fields[0]}>(?:[^:]|\^:)+)
 (?<!\^):
@@ -19,7 +20,7 @@ namespace AtelierTomato.Markov.Model
 ");
 			foreach (var field in fields.Skip(2))
 			{
-				sb.Append($@"
+				sb.Append(CultureInfo.InvariantCulture, $@"
 (?<!\^):?
 (?<{field}>(?:[^:]|\^:)+)?
 ");

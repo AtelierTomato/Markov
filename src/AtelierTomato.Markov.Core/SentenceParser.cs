@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core
 {
@@ -8,7 +8,7 @@ namespace AtelierTomato.Markov.Core
 	/// </summary>
 	public class SentenceParser
 	{
-		private readonly Regex sentenceSeparatorPattern = new Regex(@"
+		private readonly Regex sentenceSeparatorPattern = new(@"
 ((?:
 [^.!?\r\n]               # neither sentence punctuation nor newlines
 |                        # nor
@@ -19,13 +19,13 @@ namespace AtelierTomato.Markov.Core
 [.!?]\w                  # punctuation with word after it
 )+)                      # 1 or multiple
 (\.|[.!?]+|$|\r?\n)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-		private readonly Regex spaceifyEllipsesPattern = new Regex(@"(?<=[^\s.,?!¿¡])([.,?!¿¡])(?=[.,?!¿¡])", RegexOptions.Compiled);
-		private readonly Regex ignoreCountPattern = new Regex(@"^[\p{P}]*$", RegexOptions.Compiled);
-		private readonly Regex deleteLinkPattern = new Regex(@"\S*://\S*", RegexOptions.Compiled);
-		private readonly Regex whitespaceCleanerPattern = new Regex(@"[^\S\r\n]+", RegexOptions.Compiled);
-		private readonly Regex detachQuoteArrowsPattern = new Regex(@"(?<=^|\n)(>)(?=\S)", RegexOptions.Compiled);
-		private readonly Regex processHashtagPattern = new Regex(@"(?<=^|\s)#(?=\S)", RegexOptions.Compiled);
-		private readonly Regex processDetachCharactersPattern = new Regex(@"
+		private readonly Regex spaceifyEllipsesPattern = new(@"(?<=[^\s.,?!¿¡])([.,?!¿¡])(?=[.,?!¿¡])", RegexOptions.Compiled);
+		private readonly Regex ignoreCountPattern = new(@"^[\p{P}]*$", RegexOptions.Compiled);
+		private readonly Regex deleteLinkPattern = new(@"\S*://\S*", RegexOptions.Compiled);
+		private readonly Regex whitespaceCleanerPattern = new(@"[^\S\r\n]+", RegexOptions.Compiled);
+		private readonly Regex detachQuoteArrowsPattern = new(@"(?<=^|\n)(>)(?=\S)", RegexOptions.Compiled);
+		private readonly Regex processHashtagPattern = new(@"(?<=^|\s)#(?=\S)", RegexOptions.Compiled);
+		private readonly Regex processDetachCharactersPattern = new(@"
 # first, the stuff we don't want to change: sentency characters surrounded by words and shit
 # punctuation is not words [citation needed]
 (?<!^|\s|[.?!]|[¿¡]|[()[\]{}«»]|""|[&]|(?<!,),(?!,)|-)
@@ -35,15 +35,15 @@ namespace AtelierTomato.Markov.Core
 # secondly, sentence characters again - this is according to that weird rexegg trick (http://www.rexegg.com/regex-best-trick.html)
 ([()[\]{}«»]|[¿¡]|""|[&]|(?<!,),(?!,)|-)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-		private readonly Regex processDetachFromPrecedingPattern = new Regex(@"
+		private readonly Regex processDetachFromPrecedingPattern = new(@"
 (?<!\s|:|;)(:|;)(?=\s)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-		private readonly Regex processDetachFromSucceedingPattern = new Regex(@"
+		private readonly Regex processDetachFromSucceedingPattern = new(@"
 (?<=\s)([.]{2,}|[,]{2,}|[?!]{2,})(?=\S)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-		private readonly Regex splitOffApostropheSequencesPattern = new Regex(@"(?<=\S)(?:')", RegexOptions.Compiled);
-		private readonly Regex splitOffDashSequencesPattern = new Regex(@"(?<=\w)([-—])(?=\w)", RegexOptions.Compiled);
-		private readonly Regex normalizeEllipsesPattern = new Regex(@"(?<=[.,?!¿¡]) +(?=[.,?!¿¡])", RegexOptions.Compiled);
+		private readonly Regex splitOffApostropheSequencesPattern = new(@"(?<=\S)(?:')", RegexOptions.Compiled);
+		private readonly Regex splitOffDashSequencesPattern = new(@"(?<=\w)([-—])(?=\w)", RegexOptions.Compiled);
+		private readonly Regex normalizeEllipsesPattern = new(@"(?<=[.,?!¿¡]) +(?=[.,?!¿¡])", RegexOptions.Compiled);
 
 		private readonly SentenceParserOptions options;
 		public SentenceParser(IOptions<SentenceParserOptions> options)

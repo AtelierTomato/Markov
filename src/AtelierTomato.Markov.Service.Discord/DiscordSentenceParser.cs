@@ -1,20 +1,20 @@
-﻿using AtelierTomato.Markov.Core;
+﻿using System.Text.RegularExpressions;
+using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Service.Discord.MarkdigExtensions;
 using Discord;
 using Markdig;
 using Markdig.Extensions.EmphasisExtras;
 using Microsoft.Extensions.Options;
-using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceParser : SentenceParser
 	{
-		private readonly Regex codeBlockPattern = new Regex(@"(```)((?:(?!```)[\s\S])+|)(```)", RegexOptions.Compiled);
-		private readonly Regex inlineCodeBlockPattern = new Regex(@"((^|[^\\])`([^`]|\\`)*[^\\]`|(^|[^\\])``)", RegexOptions.Compiled);
-		private readonly Regex escapeQuoteArrowPattern = new Regex(@"(?<=^|\n)(>)(?=\S)(?!>)", RegexOptions.Compiled);
-		private readonly Regex replaceEmojiPattern = new Regex(@"<a?:([^:]+):[0-9]+>", RegexOptions.Compiled);
-		private readonly Regex removeNegativeHeaderPattern = new Regex(@"(?<=^|\n)(-# )(?=\S)", RegexOptions.Compiled);
+		private readonly Regex codeBlockPattern = new(@"(```)((?:(?!```)[\s\S])+|)(```)", RegexOptions.Compiled);
+		private readonly Regex inlineCodeBlockPattern = new(@"((^|[^\\])`([^`]|\\`)*[^\\]`|(^|[^\\])``)", RegexOptions.Compiled);
+		private readonly Regex escapeQuoteArrowPattern = new(@"(?<=^|\n)(>)(?=\S)(?!>)", RegexOptions.Compiled);
+		private readonly Regex replaceEmojiPattern = new(@"<a?:([^:]+):[0-9]+>", RegexOptions.Compiled);
+		private readonly Regex removeNegativeHeaderPattern = new(@"(?<=^|\n)(-# )(?=\S)", RegexOptions.Compiled);
 
 		private readonly DiscordSentenceParserOptions discordOptions;
 		private readonly MarkdownPipeline pipeline;
@@ -95,7 +95,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		}
 		private string RemovePrefixes(string text)
 		{
-			while (discordOptions.RemovePrefixes.FirstOrDefault(p => text.StartsWith(p)) is not null and var prefix)
+			while (discordOptions.RemovePrefixes.FirstOrDefault(p => text.StartsWith(p, StringComparison.InvariantCulture)) is not null and var prefix)
 			{
 				text = text.Remove(0, prefix.Length).TrimStart();
 			}

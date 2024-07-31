@@ -14,18 +14,21 @@ namespace AtelierTomato.Markov.Service.Discord
 				categoryID = nestedChannel.CategoryId ?? 0;
 				channelID = channel.Id;
 				threadID = 0;
-			} else if (channel is IThreadChannel threadChannel)
+			}
+			else if (channel is IThreadChannel threadChannel)
 			{
 				if (guild is not null && await guild.GetChannelAsync(threadChannel.CategoryId!.Value) is not null and INestedChannel parentChannel && parentChannel.CategoryId is not null)
 				{
 					categoryID = parentChannel.CategoryId.Value;
-				} else
+				}
+				else
 				{
 					categoryID = 0;
 				}
 				channelID = threadChannel.CategoryId ?? 0;
 				threadID = threadChannel.Id;
-			} else
+			}
+			else
 			{
 				categoryID = 0;
 				channelID = channel.Id;

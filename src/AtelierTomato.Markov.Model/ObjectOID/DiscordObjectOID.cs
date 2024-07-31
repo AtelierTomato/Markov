@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace AtelierTomato.Markov.Model.ObjectOID
 {
@@ -106,43 +107,49 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			oidBuilder.Append(Instance);
 			if (Server.HasValue)
 			{
-				oidBuilder.Append(Server.Value.ToString());
-			} else
+				oidBuilder.Append(Server.Value.ToString(CultureInfo.InvariantCulture));
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Category.HasValue)
 			{
-				oidBuilder.Append(Category.Value.ToString());
-			} else
+				oidBuilder.Append(Category.Value.ToString(CultureInfo.InvariantCulture));
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Channel.HasValue)
 			{
-				oidBuilder.Append(Channel.Value.ToString());
-			} else
+				oidBuilder.Append(Channel.Value.ToString(CultureInfo.InvariantCulture));
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Thread.HasValue)
 			{
-				oidBuilder.Append(Thread.Value.ToString());
-			} else
+				oidBuilder.Append(Thread.Value.ToString(CultureInfo.InvariantCulture));
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Message.HasValue)
 			{
-				oidBuilder.Append(Message.Value.ToString());
-			} else
+				oidBuilder.Append(Message.Value.ToString(CultureInfo.InvariantCulture));
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
 			if (Sentence.HasValue)
 			{
-				oidBuilder.Append(Sentence.Value.ToString());
-			} else
+				oidBuilder.Append(Sentence.Value.ToString(CultureInfo.InvariantCulture));
+			}
+			else
 			{
 				return oidBuilder.Build();
 			}
@@ -152,7 +159,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		{
 			if (Message is null)
 			{
-				throw new Exception("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
+				throw new InvalidOperationException("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
 			}
 			return new DiscordObjectOID(Instance, Server, Category, Channel, Thread, Message, sentence);
 		}

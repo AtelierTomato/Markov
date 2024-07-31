@@ -1,4 +1,4 @@
-using AtelierTomato.Markov.Core.Generation;
+﻿using AtelierTomato.Markov.Core.Generation;
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Storage;
@@ -28,15 +28,9 @@ namespace AtelierTomato.Markov.Core.Test
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
 			var filter = new SentenceFilter(null, null);
 
-
-			Func<Task> action = async () =>
-			{
-				var target = new MarkovChain(sentenceAccess, options);
-
-				var result = await target.Generate(filter);
-
-			};
-			await action.Should().ThrowAsync<Exception>().WithMessage("Couldn't query any messages.");
+			var target = new MarkovChain(sentenceAccess, options);
+			var result = await target.Generate(filter);
+			result.Should().Be(string.Empty);
 		}
 
 		[Fact]

@@ -148,21 +148,6 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			return oidBuilder.Build();
 		}
-		public DiscordObjectOID IncrementSentence()
-		{
-			if (Message is null)
-			{
-				throw new Exception("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
-			}
-			if (Sentence is null)
-			{
-				Sentence = 0;
-			} else
-			{
-				Sentence++;
-			}
-			return this;
-		}
 		public DiscordObjectOID WithSentence(int sentence)
 		{
 			if (Message is null)

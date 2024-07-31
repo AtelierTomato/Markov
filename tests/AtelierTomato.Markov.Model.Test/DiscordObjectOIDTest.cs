@@ -157,5 +157,25 @@ namespace AtelierTomato.Markov.Model.Test
 			Action act = () => DiscordObjectOID.Parse("Discord:discord.com:1253189664655806606:1253189664655806610:1253270827257036801:1254631007395643422:1254631778308849716:Four");
 			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value. (Parameter 'OID')");
 		}
+		[Fact]
+		public void DiscordOIDWithSentenceTest()
+		{
+			DiscordObjectOID oid = DiscordObjectOID.ForMessage("discord.com", 10, 11, 12, 13, 14);
+			DiscordObjectOID result = oid.WithSentence(0);
+			result.Instance.Should().Be("discord.com");
+			result.Server.Should().Be(10);
+			result.Category.Should().Be(11);
+			result.Channel.Should().Be(12);
+			result.Thread.Should().Be(13);
+			result.Message.Should().Be(14);
+			result.Sentence.Should().Be(0);
+		}
+		[Fact]
+		public void BookOIDWithSentenceFailTest()
+		{
+			DiscordObjectOID oid = DiscordObjectOID.ForThread("discord.com", 10, 11, 12, 13);
+			Action act = () => oid.WithSentence(0);
+			act.Should().Throw<Exception>().WithMessage("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
+		}
 	}
 }

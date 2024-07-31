@@ -128,22 +128,16 @@ namespace AtelierTomato.Markov.Model.Test
 			act.Should().Throw<ArgumentException>().WithMessage("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value. (Parameter 'OID')");
 		}
 		[Fact]
-		public void IncrementBookOID()
+		public void BookOIDWithSentenceTest()
 		{
-			BookObjectOID oid = BookObjectOID.ForParagraph("_", "_", "_", "_", 1);
-			IEnumerable<string> strings = ["one", "two", "three"];
-
-			List<Sentence> result = strings.Select((text, index) =>
-				new Sentence(
-					oid.WithSentence(index),
-					new AuthorOID(ServiceType.Discord, "discord.com", "1"),
-					DateTimeOffset.Now,
-					text
-				)
-			).ToList();
-			result[0].OID.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "_", "_", "_", 1, 0));
-			result[1].OID.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "_", "_", "_", 1, 1));
-			result[2].OID.Should().BeEquivalentTo(BookObjectOID.ForSentence("_", "_", "_", "_", 1, 2));
+			BookObjectOID oid = BookObjectOID.ForParagraph("Instance", "Series", "Book", "Chapter", 1);
+			BookObjectOID result = oid.WithSentence(0);
+			result.Instance.Should().Be("Instance");
+			result.Series.Should().Be("Series");
+			result.Book.Should().Be("Book");
+			result.Chapter.Should().Be("Chapter");
+			result.Paragraph.Should().Be(1);
+			result.Sentence.Should().Be(0);
 		}
 	}
 }

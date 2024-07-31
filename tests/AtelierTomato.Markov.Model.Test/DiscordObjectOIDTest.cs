@@ -158,22 +158,17 @@ namespace AtelierTomato.Markov.Model.Test
 			act.Should().Throw<ArgumentException>().WithMessage("The part of the DiscordObjectOID corresponding to the sentence was not able to be parsed into an int value. (Parameter 'OID')");
 		}
 		[Fact]
-		public void IncrementDiscordOID()
+		public void DiscordOIDWithSentenceTest()
 		{
-			DiscordObjectOID oid = DiscordObjectOID.ForMessage("discord.com", 1, 1, 1, 1, 1);
-			IEnumerable<string> strings = ["one", "two", "three"];
-
-			List<Sentence> result = strings.Select((text, index) =>
-				new Sentence(
-					oid.WithSentence(index),
-					new AuthorOID(ServiceType.Discord, "discord.com", "1"),
-					DateTimeOffset.Now,
-					text
-				)
-			).ToList();
-			result[0].OID.Should().BeEquivalentTo(DiscordObjectOID.ForSentence("discord.com", 1, 1, 1, 1, 1, 0));
-			result[1].OID.Should().BeEquivalentTo(DiscordObjectOID.ForSentence("discord.com", 1, 1, 1, 1, 1, 1));
-			result[2].OID.Should().BeEquivalentTo(DiscordObjectOID.ForSentence("discord.com", 1, 1, 1, 1, 1, 2));
+			DiscordObjectOID oid = DiscordObjectOID.ForMessage("discord.com", 10, 11, 12, 13, 14);
+			DiscordObjectOID result = oid.WithSentence(0);
+			result.Instance.Should().Be("discord.com");
+			result.Server.Should().Be(10);
+			result.Category.Should().Be(11);
+			result.Channel.Should().Be(12);
+			result.Thread.Should().Be(13);
+			result.Message.Should().Be(14);
+			result.Sentence.Should().Be(0);
 		}
 	}
 }

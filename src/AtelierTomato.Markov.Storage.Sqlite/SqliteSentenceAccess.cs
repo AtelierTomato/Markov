@@ -5,9 +5,13 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Storage.Sqlite
 {
-	public class SqliteSentenceAccess(IOptions<SqliteAccessOptions> options) : ISentenceAccess
+	public class SqliteSentenceAccess : ISentenceAccess
 	{
-		private readonly SqliteAccessOptions options = options.Value;
+		private readonly SqliteAccessOptions options;
+		public SqliteSentenceAccess(IOptions<SqliteAccessOptions> options)
+		{
+			this.options = options.Value;
+		}
 
 		public async Task DeleteSentenceRange(SentenceFilter filter, string? searchString = null)
 		{

@@ -40,7 +40,7 @@ select {nameof(WordStatistic.Name)}, {nameof(WordStatistic.Appearances)} from {n
 
 			connection.Close();
 
-			return result/*.Select(w => new WordStatistic(w.Item1, w.Item2))*/;
+			return result;
 		}
 
 		private static async Task WriteCore(WordStatistic wordStatistic, SqliteConnection connection)

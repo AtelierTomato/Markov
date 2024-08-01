@@ -32,21 +32,14 @@ select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} = @name
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
-			IEnumerable<WordStatistic> result;
-			try
-			{
-				result = await connection.QueryAsync<WordStatistic>($@"
+			var result = await connection.QueryAsync<(string, int)>($@"
 select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} in @names
 ",
 				new { names = words });
-			}
-			catch
-			{
-				result = [];
-			}
+
 			connection.Close();
 
-			return result;
+			return result.Select(w => new WordStatistic(w.Item1, w.Item2));
 		}
 
 		private static async Task WriteCore(WordStatistic wordStatistic, SqliteConnection connection)

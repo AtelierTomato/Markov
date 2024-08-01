@@ -19,7 +19,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			connection.Open();
 
 			var result = await connection.QuerySingleOrDefaultAsync<WordStatistic?>($@"
-select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} = @name
+select {nameof(WordStatistic.Name)}, {nameof(WordStatistic.Appearances)} from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} = @name
 ",
 			new { name = word });
 
@@ -32,15 +32,15 @@ select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} = @name
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
-			var result = await connection.QueryAsync<(string, int)>($@"
-select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} in @names
+			var result = await connection.QueryAsync<WordStatistic>($@"
+select {nameof(WordStatistic.Name)}, {nameof(WordStatistic.Appearances)} from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} in @names
 ",
 				new { names = words }
 			);
 
 			connection.Close();
 
-			return result.Select(w => new WordStatistic(w.Item1, w.Item2));
+			return result/*.Select(w => new WordStatistic(w.Item1, w.Item2))*/;
 		}
 
 		private static async Task WriteCore(WordStatistic wordStatistic, SqliteConnection connection)

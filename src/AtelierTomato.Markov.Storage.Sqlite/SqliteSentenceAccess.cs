@@ -43,7 +43,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 			connection.Open();
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
-SELECT * FROM {nameof(Sentence)} WHERE
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
 ( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' ) AND
@@ -71,7 +71,7 @@ ORDER BY RANDOM() LIMIT 1
 			connection.Open();
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
-SELECT * FROM {nameof(Sentence)} WHERE
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
 ( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' )
@@ -95,7 +95,7 @@ ORDER BY RANDOM() LIMIT 1
 			connection.Open();
 
 			var result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT * FROM {nameof(Sentence)} WHERE
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )

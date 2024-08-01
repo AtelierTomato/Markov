@@ -35,7 +35,8 @@ select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} = @name
 			var result = await connection.QueryAsync<(string, int)>($@"
 select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} in @names
 ",
-				new { names = words });
+				new { names = words }
+			);
 
 			connection.Close();
 

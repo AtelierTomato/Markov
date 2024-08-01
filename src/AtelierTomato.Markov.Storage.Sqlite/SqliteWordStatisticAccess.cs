@@ -21,7 +21,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			var result = await connection.QuerySingleOrDefaultAsync<WordStatistic?>($@"
 select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} = @name
 ",
-			new { word });
+			new { name = word });
 
 			connection.Close();
 
@@ -36,7 +36,7 @@ select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} = @name
 			var result = await connection.QueryAsync<WordStatistic>($@"
 select * from {nameof(WordStatistic)} where {nameof(WordStatistic.Name)} in @names
 ",
-			new { words });
+			new { names = words });
 
 			connection.Close();
 

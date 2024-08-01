@@ -4,10 +4,10 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core.Generation
 {
-	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovGenerationOptions> options)
+	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovChainOptions> options)
 	{
 		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
-		private readonly MarkovGenerationOptions options = options.Value;
+		private readonly MarkovChainOptions options = options.Value;
 		private static readonly Random random = new();
 
 		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null)

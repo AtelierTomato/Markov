@@ -1,6 +1,6 @@
 ﻿namespace AtelierTomato.Markov.Core.Generation
 {
-	public class MarkovGenerationOptions
+	public class MarkovChainOptions
 	{
 		public int MaximumOutputLength { get; set; } = 50;
 		public int MaximumPrevListLength { get; set; } = 10;

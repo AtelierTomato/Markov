@@ -8,14 +8,7 @@ namespace AtelierTomato.Markov.Service.Discord
 	{
 		private readonly Regex escapeRegex = new(@"
 (<a?:[^:]+:[0-9]+>)?	# Match to Discord emojis
-(\p{So}					# Exclude OtherSymbol, like ⏸ and ✅
-|\p{Cs}\p{Cs}			# OR two Surrogate
- \uD83C\p{Cs}			# with color-modifier, like 👍🏿 and 👍
-						# (Hacky special case of Multibyte Character Set? It works.)
-|\p{Cs}\p{Cs}			# OR two Surrogate, like 🔀 and 🧊
- (\p{Cf}				# followed by a Format
- \p{Cs}\p{Cs})?)?		# and two Surrogate, like 👩‍💻 and 👨‍💻.
-([^\d\sa-zA-Z])?		# Match to symbols, excluding digits, spaces, and letters
+([*_~`>#|\\[\]()])?			# Match to symbols used in Markdown on Discord
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)
 		{
@@ -32,13 +25,13 @@ namespace AtelierTomato.Markov.Service.Discord
 
 		private string Escape(string text) => escapeRegex.Replace(text, m =>
 		{
-			if (m.Groups[1].Success && m.Groups[4].Success)
+			if (m.Groups[1].Success && m.Groups[2].Success)
 			{
 				throw new NotImplementedException("Developers don't understand regex oops.");
 			}
-			else if (m.Groups[4].Success)
+			else if (m.Groups[2].Success)
 			{
-				return "\\" + m.Groups[4].Value;
+				return "\\" + m.Groups[2].Value;
 			}
 			else if (m.Groups[1].Success)
 			{

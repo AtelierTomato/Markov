@@ -32,11 +32,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{1BCA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D069D0A8-0BFC-43AA-B4AA-0F787D6A7B9E}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-publish-nuget.yml = .github\workflows\build-publish-nuget.yml
 		.github\workflows\test-develop.yml = .github\workflows\test-develop.yml
 		.github\workflows\test-main.yml = .github\workflows\test-main.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Storage.Test", "tests\AtelierTomato.Markov.Storage.Test\AtelierTomato.Markov.Storage.Test.csproj", "{CE26CECE-2E3F-49AD-B6CF-7EEF0C99C1FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Storage.Test", "tests\AtelierTomato.Markov.Storage.Test\AtelierTomato.Markov.Storage.Test.csproj", "{CE26CECE-2E3F-49AD-B6CF-7EEF0C99C1FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

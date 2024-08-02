@@ -9,7 +9,7 @@ namespace AtelierTomato.Markov.Core
 		private readonly Regex attachToNextWord = new Regex(@"(?: |^)([#\[\{\(]|[¿¡]+)(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachQuotes = new Regex(@"(?: |^)("")(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachGuillemets = new Regex(@"(?: |^)([«»])(?: |$)", RegexOptions.Compiled);
-		private readonly Regex attachContractions = new Regex(@"(?: )('\w+)", RegexOptions.Compiled);
+		private readonly Regex attachContractions = new Regex(@"(?: )(['’]\w+)", RegexOptions.Compiled);
 		private readonly Regex attachPluralContractions = new Regex(@"(?: )(')(?: |$)", RegexOptions.Compiled);
 		private readonly Regex attachDashes = new Regex(@"(\w)(?: )([-—])(?: )(\w)", RegexOptions.Compiled);
 		private readonly Regex attachQuoteArrow = new Regex(@"(?:^)(>)(?: )", RegexOptions.Compiled);

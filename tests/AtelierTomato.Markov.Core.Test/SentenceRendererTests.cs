@@ -7,6 +7,7 @@ namespace AtelierTomato.Markov.Core.Test
 		[Theory]
 		[InlineData("hello world how are you", "hello world how are you")]
 		[InlineData("I 'm fine and how are you", "I'm fine and how are you")]
+		[InlineData("I ’m fine and how are you", "I’m fine and how are you")]
 		[InlineData("wal*mart anime idol group wow", "wal*mart anime idol group wow")]
 		[InlineData("the students ' council decided you die today", "the students' council decided you die today")]
 		[InlineData("this is another short sentence .", "this is another short sentence.")]

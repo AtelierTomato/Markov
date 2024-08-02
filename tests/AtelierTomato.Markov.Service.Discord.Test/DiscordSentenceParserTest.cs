@@ -316,6 +316,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[Theory]
 		[InlineData(@"hello world how are you", @"hello world how are you")]
 		[InlineData(@"I'm fine   and how are you", @"I 'm fine and how are you")]
+		[InlineData(@"I’m fine   and how are you", @"I ’m fine and how are you")]
 		[InlineData(@"wal*mart anime idol group wow", @"wal*mart anime idol group wow")]
 		[InlineData(@"you don't like cheese .. .. .. not sure if i trust you anymore ...", @"you don 't like cheese ...... not sure if i trust you anymore ...")]
 		[InlineData(@"the students' council decided you die today", @"the students ' council decided you die today")]

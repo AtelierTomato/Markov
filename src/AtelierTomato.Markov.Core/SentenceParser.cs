@@ -41,7 +41,7 @@ namespace AtelierTomato.Markov.Core
 		private readonly Regex processDetachFromSucceedingPattern = new(@"
 (?<=\s)([.]{2,}|[,]{2,}|[?!]{2,})(?=\S)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-		private readonly Regex splitOffApostropheSequencesPattern = new(@"(?<=\S)(?:')", RegexOptions.Compiled);
+		private readonly Regex splitOffApostropheSequencesPattern = new(@"(?<=\S)(['’])", RegexOptions.Compiled);
 		private readonly Regex splitOffDashSequencesPattern = new(@"(?<=\w)([-—])(?=\w)", RegexOptions.Compiled);
 		private readonly Regex normalizeEllipsesPattern = new(@"(?<=[.,?!¿¡]) +(?=[.,?!¿¡])", RegexOptions.Compiled);
 
@@ -127,7 +127,7 @@ namespace AtelierTomato.Markov.Core
 
 		private string ProcessDetachFromSucceeding(string text) => processDetachFromSucceedingPattern.Replace(text, m => m.Groups[1].Value + " ");
 
-		private string SplitOffApostropheSequences(string text) => splitOffApostropheSequencesPattern.Replace(text, " '");
+		private string SplitOffApostropheSequences(string text) => splitOffApostropheSequencesPattern.Replace(text, m => " " + m.Groups[1]);
 
 		private string SplitOffDashSequences(string text) => splitOffDashSequencesPattern.Replace(text, m => " " + m.Groups[1] + " ");
 

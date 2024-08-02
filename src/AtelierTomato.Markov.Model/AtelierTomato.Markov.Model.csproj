@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>AtelierTomato.Markov.Model</AssemblyName>
+		<RootNamespace>AtelierTomato.Markov.Model</RootNamespace>
+		<PackageId>AtelierTomato.Markov.Model</PackageId>
+		<Authors>AtelierTomato</Authors>
+		<Product>AtelierTomato.Markov</Product>
+		<Title>AtelierTomato Markov Model</Title>
+		<Version>1.0.0</Version>
+		<Company>AtelierTomato</Company>
+		<Copyright>GPL-3.0 license</Copyright>
+		<Description>Provides the data structures for the AtelierTomato.Markov project.</Description>
+		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Markov;Chain;Model;AtelierTomato;Sentence;Generation</PackageTags>
+		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Model with the models used in Markov chain sentence generation.</PackageReleaseNotes>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="GitVersion.MsBuild" Version="6.0.0">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+
+</Project>

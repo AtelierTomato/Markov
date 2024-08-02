@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>AtelierTomato.Markov.Core</AssemblyName>
+		<RootNamespace>AtelierTomato.Markov.Core</RootNamespace>
+		<PackageId>AtelierTomato.Markov.Core</PackageId>
+		<Authors>AtelierTomato</Authors>
+		<Product>AtelierTomato.Markov</Product>
+		<Title>AtelierTomato Markov Core</Title>
+		<Version>1.0.0</Version>
+		<Company>AtelierTomato</Company>
+		<Copyright>GPL-3.0 license</Copyright>
+		<Description>Provides the core logic for the AtelierTomato.Markov project, a library for generating sentences using Markov chains.</Description>
+		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Markov;Chain;Core;AtelierTomato;Sentence;Generation</PackageTags>
+		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Core with core logic for Markov chain sentence generation.</PackageReleaseNotes>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="GitVersion.MsBuild" Version="6.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AtelierTomato.Markov.Model\AtelierTomato.Markov.Model.csproj" />
+	  <ProjectReference Include="..\AtelierTomato.Markov.Storage\AtelierTomato.Markov.Storage.csproj" />
+	</ItemGroup>
+
+</Project>

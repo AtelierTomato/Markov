@@ -1,0 +1,43 @@
+name: Build and Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: |
+          for proj in $(find src -type f -name '*.csproj'); do
+            dotnet restore "$proj"
+          done
+
+      - name: Build
+        run: |
+          for proj in $(find src -type f -name '*.csproj'); do
+            dotnet build "$proj" --configuration Release --no-restore
+          done
+
+      - name: Pack
+        run: |
+          for proj in $(find src -type f -name '*.csproj'); do
+            dotnet pack "$proj" --configuration Release --no-build
+          done
+
+      - name: Publish to NuGet.org
+        run: dotnet nuget push src/**/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push src/**/*.nupkg --api-key ${{ secrets.GH_TOKEN }} --source "https://nuget.pkg.github.com/AtelierTomato/index.json" --skip-duplicate

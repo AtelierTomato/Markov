@@ -28,9 +28,9 @@ namespace AtelierTomato.Markov.Core
 		private readonly Regex processDetachCharactersPattern = new(@"
 # first, the stuff we don't want to change: sentency characters surrounded by words and shit
 # punctuation is not words [citation needed]
-(?<!^|\s|[.?!]|[¿¡]|[()[\]{}«»]|""|[&]|(?<!,),(?!,)|-)
+(?<!^|\s|[.?!]|[¿¡]|[()[\]{}«»‘“”]|""|[&]|(?<!,),(?!,)|-)
 ([()[\]{}«»]|""|[&]|(?<!,),(?!,)|-)
-(?!$|\s|[.?!]|[¿¡]|[()[\]{}«»]|""|[&]|(?<!,),(?!,)|-)
+(?!$|\s|[.?!]|[¿¡]|[()[\]{}«»‘“”]|""|[&]|(?<!,),(?!,)|-)
 |
 # secondly, sentence characters again - this is according to that weird rexegg trick (http://www.rexegg.com/regex-best-trick.html)
 ([()[\]{}«»]|[¿¡]|""|[&]|(?<!,),(?!,)|-)

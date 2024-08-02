@@ -23,8 +23,8 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 
 			await connection.ExecuteAsync($@"
 DELETE FROM {nameof(Sentence)} WHERE
-( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
-( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
+( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
 			new
@@ -44,8 +44,8 @@ DELETE FROM {nameof(Sentence)} WHERE
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
-( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
-( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
+( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
 ( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' ) AND
 ( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
@@ -72,8 +72,8 @@ ORDER BY RANDOM() LIMIT 1
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
-( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
-( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
+( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
 ( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' )
 ORDER BY RANDOM() LIMIT 1
 ",
@@ -96,8 +96,8 @@ ORDER BY RANDOM() LIMIT 1
 
 			var result = await connection.QueryAsync<SentenceRaw>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
-( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid ) AND
-( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author ) AND
+( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
 			new

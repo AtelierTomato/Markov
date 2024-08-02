@@ -14,7 +14,7 @@ namespace AtelierTomato.Markov.Service.Discord
 						# (Hacky special case of Multibyte Character Set? It works.)
 |\p{Cs}\p{Cs}			# OR two Surrogate, like 🔀 and 🧊
  (\p{Cf}				# followed by a Format
- \p{Cs}\p{Cs}))?		# and two Surrogate, like 👩‍💻 and 👨‍💻.
+ \p{Cs}\p{Cs})?)?		# and two Surrogate, like 👩‍💻 and 👨‍💻.
 ([^\d\sa-zA-Z])?		# Match to symbols, excluding digits, spaces, and letters
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)

@@ -5,29 +5,18 @@ namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordObjectOIDBuilder
 	{
-		public static async Task<DiscordObjectOID> BuildForMessage(IGuild? guild, IChannel channel, ulong messageID, string instance = "discord.com")
+		/// <summary>
+		/// Builds a DiscordObjectOID at scope of <see cref="DiscordObjectOID.Channel"/> or <see cref="DiscordObjectOID.Thread"/> <paramref name="guild"/> and <paramref name="channel"/> are passed.
+		/// If <paramref name="messageID"/> is passed, builds at scope of <see cref="DiscordObjectOID.Message"/>.
+		/// </summary>
+		/// <param name="guild">The <see cref="IGuild"/> of the desired DiscordObjectOID. Must contain the <paramref name="channel"/>.</param>
+		/// <param name="channel">The <see cref="IChannel"/> of the desired DiscordObjectOID. Can be <see cref="IThreadChannel"/>. Must be inside the <paramref name="guild"/>.</param>
+		/// <param name="messageID">Optional parameter indicating <see cref="IMessage"/> ID, used if intending to build at scope <see cref="DiscordObjectOID.Message"/>.</param>
+		/// <param name="instance">Optional parameter, used if on an alternative instance of Discord.</param>
+		/// <returns></returns>
+		public static async Task<DiscordObjectOID> Build(IGuild? guild, IChannel channel, ulong? messageID = null, string instance = "discord.com")
 		{
 			ulong serverID = guild?.Id ?? 0;
-			var categoryToThread = await BuildCore(guild, channel);
-			return DiscordObjectOID.ForMessage(instance, serverID, categoryToThread.Category, categoryToThread.Channel, categoryToThread.Thread ?? 0, messageID);
-		}
-
-		public static async Task<DiscordObjectOID> BuildForThreadOrChannel(IGuild? guild, IChannel channel, string instance = "discord.com")
-		{
-			ulong server = guild?.Id ?? 0;
-			var categoryToThread = await BuildCore(guild, channel);
-			if (categoryToThread.Thread is not null)
-			{
-				return DiscordObjectOID.ForThread(instance, server, categoryToThread.Category, categoryToThread.Channel, categoryToThread.Thread.Value);
-			}
-			else
-			{
-				return DiscordObjectOID.ForChannel(instance, server, categoryToThread.Category, categoryToThread.Channel);
-			}
-		}
-
-		private static async Task<DiscordCategoryToThread> BuildCore(IGuild? guild, IChannel channel)
-		{
 			ulong categoryID, channelID;
 			ulong? threadID;
 			if (channel is INestedChannel nestedChannel and not IThreadChannel)
@@ -55,7 +44,21 @@ namespace AtelierTomato.Markov.Service.Discord
 				channelID = channel.Id;
 				threadID = null;
 			}
-			return new DiscordCategoryToThread(categoryID, channelID, threadID);
+			if (messageID is null)
+			{
+				if (threadID is not null)
+				{
+					return DiscordObjectOID.ForThread(instance, serverID, categoryID, channelID, threadID.Value);
+				}
+				else
+				{
+					return DiscordObjectOID.ForChannel(instance, serverID, categoryID, channelID);
+				}
+			}
+			else
+			{
+				return DiscordObjectOID.ForMessage(instance, serverID, categoryID, channelID, threadID ?? 0, messageID.Value);
+			}
 		}
 	}
 }

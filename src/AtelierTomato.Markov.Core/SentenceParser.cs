@@ -33,7 +33,7 @@ namespace AtelierTomato.Markov.Core
 (?!$|\s|[.?!]|[¿¡]|[()[\]{}«»‘“”]|""|[&]|(?<!,),(?!,)|-)
 |
 # secondly, sentence characters again - this is according to that weird rexegg trick (http://www.rexegg.com/regex-best-trick.html)
-([()[\]{}«»]|[¿¡]|""|[&]|(?<!,),(?!,)|-)
+([()[\]{}«»“”]|[¿¡]|""|[&]|(?<!,),(?!,)|-)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex processDetachFromPrecedingPattern = new(@"
 (?<!\s|:|;)(:|;)(?=\s)

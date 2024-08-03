@@ -17,7 +17,7 @@
 		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Markov;Chain;AtelierTomato;Sentence;Generation;Storage;Sqlite</PackageTags>
-		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Storage.Sqlite. This package provides a storage implementation using Sqlite in order to store Sentences and WordStatistics.</PackageReleaseNotes>
+		<PackageReleaseNotes>Updated for parity with AtelierTomato.Markov.Core.</PackageReleaseNotes>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>

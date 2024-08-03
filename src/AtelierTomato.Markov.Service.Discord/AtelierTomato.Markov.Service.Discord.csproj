@@ -10,14 +10,14 @@
 		<Authors>AtelierTomato</Authors>
 		<Product>AtelierTomato.Markov</Product>
 		<Title>AtelierTomato Markov Service Discord</Title>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 		<Company>AtelierTomato</Company>
 		<Copyright>GPL-3.0 license</Copyright>
 		<Description>Provides a parser and renderer for the AtelierTomato.Markov project, designed to work with Discord channels by utilizing data structures from Discord.Net.Core. This package does not handle direct communication with Discord; instead, it focuses on parsing and rendering text within Discord contexts.</Description>
 		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Markov;Chain;Discord;AtelierTomato;Integration;Sentence;Generation;Service</PackageTags>
-		<PackageReleaseNotes>Initial release of AtelierTomato.Markov.Service.Discord. This package provides a parser and renderer for Markov chain sentence generation, using data structures from Discord.Net.Core. It does not include direct communication with Discord; users need to manage Discord interactions separately.</PackageReleaseNotes>
+		<PackageReleaseNotes>Updated for parity with AtelierTomato.Markov.Core.</PackageReleaseNotes>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>

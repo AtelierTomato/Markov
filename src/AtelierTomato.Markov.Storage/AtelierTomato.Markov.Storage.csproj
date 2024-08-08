@@ -10,7 +10,7 @@
 		<Authors>AtelierTomato</Authors>
 		<Product>AtelierTomato.Markov</Product>
 		<Title>AtelierTomato Markov Core</Title>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Company>AtelierTomato</Company>
 		<Copyright>GPL-3.0 license</Copyright>
 		<Description>Provides storage interfaces for the AtelierTomato.Markov project.</Description>

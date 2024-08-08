@@ -15,7 +15,7 @@ namespace AtelierTomato.Markov.Core.Generation
 		/// <returns></returns>
 		public async Task<string> Find(string str)
 		{
-			var sentenceWords = (await wordStatisticAccess.ReadWordStatisticRange(str.Split(' '))).Where(x => x.Appearances > options.MinimumAppearancesForKeyword && options.IgnoreKeyword.Contains(x.Name));
+			var sentenceWords = (await wordStatisticAccess.ReadWordStatisticRange(str.Split(' '))).Where(x => x.Appearances > options.MinimumAppearancesForKeyword && (options.IgnoreKeyword.Count is 0 || options.IgnoreKeyword.Contains(x.Name)));
 			return sentenceWords.MinBy(w => w.Appearances)?.Name ?? string.Empty;
 		}
 	}

@@ -10,14 +10,14 @@
 		<Authors>AtelierTomato</Authors>
 		<Product>AtelierTomato.Markov</Product>
 		<Title>AtelierTomato Markov Core</Title>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Company>AtelierTomato</Company>
 		<Copyright>GPL-3.0 license</Copyright>
 		<Description>Provides the core logic for the AtelierTomato.Markov project, a library for generating sentences using Markov chains.</Description>
 		<RepositoryUrl>https://github.com/AtelierTomato/Markov</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Markov;Chain;Core;AtelierTomato;Sentence;Generation</PackageTags>
-		<PackageReleaseNotes>Added parsing for non-standard (“”) quotation marks.</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed bug where if the KeywordOptions.IgnoreKeyword is empty, KeywordGenerator.Find() will not return a keyword.</PackageReleaseNotes>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>

@@ -8,7 +8,7 @@ namespace AtelierTomato.Markov.Console
 {
 	public class Program
 	{
-		public static async Task Main(string[] args)
+		public static void Main(string[] args)
 		{
 			var host = Host.CreateDefaultBuilder(args)
 				.UseSystemd()
@@ -54,7 +54,7 @@ namespace AtelierTomato.Markov.Console
 
 			try
 			{
-				await cliApp.RunAsync();
+				cliApp.RunAsync();
 			}
 			catch (Exception ex)
 			{

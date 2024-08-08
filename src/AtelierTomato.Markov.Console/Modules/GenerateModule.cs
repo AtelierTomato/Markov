@@ -160,16 +160,18 @@ namespace AtelierTomato.Markov.Console.Modules
 				int sentencesToGenerate = generationParameters[workerID].SentencesToGenerate;
 				logger.LogInformation("Worker {WorkerID} started generating {SentencesToGenerate} sentences...", workerID, sentencesToGenerate);
 				var tasks = new List<Task<string>>();
+				var startTime = DateTime.UtcNow;
 				for (int i = 0; i < sentencesToGenerate; i++)
 				{
 					tasks.Add(markovChain.Generate(generationParameters[workerID].filter, generationParameters[workerID].keyword, generationParameters[workerID].firstWord));
 				}
 
-				var startTime = DateTime.UtcNow;
 				List<string> sentences = (await Task.WhenAll(tasks)).Select(sentenceRenderer.Render).ToList();
 				var endTime = DateTime.UtcNow;
 
-				logger.LogInformation("Worker {WorkerID} finished generating {SentencesToGenerate} sentences in {Duration} seconds.", workerID, sentencesToGenerate, (endTime - startTime).TotalSeconds);
+				var duration = (endTime - startTime).TotalSeconds;
+				var average = duration / sentences.Count;
+				logger.LogInformation("Worker {WorkerID} finished generating {SentencesToGenerate} sentences in {Duration} seconds, average: {Average}", workerID, sentencesToGenerate, duration, average);
 
 				string fileName = $"Generate Output - {DateTimeOffset.Now:yyyy-MM-dd_HH-mm-ss} {workerID}.txt";
 				logger.LogInformation("Worker {WorkerID} successfully generated {Count} sentences, outputting them to {FileName}...", workerID, sentences.Count, fileName);

@@ -176,6 +176,9 @@ namespace AtelierTomato.Markov.Console.Modules
 				string fileName = $"Generate Output - {DateTimeOffset.Now:yyyy-MM-dd_HH-mm-ss} {workerID}.txt";
 				logger.LogInformation("Worker {WorkerID} successfully generated {Count} sentences, outputting them to {FileName}...", workerID, sentences.Count, fileName);
 				using StreamWriter writer = new StreamWriter(Path.Combine(options.OutputFolder, fileName));
+				await writer.WriteLineAsync(fileName);
+				await writer.WriteLineAsync($"Time elapsed: {duration}, average: {average}");
+				await writer.WriteLineAsync();
 				for (int i = 0; i < sentences.Count; i++)
 				{
 					await writer.WriteLineAsync($"Sentence {i + 1}:");

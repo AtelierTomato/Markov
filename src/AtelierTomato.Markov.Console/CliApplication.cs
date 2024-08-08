@@ -6,13 +6,13 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Console
 {
-	public class Worker : IHostedService
+	public class CliApplication
 	{
-		private readonly ILogger<Worker> logger;
+		private readonly ILogger<CliApplication> logger;
 		private readonly MarkovChain markovChain;
 		private readonly SentenceRenderer sentenceRenderer;
 		private readonly ConsoleOptions options;
-		public Worker(ILogger<Worker> logger, MarkovChain markovChain, SentenceRenderer sentenceRenderer, IOptions<ConsoleOptions> options)
+		public CliApplication(ILogger<CliApplication> logger, MarkovChain markovChain, SentenceRenderer sentenceRenderer, IOptions<ConsoleOptions> options)
 		{
 			this.logger = logger;
 			this.markovChain = markovChain;
@@ -20,18 +20,14 @@ namespace AtelierTomato.Markov.Console
 			this.options = options.Value;
 		}
 
-		public async Task StartAsync(CancellationToken cancellationToken)
+		public async Task RunAsync()
 		{
-			this.logger.LogInformation("hello");
+			logger.LogInformation("Application started.");
 
-			_ = Looper(cancellationToken);
-		}
-
-		private async Task Looper(CancellationToken cancellationToken)
-		{
 			Directory.CreateDirectory(options.OutputFolder);
 			System.Console.WriteLine($"Output director successfully created at {options.OutputFolder}");
-			while (!cancellationToken.IsCancellationRequested)
+
+			while (true)
 			{
 				System.Console.WriteLine("Enter a command name and press enter.");
 				System.Console.WriteLine("Valid commands: generate");
@@ -82,11 +78,6 @@ namespace AtelierTomato.Markov.Console
 				await writer.WriteLineAsync();
 			}
 			System.Console.WriteLine($"Sentences written to {fileName}");
-		}
-
-		public async Task StopAsync(CancellationToken cancellationToken)
-		{
-			this.logger.LogInformation("goodbye");
 		}
 	}
 }

@@ -1,8 +1,8 @@
 ﻿using AtelierTomato.Markov.Model;
 
-namespace AtelierTomato.Markov.Console
+namespace AtelierTomato.Markov.Console.Modules.Parameters
 {
-	public record GenerationParameter(
+	public record GenerateParameter(
 		int SentencesToGenerate,
 		SentenceFilter filter,
 		string? keyword,

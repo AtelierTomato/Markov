@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using AtelierTomato.Markov.Console.Modules;
 using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Core.Generation;
 using AtelierTomato.Markov.Storage;
@@ -34,6 +35,8 @@ namespace AtelierTomato.Markov.Console
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddSingleton<CliApplication>()
+							.AddSingleton<WorkerManager>()
+							.AddSingleton<GenerateModule>()
 							.AddSingleton<ISentenceAccess, SqliteSentenceAccess>()
 							.AddSingleton<IWordStatisticAccess, SqliteWordStatisticAccess>()
 							.AddSingleton<MarkovChain>()

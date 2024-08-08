@@ -41,6 +41,8 @@ IHost host = Host.CreateDefaultBuilder(args)
 				.Bind(hostContext.Configuration.GetSection("MarkovChain"));
 		services.AddOptions<KeywordOptions>()
 				.Bind(hostContext.Configuration.GetSection("Keyword"));
+		services.AddOptions<ConsoleOptions>()
+				.Bind(hostContext.Configuration.GetSection("Console"));
 	})
 	.Build();
 

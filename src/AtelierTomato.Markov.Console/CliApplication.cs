@@ -2,6 +2,7 @@
 using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Core.Generation;
 using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Model.ObjectOID.Parser;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Console
@@ -12,17 +13,20 @@ namespace AtelierTomato.Markov.Console
 		private readonly MarkovChain markovChain;
 		private readonly SentenceRenderer sentenceRenderer;
 		private readonly ConsoleOptions options;
+		private readonly KeywordProvider keywordProvider;
+		private readonly MultiParser<IObjectOID> oidParser = new([new BookObjectOIDParser(), new InvalidObjectOIDParser(), new DiscordObjectOIDParser()]);
 		private readonly object workerLock = new();
 		private readonly List<int> availableWorkerIDs = [];
 		private readonly List<Task> ongoingTasks = [];
-		private readonly Dictionary<int, int> generationParameters = new();
+		private readonly Dictionary<int, GenerationParameter> generationParameters = [];
 		private readonly object generationParametersLock = new();
-		public CliApplication(ILogger<CliApplication> logger, MarkovChain markovChain, SentenceRenderer sentenceRenderer, IOptions<ConsoleOptions> options)
+		public CliApplication(ILogger<CliApplication> logger, MarkovChain markovChain, SentenceRenderer sentenceRenderer, IOptions<ConsoleOptions> options, KeywordProvider keywordProvider)
 		{
 			this.logger = logger;
 			this.markovChain = markovChain;
 			this.sentenceRenderer = sentenceRenderer;
 			this.options = options.Value;
+			this.keywordProvider = keywordProvider;
 
 			// Initialize worker IDs
 			for (int i = 1; i <= 1000; i++)
@@ -31,7 +35,7 @@ namespace AtelierTomato.Markov.Console
 			}
 		}
 
-		public void RunAsync()
+		public async Task RunAsync()
 		{
 			logger.LogInformation("Application started.");
 
@@ -50,7 +54,7 @@ namespace AtelierTomato.Markov.Console
 					{
 
 						int workerID = registerWorkerID();
-						GatherGenerateParameters(workerID);
+						await GatherGenerateParameters(workerID);
 						ongoingTasks.Add(Task.Run(() => GenerateAsync(workerID)));
 
 					}
@@ -86,7 +90,7 @@ namespace AtelierTomato.Markov.Console
 			return workerID;
 		}
 
-		private void GatherGenerateParameters(int workerID)
+		private async Task GatherGenerateParameters(int workerID)
 		{
 			try
 			{
@@ -110,10 +114,98 @@ namespace AtelierTomato.Markov.Console
 						System.Console.WriteLine("Please enter an integer values.");
 					}
 				}
+				inputAccepted = false;
+				IObjectOID? objectOID = null;
+				while (!inputAccepted)
+				{
+					System.Console.WriteLine("Enter an IObjectOID to filter by, or press enter to leave the value empty:");
+					string? input = System.Console.ReadLine();
+					if (input is null or "")
+					{
+						inputAccepted = true;
+					}
+					else
+					{
+						try
+						{
+							objectOID = oidParser.Parse(input);
+							inputAccepted = true;
+						}
+						catch (Exception ex)
+						{
+							logger.LogError(ex, "Failed to parse valid IObjectOID from \"{Input}\"", input);
+							System.Console.WriteLine("Please enter a valid IObjectOID as a string.");
+						}
+					}
 
+				}
+				inputAccepted = false;
+				AuthorOID? author = null;
+				while (!inputAccepted)
+				{
+					System.Console.WriteLine("Enter an AuthorOID to filter by, or press enter to leave the value empty:");
+					string? input = System.Console.ReadLine();
+					if (input is null or "")
+					{
+						inputAccepted = true;
+					}
+					else
+					{
+						try
+						{
+							author = AuthorOID.Parse(input);
+							inputAccepted = true;
+						}
+						catch (Exception ex)
+						{
+							logger.LogError(ex, "Failed to parse valid AuthorOID from \"{Input}\"", input);
+							System.Console.WriteLine("Please enter a valid AuthorOID as a string.");
+						}
+					}
+				}
+				inputAccepted = false;
+				string? keyword = null;
+				while (!inputAccepted)
+				{
+					System.Console.WriteLine("Enter a word to use as a keyword, or press enter to leave the value empty, if multiple words are inputted, the KeywordProvider will determine which to use:");
+					string? input = System.Console.ReadLine();
+					if (input is null or "")
+					{
+						inputAccepted = true;
+					}
+					else
+					{
+						try
+						{
+							keyword = await keywordProvider.Find(input);
+							inputAccepted = true;
+						}
+						catch (Exception ex)
+						{
+							logger.LogError(ex, "Failed to find keyword from \"{Input}\"", input);
+						}
+					}
+				}
+				inputAccepted = false;
+				string? firstWord = null;
+				while (!inputAccepted)
+				{
+					System.Console.WriteLine("Enter a word to use as the firstWord, or press enter to leave the value empty:");
+					string? input = System.Console.ReadLine();
+					if (input is null or "")
+					{
+						inputAccepted = true;
+					}
+					else
+					{
+						firstWord = input;
+						inputAccepted = true;
+					}
+				}
+				GenerationParameter generationParameter = new(sentencesToGenerate, new(objectOID, author), keyword, firstWord);
 				lock (generationParametersLock)
 				{
-					generationParameters[workerID] = sentencesToGenerate;
+					generationParameters[workerID] = generationParameter;
 				}
 			}
 			catch (Exception ex)
@@ -130,12 +222,12 @@ namespace AtelierTomato.Markov.Console
 		{
 			try
 			{
-				int sentencesToGenerate = generationParameters[workerID];
+				int sentencesToGenerate = generationParameters[workerID].SentencesToGenerate;
 				logger.LogInformation("Worker {WorkerID} started generating {SentencesToGenerate} sentences...", workerID, sentencesToGenerate);
 				var tasks = new List<Task<string>>();
 				for (int i = 0; i < sentencesToGenerate; i++)
 				{
-					tasks.Add(markovChain.Generate(new SentenceFilter(null, null)));
+					tasks.Add(markovChain.Generate(generationParameters[workerID].filter, generationParameters[workerID].keyword, generationParameters[workerID].firstWord));
 				}
 
 				var startTime = DateTime.UtcNow;

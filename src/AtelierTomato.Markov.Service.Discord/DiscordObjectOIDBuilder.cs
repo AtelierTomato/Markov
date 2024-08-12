@@ -14,7 +14,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		/// <param name="messageID">Optional parameter indicating <see cref="IMessage"/> ID, used if intending to build at scope <see cref="DiscordObjectOID.Message"/>.</param>
 		/// <param name="instance">Optional parameter, used if on an alternative instance of Discord.</param>
 		/// <returns></returns>
-		public static async Task<DiscordObjectOID> Build(IGuild? guild, IChannel channel, ulong? messageID = null, string instance = "discord.com")
+		public static async Task<DiscordObjectOID> Build(IGuild? guild, IChannel channel, string instance = "discord.com")
 		{
 			ulong serverID = guild?.Id ?? 0;
 			ulong categoryID, channelID;
@@ -44,20 +44,14 @@ namespace AtelierTomato.Markov.Service.Discord
 				channelID = channel.Id;
 				threadID = null;
 			}
-			if (messageID is null)
+
+			if (threadID is not null)
 			{
-				if (threadID is not null)
-				{
-					return DiscordObjectOID.ForThread(instance, serverID, categoryID, channelID, threadID.Value);
-				}
-				else
-				{
-					return DiscordObjectOID.ForChannel(instance, serverID, categoryID, channelID);
-				}
+				return DiscordObjectOID.ForThread(instance, serverID, categoryID, channelID, threadID.Value);
 			}
 			else
 			{
-				return DiscordObjectOID.ForMessage(instance, serverID, categoryID, channelID, threadID ?? 0, messageID.Value);
+				return DiscordObjectOID.ForChannel(instance, serverID, categoryID, channelID);
 			}
 		}
 	}

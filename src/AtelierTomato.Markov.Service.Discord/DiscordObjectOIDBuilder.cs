@@ -28,6 +28,9 @@ namespace AtelierTomato.Markov.Service.Discord
 			}
 			else if (channel is IThreadChannel threadChannel)
 			{
+				if (threadChannel.CategoryId is null)
+					throw new ArgumentException($"A parent channel for the {nameof(IThreadChannel)} provided could not be found, this should not happen.", nameof(channel));
+
 				if (await guild.GetChannelAsync(threadChannel.CategoryId!.Value) is not null and INestedChannel parentChannel && parentChannel.CategoryId is not null)
 				{
 					categoryID = parentChannel.CategoryId.Value;

@@ -11,6 +11,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		/// <param name="guild">The <see cref="IGuild"/> of the desired DiscordObjectOID. Must contain the <paramref name="channel"/>.</param>
 		/// <param name="channel">The <see cref="IGuildChannel"/> of the desired DiscordObjectOID. Can be <see cref="IThreadChannel"/>. Must be inside the <paramref name="guild"/>.</param>
 		/// <param name="instance">Optional parameter, used if on an alternative instance of Discord.</param>
+		/// <remarks>This uses Discord's API, and thus incurs a big cost.</remarks>
 		/// <returns></returns>
 		public static async Task<DiscordObjectOID> Build(IGuild guild, IGuildChannel channel, string instance = "discord.com")
 		{

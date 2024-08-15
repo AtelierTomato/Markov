@@ -7,9 +7,15 @@ namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordSentenceBuilder
 	{
-		public static async Task<IEnumerable<Sentence>> Build(IGuild guild, IGuildChannel channel, ulong messageID, ulong userID, DateTimeOffset date, IEnumerable<string> sentenceTexts, string instance = "discord.com")
+		private readonly DiscordObjectOIDBuilder discordObjectOIDBuilder;
+		public DiscordSentenceBuilder(DiscordObjectOIDBuilder discordObjectOIDBuilder)
 		{
-			DiscordObjectOID OID = (await DiscordObjectOIDBuilder.Build(guild, channel, instance)).WithMessage(messageID);
+			this.discordObjectOIDBuilder = discordObjectOIDBuilder;
+		}
+
+		public async Task<IEnumerable<Sentence>> Build(IGuild guild, IGuildChannel channel, ulong messageID, ulong userID, DateTimeOffset date, IEnumerable<string> sentenceTexts, string instance = "discord.com")
+		{
+			DiscordObjectOID OID = (await discordObjectOIDBuilder.Build(guild, channel, instance)).WithMessage(messageID);
 			AuthorOID author = new(ServiceType.Discord, instance, userID.ToString(CultureInfo.InvariantCulture));
 			return sentenceTexts.Select((text, index) =>
 				new Sentence(

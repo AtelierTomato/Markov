@@ -1,10 +1,18 @@
 ﻿using AtelierTomato.Markov.Model.ObjectOID;
 using Discord;
+using Microsoft.Extensions.Logging;
 
 namespace AtelierTomato.Markov.Service.Discord
 {
 	public class DiscordObjectOIDBuilder
 	{
+		private readonly ILogger<DiscordObjectOIDBuilder> logger;
+
+		public DiscordObjectOIDBuilder(ILogger<DiscordObjectOIDBuilder> logger)
+		{
+			this.logger = logger;
+		}
+
 		/// <summary>
 		/// Builds a DiscordObjectOID at scope of <see cref="DiscordObjectOID.Channel"/> or <see cref="DiscordObjectOID.Thread"/>.
 		/// </summary>
@@ -13,7 +21,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		/// <param name="instance">Optional parameter, used if on an alternative instance of Discord.</param>
 		/// <remarks>This uses Discord's API, and thus incurs a big cost.</remarks>
 		/// <returns></returns>
-		public static async Task<DiscordObjectOID> Build(IGuild guild, IGuildChannel channel, string instance = "discord.com")
+		public async Task<DiscordObjectOID> Build(IGuild guild, IGuildChannel channel, string instance = "discord.com")
 		{
 			if (channel.GuildId != guild.Id)
 			{
@@ -31,7 +39,7 @@ namespace AtelierTomato.Markov.Service.Discord
 			{
 				if (threadChannel.CategoryId is null)
 				{
-					// todo: we should log this
+					logger.LogWarning("The {ThreadChannel} passed to {Build} did not have a {CategoryId}. This is unexpected.", nameof(IThreadChannel), nameof(Build), nameof(threadChannel.CategoryId));
 					categoryID = 0;
 				}
 				else

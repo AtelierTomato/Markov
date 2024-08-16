@@ -39,7 +39,7 @@ namespace AtelierTomato.Markov.Service.Discord
 			{
 				if (threadChannel.CategoryId is null)
 				{
-					logger.LogWarning("The {ThreadChannel} passed to {Build} did not have a {CategoryId}. This is unexpected.", nameof(IThreadChannel), nameof(Build), nameof(threadChannel.CategoryId));
+					logger.LogWarning("The CategoryId for the thread {ThreadId} was null. This is unexpected.", threadChannel.Id);
 					categoryID = 0;
 				}
 				else

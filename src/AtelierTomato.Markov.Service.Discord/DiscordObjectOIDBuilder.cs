@@ -39,7 +39,7 @@ namespace AtelierTomato.Markov.Service.Discord
 			{
 				if (threadChannel.CategoryId is null)
 				{
-					logger.LogWarning("The CategoryId for the thread {ThreadId} was null. This is unexpected.", threadChannel.Id);
+					_logCategoryIdWarning(logger, threadChannel.Id, null);
 					categoryID = 0;
 				}
 				else
@@ -66,5 +66,11 @@ namespace AtelierTomato.Markov.Service.Discord
 				return DiscordObjectOID.ForChannel(instance, guild.Id, categoryID, channelID);
 			}
 		}
+
+		private static readonly Action<ILogger, ulong, Exception?> _logCategoryIdWarning =
+			LoggerMessage.Define<ulong>(
+				LogLevel.Warning,
+				new EventId(1, nameof(Build)),
+				"The CategoryId for the thread {ThreadId} was null. This is unexpected.");
 	}
 }

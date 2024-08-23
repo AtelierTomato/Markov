@@ -155,11 +155,21 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			}
 			return oidBuilder.Build();
 		}
+
+		public DiscordObjectOID WithMessage(ulong message)
+		{
+			if (Channel is null)
+			{
+				throw new InvalidOperationException("A DiscordObjectOID cannot be returned with a Messagee if there is no value in Channel.");
+			}
+			return new DiscordObjectOID(Instance, Server, Category, Channel, Thread ?? 0, message);
+		}
+
 		public DiscordObjectOID WithSentence(int sentence)
 		{
 			if (Message is null)
 			{
-				throw new InvalidOperationException("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
+				throw new InvalidOperationException("A DiscordObjectOID cannot be returned with a Sentence if there is no value in Message.");
 			}
 			return new DiscordObjectOID(Instance, Server, Category, Channel, Thread, Message, sentence);
 		}

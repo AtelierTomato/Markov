@@ -171,11 +171,42 @@ namespace AtelierTomato.Markov.Model.Test
 			result.Sentence.Should().Be(0);
 		}
 		[Fact]
-		public void BookOIDWithSentenceFailTest()
+		public void DiscordOIDWithSentenceFailTest()
 		{
 			DiscordObjectOID oid = DiscordObjectOID.ForThread("discord.com", 10, 11, 12, 13);
 			Action act = () => oid.WithSentence(0);
-			act.Should().Throw<InvalidOperationException>().WithMessage("A DiscordObjectOID cannot increment Sentence if there is no value in Message.");
+			act.Should().Throw<InvalidOperationException>().WithMessage("A DiscordObjectOID cannot be returned with a Sentence if there is no value in Message.");
+		}
+		[Fact]
+		public void DiscordOIDWithMessageChannelTest()
+		{
+			DiscordObjectOID oid = DiscordObjectOID.ForChannel("discord.com", 10, 11, 12);
+			DiscordObjectOID result = oid.WithMessage(40);
+			result.Instance.Should().Be("discord.com");
+			result.Server.Should().Be(10);
+			result.Category.Should().Be(11);
+			result.Channel.Should().Be(12);
+			result.Thread.Should().Be(0);
+			result.Message.Should().Be(40);
+		}
+		[Fact]
+		public void DiscordOIDWithMessageThreadTest()
+		{
+			DiscordObjectOID oid = DiscordObjectOID.ForThread("discord.com", 10, 11, 12, 14);
+			DiscordObjectOID result = oid.WithMessage(40);
+			result.Instance.Should().Be("discord.com");
+			result.Server.Should().Be(10);
+			result.Category.Should().Be(11);
+			result.Channel.Should().Be(12);
+			result.Thread.Should().Be(14);
+			result.Message.Should().Be(40);
+		}
+		[Fact]
+		public void DiscordOIDWithMessageFailTest()
+		{
+			DiscordObjectOID oid = DiscordObjectOID.ForCategory("discord.com", 10, 11);
+			Action act = () => oid.WithMessage(0);
+			act.Should().Throw<InvalidOperationException>().WithMessage("A DiscordObjectOID cannot be returned with a Messagee if there is no value in Channel.");
 		}
 	}
 }

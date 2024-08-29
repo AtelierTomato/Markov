@@ -17,7 +17,7 @@ namespace AtelierTomato.Markov.Core.Generation
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await GetFirstSentence(filter, keyword);
+				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
 				if (sentence is null)
 					return string.Empty;
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
@@ -39,7 +39,7 @@ namespace AtelierTomato.Markov.Core.Generation
 					currentPastaLength = 0;
 				}
 
-				sentence = await GetNextSentence(prevList, prevIDs, filter, keyword);
+				sentence = await sentenceAccess.ReadNextRandomSentence(prevList, prevIDs, filter, keyword);
 				if (sentence is not null)
 				{
 					prevIDs.Add(sentence.OID);
@@ -106,26 +106,6 @@ namespace AtelierTomato.Markov.Core.Generation
 		{
 			var discardThreshold = 1 - Math.Pow(1 - options.CopyPastaKillingProbability, currentPastaLength);
 			return random.NextDouble() < discardThreshold;
-		}
-
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
-		{
-			Sentence? sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter, keyword);
-			if (sentence is null && keyword is not null)
-			{
-				sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
-			}
-			return sentence;
-		}
-
-		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter, string? keyword = null)
-		{
-			Sentence? sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
-			if (sentence is null && keyword is not null)
-			{
-				sentence = await sentenceAccess.ReadRandomSentence(filter);
-			}
-			return sentence;
 		}
 	}
 }

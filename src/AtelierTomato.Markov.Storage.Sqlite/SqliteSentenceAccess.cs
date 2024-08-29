@@ -46,10 +46,12 @@ DELETE FROM {nameof(Sentence)} WHERE
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
-( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' ) AND
 ( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
-ORDER BY RANDOM() LIMIT 1
+ORDER BY
+CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+RANDOM()
+LIMIT 1
 ",
 			new
 			{
@@ -73,9 +75,11 @@ ORDER BY RANDOM() LIMIT 1
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
-( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
-( @keyword IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' )
-ORDER BY RANDOM() LIMIT 1
+( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' )
+ORDER BY
+CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+RANDOM()
+LIMIT 1
 ",
 			new
 			{

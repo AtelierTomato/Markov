@@ -24,6 +24,10 @@ namespace AtelierTomato.Markov.Storage
 			List<Sentence>? sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			if (sentenceQueryResult is null or [])
 			{
+				sentenceQueryResult = (await ReadSentenceRange(filter)).Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
+			}
+			if (sentenceQueryResult is null or [])
+			{
 				return null;
 			}
 
@@ -33,6 +37,10 @@ namespace AtelierTomato.Markov.Storage
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
 		{
 			List<Sentence> sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).ToList();
+			if (sentenceQueryResult is null or [])
+			{
+				sentenceQueryResult = (await ReadSentenceRange(filter)).ToList();
+			}
 			if (sentenceQueryResult is null or [])
 			{
 				return null;

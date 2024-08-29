@@ -19,7 +19,7 @@ namespace AtelierTomato.Markov.Storage
 		/// <param name="filter">The <see cref="SentenceFilter"/> that the resulting <see cref="Sentence"/> must match.</param>
 		/// <param name="keyword">The keyword that the resulting <see cref="Sentence"/> must contain.</param>
 		/// <returns></returns>
-		Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null);
+		Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null);
 
 		/// <summary>
 		/// Reads all <see cref="Sentence"/>s that match the given <paramref name="filter"/> and including the given <paramref name="searchString"/>.

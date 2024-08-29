@@ -37,12 +37,12 @@ DELETE FROM {nameof(Sentence)} WHERE
 			connection.Close();
 		}
 
-		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
+		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
+			var result = await connection.QueryAsync<SentenceRaw>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
@@ -51,7 +51,7 @@ SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
-LIMIT 1
+LIMIT @amount
 ",
 			new
 			{
@@ -59,12 +59,13 @@ LIMIT 1
 				author = filter.Author?.ToString(),
 				keyword,
 				previousIDs = previousIDs.Select(x => x.ToString()),
-				prevList = string.Join(' ', prevList)
+				prevList = string.Join(' ', prevList),
+				amount
 			});
 
 			connection.Close();
 
-			return result?.ToSentence();
+			return result.Select(s => s.ToSentence());
 		}
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)

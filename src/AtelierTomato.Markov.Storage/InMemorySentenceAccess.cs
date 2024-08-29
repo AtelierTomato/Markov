@@ -19,20 +19,30 @@ namespace AtelierTomato.Markov.Storage
 			return Task.CompletedTask;
 		}
 
-		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
+		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
 		{
 			List<Sentence>? sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			if (sentenceQueryResult is null or [])
 			{
-				return null;
+				sentenceQueryResult = (await ReadSentenceRange(filter)).Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			}
+			if (sentenceQueryResult is null or [])
+			{
+				return [];
+			}
+			sentenceQueryResult = sentenceQueryResult.OrderBy(x => random.Next()).ToList();
+			var resultCount = Math.Min(amount, sentenceQueryResult.Count);
 
-			return sentenceQueryResult[random.Next(sentenceQueryResult.Count - 1)];
+			return sentenceQueryResult.Take(resultCount);
 		}
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
 		{
 			List<Sentence> sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).ToList();
+			if (sentenceQueryResult is null or [])
+			{
+				sentenceQueryResult = (await ReadSentenceRange(filter)).ToList();
+			}
 			if (sentenceQueryResult is null or [])
 			{
 				return null;

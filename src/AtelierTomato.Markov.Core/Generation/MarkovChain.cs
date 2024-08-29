@@ -17,7 +17,7 @@ namespace AtelierTomato.Markov.Core.Generation
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await GetFirstSentence(filter, keyword);
+				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
 				if (sentence is null)
 					return string.Empty;
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
@@ -39,51 +39,66 @@ namespace AtelierTomato.Markov.Core.Generation
 					currentPastaLength = 0;
 				}
 
-				sentence = await GetNextSentence(prevList, prevIDs, filter, keyword);
-				if (sentence is not null)
+				int allowedRerolls;
+				if (tokenizedSentence.Count > options.MaximumLengthForReroll)
 				{
-					prevIDs.Add(sentence.OID);
-					currentPastaLength++;
+					allowedRerolls = 0;
+				}
+				else
+				{
+					allowedRerolls = options.MaximumMarkovRerolls;
+				}
 
-					var spacedText = ' ' + sentence.Text + ' ';
-
-					// Keep only the parts of the found sentence after the last occurrence of prevlist
-					var prevListLocation = spacedText.LastIndexOf(' ' + string.Join(' ', prevList) + ' ', StringComparison.CurrentCultureIgnoreCase);
-
-					if (prevListLocation < 0)
+				var sentences = await sentenceAccess.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, filter, keyword);
+				if (sentences.Any())
+				{
+					foreach (var sent in sentences)
 					{
-						// TODO: This should be logged, it should not be possible for the prevList to not be matched in the found sentence.
-						prevListLocation = 0;
-					}
+						prevIDs.Add(sent.OID);
+						currentPastaLength++;
 
-					var sentenceWithoutPrevList = spacedText
-						.Substring(prevListLocation)
-						.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-						.Skip(prevList.Count);
+						var spacedText = ' ' + sent.Text + ' ';
 
-					var nextWord = sentenceWithoutPrevList.FirstOrDefault();
+						// Keep only the parts of the found sentence after the last occurrence of prevlist
+						var prevListLocation = spacedText.LastIndexOf(' ' + string.Join(' ', prevList) + ' ', StringComparison.CurrentCultureIgnoreCase);
 
-					if (nextWord is not null)
-					{
-						// Get just the next word after the last instance of the prevList, add to both tS and pL.
-						tokenizedSentence.Add(nextWord);
-						prevList.Add(nextWord);
-
-						// Trim prevList if it gets too long.
-						if (prevList.Count > options.MaximumPrevListLength)
+						if (prevListLocation < 0)
 						{
-							prevList.RemoveAt(0);
+							// TODO: This should be logged, it should not be possible for the prevList to not be matched in the found sentence.
+							prevListLocation = 0;
 						}
-					}
-					else
-					{
-						// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
-						if (rerolls > options.MaximumMarkovRerolls || tokenizedSentence.Count > options.MaximumLengthForReroll)
+
+						var sentenceWithoutPrevList = spacedText
+							.Substring(prevListLocation)
+							.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+							.Skip(prevList.Count);
+
+						var nextWord = sentenceWithoutPrevList.FirstOrDefault();
+
+						if (nextWord is not null)
 						{
-							return string.Join(' ', tokenizedSentence);
+							// Get just the next word after the last instance of the prevList, add to both tS and pL.
+							tokenizedSentence.Add(nextWord);
+							prevList.Add(nextWord);
+
+							// Trim prevList if it gets too long.
+							if (prevList.Count > options.MaximumPrevListLength)
+							{
+								prevList.RemoveAt(0);
+							}
+							break;
 						}
-						rerolls++;
-						currentPastaLength = 0;
+						else
+						{
+							prevIDs.Remove(sent.OID);
+							// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
+							if (rerolls > options.MaximumMarkovRerolls || tokenizedSentence.Count > options.MaximumLengthForReroll || rerolls + 1 >= sentences.Count())
+							{
+								return string.Join(' ', tokenizedSentence);
+							}
+							rerolls++;
+							currentPastaLength = 0;
+						}
 					}
 				}
 				else if (prevList.Count != 0)
@@ -98,7 +113,7 @@ namespace AtelierTomato.Markov.Core.Generation
 					return string.Join(' ', tokenizedSentence);
 				}
 			}
-
+			// If we hit the maximum length for a generated sentence, output the message.
 			return string.Join(' ', tokenizedSentence);
 		}
 
@@ -106,26 +121,6 @@ namespace AtelierTomato.Markov.Core.Generation
 		{
 			var discardThreshold = 1 - Math.Pow(1 - options.CopyPastaKillingProbability, currentPastaLength);
 			return random.NextDouble() < discardThreshold;
-		}
-
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
-		{
-			Sentence? sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter, keyword);
-			if (sentence is null && keyword is not null)
-			{
-				sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
-			}
-			return sentence;
-		}
-
-		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter, string? keyword = null)
-		{
-			Sentence? sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
-			if (sentence is null && keyword is not null)
-			{
-				sentence = await sentenceAccess.ReadRandomSentence(filter);
-			}
-			return sentence;
 		}
 	}
 }

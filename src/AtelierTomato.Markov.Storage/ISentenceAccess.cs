@@ -11,15 +11,17 @@ namespace AtelierTomato.Markov.Storage
 		/// <param name="keyword">The keyword that the resulting <see cref="Sentence"/> must contain.</param>
 		/// <returns></returns>
 		Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null);
+
 		/// <summary>
-		/// Read a random sentence that matches to given <paramref name="filter"/> that is not in <paramref name="previousIDs"/> and matches to the <paramref name="prevList"/> and includes the given <paramref name="keyword"/>.
+		/// Reads an <paramref name="amount"/> of random Sentences that match to the given <paramref name="filter"/>, are not in <paramref name="previousIDs"/>, and match to the <paramref name="prevList"/>, prioritizing those that contain the given <paramref name="keyword"/>.
 		/// </summary>
+		/// <param name="amount">The amount of <see cref="Sentence"/>s to attempt to return.</param>
 		/// <param name="prevList">A list of previous words that the function will attempt to match to other <see cref="Sentence"/>s with.</param>
 		/// <param name="previousIDs">A list of previous IDs of <see cref="Sentence"/>s that will be excluded from the query.</param>
 		/// <param name="filter">The <see cref="SentenceFilter"/> that the resulting <see cref="Sentence"/> must match.</param>
 		/// <param name="keyword">The keyword that the resulting <see cref="Sentence"/> must contain.</param>
 		/// <returns></returns>
-		Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null);
+		Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null);
 
 		/// <summary>
 		/// Reads all <see cref="Sentence"/>s that match the given <paramref name="filter"/> and including the given <paramref name="searchString"/>.
@@ -30,6 +32,7 @@ namespace AtelierTomato.Markov.Storage
 		Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null);
 
 		Task WriteSentence(Sentence sentence);
+
 		Task WriteSentenceRange(IEnumerable<Sentence> sentenceRange);
 
 		/// <summary>

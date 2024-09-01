@@ -95,7 +95,7 @@ namespace AtelierTomato.Markov.Model.Test
 		public void BookParseTooLongTest()
 		{
 			Action act = () => BookObjectOID.Parse("Book:_:Alice in Wonderland:Through the Looking Glass:1:3:2:4");
-			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid DiscordObjectOID. (Parameter 'OID')");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid BookObjectOID. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseEmptyTest()
@@ -113,7 +113,7 @@ namespace AtelierTomato.Markov.Model.Test
 		public void BookParseOnlyHasSerivceTypeTest()
 		{
 			Action act = () => BookObjectOID.Parse("Book");
-			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid DiscordObjectOID. (Parameter 'OID')");
+			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid BookObjectOID. (Parameter 'OID')");
 		}
 		[Fact]
 		public void BookParseParagraphNotIntTest()

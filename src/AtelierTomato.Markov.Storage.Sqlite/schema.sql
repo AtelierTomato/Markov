@@ -11,4 +11,10 @@ CREATE TABLE IF NOT EXISTS "WordStatistic" (
 	"Appearances"	INTEGER NOT NULL,
 	PRIMARY KEY("Name")
 );
+CREATE TABLE IF NOT EXISTS "UserPermission" (
+	"Author"	TEXT NOT NULL,
+	"OriginScope"	TEXT,
+	"AllowedScope"	TEXT,
+	PRIMARY KEY("Author","OriginScope")
+);
 COMMIT;

@@ -34,8 +34,9 @@ namespace AtelierTomato.Markov.Model.Test
 		public void IObjectOIDParseInvalidTest()
 		{
 			MultiParser<IObjectOID> oidParser = new([new BookObjectOIDParser(), new InvalidObjectOIDParser(), new DiscordObjectOIDParser()]);
-			Action act = () => oidParser.Parse("Invalid:google.com:appleseed");
-			act.Should().Throw<ArgumentException>().WithMessage("The IObjectOID given is of ServiceType Invalid, which is not a valid ServiceType. (Parameter 'input')");
+			IObjectOID OID = oidParser.Parse("Invalid:_:PermissionDenied");
+			OID.Should().BeOfType<InvalidObjectOID>();
+			OID.Should().BeEquivalentTo(InvalidObjectOID.Parse("Invalid:_:PermissionDenied"));
 		}
 	}
 }

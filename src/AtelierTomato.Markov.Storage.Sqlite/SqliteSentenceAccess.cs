@@ -38,13 +38,14 @@ DELETE FROM {nameof(Sentence)} WHERE
 			connection.Close();
 		}
 
-		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
+		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null, IObjectOID? origin = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
+( {nameof(UserPermission.AllowedScope)} IS NULL OR {nameof(UserPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(UserPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
 ( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
@@ -69,13 +70,14 @@ LIMIT @amount
 			return result.Select(s => s.ToSentence());
 		}
 
-		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
+		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null, IObjectOID? origin = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
+( {nameof(UserPermission.AllowedScope)} IS NULL OR {nameof(UserPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(UserPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' )
 ORDER BY

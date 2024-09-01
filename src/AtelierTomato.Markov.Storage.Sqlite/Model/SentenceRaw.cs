@@ -2,7 +2,7 @@
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID.Parser;
 
-namespace AtelierTomato.Markov.Storage.Sqlite
+namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	// All string version of Sentence, used as a return type of queries that .ToString() the Sentence in however they store the Sentence.
 	internal sealed class SentenceRaw
@@ -28,7 +28,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 		}
 		public Sentence ToSentence()
 		{
-			DateTimeOffset.TryParseExact(Date, "o", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset date);
+			DateTimeOffset.TryParseExact(Date, "o", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date);
 			return new Sentence(ObjectOIDParser.Parse(OID), AuthorOID.Parse(Author), date, Text);
 		}
 	}

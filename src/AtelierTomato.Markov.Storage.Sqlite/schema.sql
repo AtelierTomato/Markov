@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "WordStatistic" (
 	"Appearances"	INTEGER NOT NULL,
 	PRIMARY KEY("Name")
 );
-CREATE TABLE IF NOT EXISTS "UserPermission" (
+CREATE TABLE IF NOT EXISTS "AuthorPermission" (
 	"Author"	TEXT NOT NULL,
 	"OriginScope"	TEXT,
 	"AllowedScope"	TEXT,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS "UserPermission" (
 CREATE VIEW SentenceAfterLinkWithPermission As
 SELECT s.OID, s.Author, s.Date, s.Text, up.AllowedScope
 FROM Sentence s
-INNER JOIN UserPermission up
+INNER JOIN AuthorPermission up
 ON s.Author = up.Author
 AND (
     up.OriginScope IS NULL 
@@ -28,7 +28,7 @@ AND (
 )
 WHERE LENGTH(COALESCE(up.OriginScope, '')) = (
     SELECT MAX(LENGTH(COALESCE(up2.OriginScope, '')))
-    FROM UserPermission up2
+    FROM AuthorPermission up2
     WHERE s.Author = up2.Author
     AND (
         up2.OriginScope IS NULL 

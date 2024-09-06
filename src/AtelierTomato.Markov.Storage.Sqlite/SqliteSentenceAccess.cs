@@ -45,7 +45,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 
 			var result = await connection.QueryAsync<SentenceRaw>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
-( {nameof(UserPermission.AllowedScope)} IS NULL OR {nameof(UserPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(UserPermission.AllowedScope)} || ':%' ) AND
+( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
 ( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
@@ -77,7 +77,7 @@ LIMIT @amount
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
-( {nameof(UserPermission.AllowedScope)} IS NULL OR {nameof(UserPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(UserPermission.AllowedScope)} || ':%' ) AND
+( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' )
 ORDER BY

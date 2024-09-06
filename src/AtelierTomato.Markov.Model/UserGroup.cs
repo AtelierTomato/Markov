@@ -2,6 +2,6 @@
 {
 	public record UserGroup
 	(
-		string ID, AuthorOID Author, List<UserGroupPermissionType> Permissions
+		string ID, AuthorOID Author, IEnumerable<UserGroupPermissionType> Permissions
 	);
 }

@@ -111,7 +111,7 @@ WHERE {nameof(AuthorGroupPermission.ID)} IS @id
 			foreach (AuthorGroupPermission authorGroupPermission in authorGroupPermissions)
 			{
 				await connection.ExecuteAsync($@"
-INSERT INTO {nameof(AuthorGroupPermission)} ( {nameof(AuthorGroupPermission)}
+INSERT INTO {nameof(AuthorGroupPermission)} ( {nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.Author)}, {nameof(AuthorGroupPermission.Permissions)} )
 Values ( @id, @author, @permissions )
 ON CONFLICT ({nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.Author)}) DO UPDATE SET
 {nameof(AuthorGroupPermission.Permissions)} = excluded.{nameof(AuthorGroupPermission.Permissions)}

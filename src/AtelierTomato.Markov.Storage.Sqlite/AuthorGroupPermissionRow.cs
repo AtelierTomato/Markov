@@ -13,13 +13,13 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			Author = author;
 			Permissions = permissions;
 		}
-		public AuthorGroupPermissionRow(AuthorGroupPermission userGroup)
+		public AuthorGroupPermissionRow(AuthorGroupPermission authorGroupPermission)
 		{
-			ID = userGroup.ID;
-			Author = userGroup.Author.ToString();
-			Permissions = string.Join(' ', userGroup.Permissions.Distinct().Select(p => p.ToString()));
+			ID = authorGroupPermission.ID;
+			Author = authorGroupPermission.Author.ToString();
+			Permissions = string.Join(' ', authorGroupPermission.Permissions.Distinct().Select(p => p.ToString()));
 		}
-		public AuthorGroupPermission ToUserGroup() => new(
+		public AuthorGroupPermission ToAuthorGroupPermission() => new(
 			ID,
 			AuthorOID.Parse(Author),
 			Permissions.Split(' ')

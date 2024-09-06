@@ -60,7 +60,7 @@ SELECT {nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.Author)
 
 			connection.Close();
 
-			return result?.ToUserGroup();
+			return result?.ToAuthorGroupPermission();
 		}
 
 		public async Task<IEnumerable<AuthorGroupPermission>> ReadAuthorGroupPermissionRangeByAuthor(AuthorOID author)
@@ -79,7 +79,7 @@ WHERE {nameof(AuthorGroupPermission.Author)} IS @author
 
 			connection.Close();
 
-			return result.Select(u => u.ToUserGroup());
+			return result.Select(u => u.ToAuthorGroupPermission());
 		}
 
 		public async Task<IEnumerable<AuthorGroupPermission>> ReadAuthorGroupPermissionRangeByID(string ID)
@@ -98,7 +98,7 @@ WHERE {nameof(AuthorGroupPermission.ID)} IS @id
 
 			connection.Close();
 
-			return result.Select(u => u.ToUserGroup());
+			return result.Select(u => u.ToAuthorGroupPermission());
 		}
 
 		public async Task WriteAuthorGroupPermission(AuthorGroupPermission authorGroupPermission) => await WriteAuthorGroupPermissionRange([authorGroupPermission]);
@@ -108,7 +108,7 @@ WHERE {nameof(AuthorGroupPermission.ID)} IS @id
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 			await using var transaction = await connection.BeginTransactionAsync();
-			foreach (AuthorGroupPermission userGroup in authorGroupPermissions)
+			foreach (AuthorGroupPermission authorGroupPermission in authorGroupPermissions)
 			{
 				await connection.ExecuteAsync($@"
 INSERT INTO {nameof(AuthorGroupPermission)} ( {nameof(AuthorGroupPermission)}
@@ -118,9 +118,9 @@ ON CONFLICT ({nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.A
 ",
 				new
 				{
-					id = userGroup.ID,
-					author = userGroup.Author,
-					permissions = userGroup.Permissions
+					id = authorGroupPermission.ID,
+					author = authorGroupPermission.Author,
+					permissions = authorGroupPermission.Permissions
 				});
 			}
 

@@ -1,6 +1,6 @@
 ﻿namespace AtelierTomato.Markov.Model
 {
-	public enum UserGroupPermissionType
+	public enum AuthorGroupPermissionType
 	{
 		Invalid = 0,
 		SentencesInGroup = 1,

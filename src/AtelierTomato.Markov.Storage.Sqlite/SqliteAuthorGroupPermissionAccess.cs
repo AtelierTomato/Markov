@@ -105,10 +105,11 @@ WHERE {nameof(AuthorGroupPermission.ID)} IS @id
 
 		public async Task WriteAuthorGroupPermissionRange(IEnumerable<AuthorGroupPermission> authorGroupPermissions)
 		{
+			var authorGroupPermissionRows = authorGroupPermissions.Select(a => new AuthorGroupPermissionRow(a));
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 			await using var transaction = await connection.BeginTransactionAsync();
-			foreach (AuthorGroupPermission authorGroupPermission in authorGroupPermissions)
+			foreach (AuthorGroupPermissionRow authorGroupPermissionRow in authorGroupPermissionRows)
 			{
 				await connection.ExecuteAsync($@"
 INSERT INTO {nameof(AuthorGroupPermission)} ( {nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.Author)}, {nameof(AuthorGroupPermission.Permissions)} )
@@ -118,9 +119,9 @@ ON CONFLICT ({nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.A
 ",
 				new
 				{
-					id = authorGroupPermission.ID,
-					author = authorGroupPermission.Author,
-					permissions = authorGroupPermission.Permissions
+					id = authorGroupPermissionRow.ID,
+					author = authorGroupPermissionRow.Author,
+					permissions = authorGroupPermissionRow.Permissions
 				});
 			}
 

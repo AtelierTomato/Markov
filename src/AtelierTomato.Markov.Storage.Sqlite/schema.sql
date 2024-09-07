@@ -11,4 +11,16 @@ CREATE TABLE IF NOT EXISTS "WordStatistic" (
 	"Appearances"	INTEGER NOT NULL,
 	PRIMARY KEY("Name")
 );
+CREATE TABLE IF NOT EXISTS "AuthorGroup" (
+	"ID"	TEXT NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
+	PRIMARY KEY("ID")
+);
+CREATE TABLE IF NOT EXISTS "AuthorGroupPermission" (
+	"ID"	TEXT NOT NULL,
+	"Author"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Author")
+);
 COMMIT;

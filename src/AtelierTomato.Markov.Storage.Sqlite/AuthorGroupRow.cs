@@ -6,9 +6,9 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 	{
 		public string ID { get; set; }
 		public string Name { get; set; }
-		public AuthorGroupRow(string iD, string name)
+		public AuthorGroupRow(string ID, string name)
 		{
-			ID = iD;
+			this.ID = ID;
 			Name = name;
 		}
 		public AuthorGroupRow(AuthorGroup authorGroup)

@@ -101,7 +101,7 @@ LIMIT @amount
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 {sbOIDs}
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
@@ -195,7 +195,7 @@ on conflict ({nameof(Sentence.OID)}) do update set
 					{
 						sbOIDs.Append(" OR");
 					}
-					sbOIDs.Append(CultureInfo.InvariantCulture, $" {nameof(Sentence.OID)} LIKE {oids[i].ToString()} || '%'");
+					sbOIDs.Append(CultureInfo.InvariantCulture, $" {nameof(Sentence.OID)} LIKE '{oids[i]}%'");
 				}
 				sbOIDs.Append(" ) AND" + Environment.NewLine);
 			}

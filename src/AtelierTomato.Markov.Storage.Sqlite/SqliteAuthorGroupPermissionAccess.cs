@@ -13,21 +13,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			this.options = options.Value;
 		}
 
-		public async Task DeleteAuthorGroup(string ID)
-		{
-			await using var connection = new SqliteConnection(options.ConnectionString);
-			connection.Open();
-
-			await connection.ExecuteAsync($@"DELETE FROM {nameof(AuthorGroupPermission)} WHERE {nameof(AuthorGroupPermission.ID)} IS @id",
-				new
-				{
-					id = ID
-				});
-
-			connection.Close();
-		}
-
-		public async Task DeleteAuthorFromAuthorGroup(string ID, AuthorOID author)
+		public async Task DeleteAuthorFromAuthorGroup(Guid ID, AuthorOID author)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -35,14 +21,14 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await connection.ExecuteAsync($@"DELETE FROM {nameof(AuthorGroupPermission)} WHERE {nameof(AuthorGroupPermission.ID)} IS @id AND {nameof(AuthorGroupPermission.Author)} IS @author",
 				new
 				{
-					id = ID,
-					author
+					id = ID.ToString(),
+					author = author.ToString()
 				});
 
 			connection.Close();
 		}
 
-		public async Task<AuthorGroupPermission?> ReadAuthorGroupPermission(string ID, AuthorOID author)
+		public async Task<AuthorGroupPermission?> ReadAuthorGroupPermission(Guid ID, AuthorOID author)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -54,8 +40,8 @@ SELECT {nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.Author)
 ",
 			new
 			{
-				id = ID,
-				author
+				id = ID.ToString(),
+				author = author.ToString()
 			});
 
 			connection.Close();
@@ -74,7 +60,7 @@ WHERE {nameof(AuthorGroupPermission.Author)} IS @author
 ",
 			new
 			{
-				author
+				author = author.ToString()
 			});
 
 			connection.Close();
@@ -82,7 +68,7 @@ WHERE {nameof(AuthorGroupPermission.Author)} IS @author
 			return result.Select(u => u.ToAuthorGroupPermission());
 		}
 
-		public async Task<IEnumerable<AuthorGroupPermission>> ReadAuthorGroupPermissionRangeByID(string ID)
+		public async Task<IEnumerable<AuthorGroupPermission>> ReadAuthorGroupPermissionRangeByID(Guid ID)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -93,7 +79,7 @@ WHERE {nameof(AuthorGroupPermission.ID)} IS @id
 ",
 			new
 			{
-				id = ID
+				id = ID.ToString()
 			});
 
 			connection.Close();

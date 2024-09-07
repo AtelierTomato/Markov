@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using AtelierTomato.Markov.Model.ObjectOID.Types;
 
 namespace AtelierTomato.Markov.Model.ObjectOID
 {
@@ -6,17 +7,17 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 	{
 		public ServiceType Service { get; } = ServiceType.Special;
 		public string Instance { get; } = "_";
-		public string Type { get; set; }
+		public SpecialObjectOIDType Type { get; set; }
 		public SpecialObjectOID(string type)
 		{
-			if (type is "PermissionDenied")
-			{
-				Type = type;
-			}
-			else
-			{
+			if (!Enum.TryParse<SpecialObjectOIDType>(type, out var parsedType) || parsedType is SpecialObjectOIDType.Invalid)
 				throw new ArgumentException($"{type} is not a valid SpecialObjectOID Type.", nameof(type));
-			}
+
+			Type = parsedType;
+		}
+		public SpecialObjectOID(SpecialObjectOIDType type)
+		{
+			Type = type;
 		}
 		public static SpecialObjectOID Parse(string OID)
 		{
@@ -44,7 +45,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		public override string ToString()
 		{
 			var oidBuilder = new OIDBuilder(Service);
-			oidBuilder.Append(Instance).Append(Type);
+			oidBuilder.Append(Instance).Append(Type.ToString());
 			return oidBuilder.Build();
 		}
 	}

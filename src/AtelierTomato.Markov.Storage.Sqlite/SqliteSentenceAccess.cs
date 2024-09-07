@@ -43,7 +43,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<SentenceRaw>($@"
+			var result = await connection.QueryAsync<SentenceRow>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
@@ -75,7 +75,7 @@ LIMIT @amount
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
+			var result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
@@ -102,7 +102,7 @@ LIMIT 1
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<SentenceRaw>($@"
+			var result = await connection.QueryAsync<SentenceRow>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
@@ -137,7 +137,7 @@ SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)
 
 		private async Task WriteCore(Sentence sentence, SqliteConnection connection)
 		{
-			SentenceRaw sentenceRaw = new(sentence);
+			SentenceRow sentenceRaw = new(sentence);
 			await connection.ExecuteAsync($@"
 insert into {nameof(Sentence)} ( {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} )
 Values ( @oid, @author, @date, @text )

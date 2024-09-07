@@ -19,7 +19,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<AuthorPermissionRaw>($@"
+			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
 SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)}
 			");
@@ -34,7 +34,7 @@ FROM {nameof(AuthorPermission)}
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<AuthorPermissionRaw>($@"
+			var result = await connection.QuerySingleOrDefaultAsync<AuthorPermissionRow>($@"
 SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)}
 WHERE {nameof(AuthorPermission.Author)} = @author AND {nameof(AuthorPermission.OriginScope)} = @originScope
@@ -55,7 +55,7 @@ WHERE {nameof(AuthorPermission.Author)} = @author AND {nameof(AuthorPermission.O
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<AuthorPermissionRaw>($@"
+			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
 SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)}
 WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission.OriginScope)} in @originScopes
@@ -73,7 +73,7 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 
 		private static async Task WriteCore(SqliteConnection connection, AuthorPermission authorPermission)
 		{
-			AuthorPermissionRaw authorPermissionRaw = new AuthorPermissionRaw(authorPermission);
+			AuthorPermissionRow authorPermissionRaw = new AuthorPermissionRow(authorPermission);
 			await connection.ExecuteAsync($@"
 INSERT INTO {nameof(AuthorPermission)} ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)} )
 VALUES ( @author, @originScope, allowedScope )

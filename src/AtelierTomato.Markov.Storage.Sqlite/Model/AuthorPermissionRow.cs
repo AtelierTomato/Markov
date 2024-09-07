@@ -3,19 +3,19 @@ using AtelierTomato.Markov.Model.ObjectOID.Parser;
 
 namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
-	public class AuthorPermissionRaw
+	public class AuthorPermissionRow
 	{
 		public string Author { get; set; }
 		public string OriginScope { get; set; }
 		public string AllowedScope { get; set; }
 		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new SpecialObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
-		public AuthorPermissionRaw(string author, string originScope, string allowedScope)
+		public AuthorPermissionRow(string author, string originScope, string allowedScope)
 		{
 			Author = author;
 			OriginScope = originScope;
 			AllowedScope = allowedScope;
 		}
-		public AuthorPermissionRaw(AuthorPermission authorPermission)
+		public AuthorPermissionRow(AuthorPermission authorPermission)
 		{
 			Author = authorPermission.Author.ToString();
 			OriginScope = authorPermission.OriginScope.ToString();

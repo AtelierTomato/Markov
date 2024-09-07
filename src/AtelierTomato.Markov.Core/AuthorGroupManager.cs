@@ -22,6 +22,7 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupPermissionAccess.WriteAuthorGroupPermission(new(
 				ID,
 				sender,
+				AuthorGroupPermissionType.Accepted |
 				AuthorGroupPermissionType.SentencesInGroup |
 				AuthorGroupPermissionType.UseGroup |
 				AuthorGroupPermissionType.AddAuthor |
@@ -37,6 +38,8 @@ namespace AtelierTomato.Markov.Core
 				throw new ArgumentNullException(nameof(name));
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, sender)
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{ID}\".", nameof(sender));
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.Accepted))
+				throw new ArgumentException($"Author \"{sender}\" has not accepted the invitation into group with ID \"{ID}\".", nameof(sender));
 			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.RenameGroup))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to rename group with ID \"{ID}\".", nameof(sender));
 			// All guards passed, allow rename.
@@ -47,6 +50,8 @@ namespace AtelierTomato.Markov.Core
 		{
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, sender)
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{ID}\".", nameof(sender));
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.Accepted))
+				throw new ArgumentException($"Author \"{sender}\" has not accepted the invitation into group with ID \"{ID}\".", nameof(sender));
 			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.DeleteGroup))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to delete group with ID \"{ID}\".", nameof(sender));
 			// All guards passed, allow delete.
@@ -59,8 +64,17 @@ namespace AtelierTomato.Markov.Core
 				throw new ArgumentException($"You cannot update your own permissions in a group.", nameof(sender));
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(authorGroupPermission.ID, sender)
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{authorGroupPermission.ID}\".", nameof(sender));
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.Accepted))
+				throw new ArgumentException($"Author \"{sender}\" has not accepted the invitation into group with ID \"{authorGroupPermission.ID}\".", nameof(sender));
 			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.AddAuthor))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to add authors to group with ID \"{authorGroupPermission.ID}\".", nameof(sender));
+			if (authorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.Accepted))
+			{
+				var authorGroupPermissionCurrent = await authorGroupPermissionAccess.ReadAuthorGroupPermission(authorGroupPermission.ID, authorGroupPermission.Author)
+				 ?? throw new ArgumentException("An invite to a group cannot be sent already accpeted.", nameof(authorGroupPermission));
+				if (!authorGroupPermissionCurrent.Permissions.HasFlag(AuthorGroupPermissionType.Accepted))
+					throw new ArgumentException($"Author \"{authorGroupPermission.Author}\" has not accepted the invite to group with ID \"{authorGroupPermission.ID}\", you cannot accept it for them.", nameof(authorGroupPermission));
+			}
 
 			// Check if any permissions to assign are not held by the sender
 			if ((authorGroupPermission.Permissions & ~senderAuthorGroupPermission.Permissions) != 0)
@@ -70,19 +84,33 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupPermissionAccess.WriteAuthorGroupPermission(authorGroupPermission);
 		}
 
-		public async Task RemoveAuthor(AuthorOID sender, Guid groupID, AuthorOID user)
+		public async Task AcceptInvitation(AuthorOID sender, Guid ID)
 		{
-			if (sender == user)
-				throw new ArgumentException($"You cannot remove yourself from a group. Please use the \"{nameof(LeaveGroup)}\" function instead.", nameof(user));
-			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(groupID, sender)
-			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{groupID}\".", nameof(sender));
-			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.RemoveAuthor))
-				throw new ArgumentException($"Author \"{sender}\" does not have permission to remove authors from group with ID \"{groupID}\".", nameof(sender));
-			// All guards passed, allow remove.
-			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(groupID, user);
+			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, sender)
+			 ?? throw new ArgumentException($"Author \"{sender}\" has not been sent an invitation to group with ID \"{ID}\".", nameof(ID));
+			if (senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.Accepted))
+				throw new ArgumentException($"Author \"{sender}\" has already accepted invitation into group with ID \"{ID}\".", nameof(ID));
+
+			// All guards passed, allow accept.
+			senderAuthorGroupPermission.Permissions |= AuthorGroupPermissionType.Accepted;
+			await authorGroupPermissionAccess.WriteAuthorGroupPermission(senderAuthorGroupPermission);
 		}
 
-		public async Task LeaveGroup(Guid groupID, AuthorOID sender)
+		public async Task RemoveAuthor(AuthorOID sender, Guid ID, AuthorOID user)
+		{
+			if (sender == user)
+				throw new ArgumentException($"You cannot remove yourself from a group. Please use the \"{nameof(LeaveGroupOrDenyInvitation)}\" function instead.", nameof(user));
+			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, sender)
+			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{ID}\".", nameof(sender));
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.Accepted))
+				throw new ArgumentException($"Author \"{sender}\" has not accepted the invitation into group with ID \"{ID}\".", nameof(sender));
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.RemoveAuthor))
+				throw new ArgumentException($"Author \"{sender}\" does not have permission to remove authors from group with ID \"{ID}\".", nameof(sender));
+			// All guards passed, allow remove.
+			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(ID, user);
+		}
+
+		public async Task LeaveGroupOrDenyInvitation(Guid groupID, AuthorOID sender)
 		{
 			var authorGroupPermissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID(groupID);
 			if (!authorGroupPermissions.Select(p => p.Author).Contains(sender))

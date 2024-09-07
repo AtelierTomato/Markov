@@ -17,7 +17,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 
 		public async Task DeleteSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
-			if ((filter.OIDs is null || !filter.OIDs.Any()) && (filter.Authors is null || !filter.Authors.Any()) && searchString is null)
+			if (filter.OIDs.ToList() is null or [] && filter.Authors.ToList() is null or [] && searchString is null)
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
 			var sbOIDs = GenerateOIDStringBuilder(filter);

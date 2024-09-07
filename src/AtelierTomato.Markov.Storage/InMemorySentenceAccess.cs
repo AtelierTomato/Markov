@@ -3,7 +3,7 @@
 namespace AtelierTomato.Markov.Storage
 {
 	/// <summary>
-	/// This should ONLY EVER be used internally or to test things, DO NOT use this outside of these cases.
+	/// Internal use only, due to lack of persistence this is not to be used in production.
 	/// </summary>
 	public class InMemorySentenceAccess : ISentenceAccess
 	{

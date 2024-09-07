@@ -86,7 +86,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			await sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null), null);
+			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:2")], []), null);
 			sentenceAccess.SentenceStorage.Should().HaveCount(2);
 			sentenceAccess.SentenceStorage.Should().Contain([sentenceStorage[0], sentenceStorage[1]]);
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[2], sentenceStorage[3]]);
@@ -122,7 +122,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			await sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1")), null);
+			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([], [AuthorOID.Parse("Discord:discord.com:1")]), null);
 			sentenceAccess.SentenceStorage.Should().HaveCount(2);
 			sentenceAccess.SentenceStorage.Should().Contain([sentenceStorage[1], sentenceStorage[3]]);
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[2]]);
@@ -158,7 +158,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			await sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, null), "sentence");
+			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([], []), "sentence");
 			sentenceAccess.SentenceStorage.Should().ContainSingle();
 			sentenceAccess.SentenceStorage.Should().Contain(sentenceStorage[1]);
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[2], sentenceStorage[3]]);
@@ -200,7 +200,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			await sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1")), null);
+			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:1")], [AuthorOID.Parse("Discord:discord.com:1")]), null);
 			sentenceAccess.SentenceStorage.Should().HaveCount(3);
 			sentenceAccess.SentenceStorage.Should().Contain([sentenceStorage[1], sentenceStorage[2], sentenceStorage[3]]);
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[4]]);
@@ -242,7 +242,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			await sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1")), "sentence");
+			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([], [AuthorOID.Parse("Discord:discord.com:1")]), "sentence");
 			sentenceAccess.SentenceStorage.Should().HaveCount(3);
 			sentenceAccess.SentenceStorage.Should().Contain([sentenceStorage[1], sentenceStorage[3], sentenceStorage[4]]);
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[2]]);
@@ -284,7 +284,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			await sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null), "so");
+			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:1")], []), "so");
 			sentenceAccess.SentenceStorage.Should().HaveCount(3);
 			sentenceAccess.SentenceStorage.Should().Contain([sentenceStorage[1], sentenceStorage[2], sentenceStorage[3]]);
 			sentenceAccess.SentenceStorage.Should().NotContain([sentenceStorage[0], sentenceStorage[4]]);
@@ -326,7 +326,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			await sentenceAccess.DeleteSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2")), "so");
+			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:1")], [AuthorOID.Parse("Discord:discord.com:2")]), "so");
 			sentenceAccess.SentenceStorage.Should().HaveCount(4);
 			sentenceAccess.SentenceStorage.Should().Contain([sentenceStorage[0], sentenceStorage[1], sentenceStorage[2], sentenceStorage[3]]);
 			sentenceAccess.SentenceStorage.Should().NotContain(sentenceStorage[4]);
@@ -368,7 +368,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			Func<Task> act = async () => await sentenceAccess.DeleteSentenceRange(new SentenceFilter(null, null), null);
+			Func<Task> act = async () => await sentenceAccess.DeleteSentenceRange(new SentenceFilter([], []), null);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value. (Parameter 'filter')");
 		}
 		[Fact]
@@ -402,7 +402,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:2"), null), null);
+			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:2")], []), null);
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -440,7 +440,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1")), null);
+			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter([], [AuthorOID.Parse("Discord:discord.com:1")]), null);
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -478,7 +478,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter(null, null), "sentence");
+			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter([], []), "sentence");
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(3);
@@ -522,7 +522,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:1")), null);
+			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:1")], [AuthorOID.Parse("Discord:discord.com:1")]), null);
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -566,7 +566,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter(null, AuthorOID.Parse("Discord:discord.com:1")), "sentence");
+			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter([], [AuthorOID.Parse("Discord:discord.com:1")]), "sentence");
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -610,7 +610,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), null), "so");
+			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:1")], []), "so");
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().HaveCount(2);
@@ -654,7 +654,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceStorage);
-			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter(DiscordObjectOID.Parse("Discord:discord.com:1:1"), AuthorOID.Parse("Discord:discord.com:2")), "so");
+			IEnumerable<Sentence>? sentenceReturn = await sentenceAccess.ReadSentenceRange(new SentenceFilter([DiscordObjectOID.Parse("Discord:discord.com:1:1")], [AuthorOID.Parse("Discord:discord.com:2")]), "so");
 
 			sentenceReturn.Should().NotBeNull();
 			sentenceReturn.Should().ContainSingle();

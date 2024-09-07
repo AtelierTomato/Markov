@@ -17,19 +17,18 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 		{
 			ID = authorGroupPermission.ID.ToString();
 			Author = authorGroupPermission.Author.ToString();
-			Permissions = string.Join(' ', authorGroupPermission.Permissions.Distinct().Select(p => p.ToString()));
+			Permissions = authorGroupPermission.Permissions.ToString();
 		}
-		public AuthorGroupPermission ToAuthorGroupPermission() => new(
-			Guid.Parse(ID),
-			AuthorOID.Parse(Author),
-			Permissions.Split(' ')
-					   .Distinct()
-					   .Select(p =>
-					   {
-						   if (Enum.TryParse(p, out AuthorGroupPermissionType permission))
-							   return permission;
-						   throw new InvalidOperationException($"Invalid permission type: {p}");
-					   })
-		);
+		public AuthorGroupPermission ToAuthorGroupPermission()
+		{
+			if (!Enum.TryParse(Permissions, out AuthorGroupPermissionType permissions))
+				throw new InvalidOperationException($"Invalid permission type: {Permissions}");
+
+			return new(
+				Guid.Parse(ID),
+				AuthorOID.Parse(Author),
+				permissions
+			);
+		}
 	}
 }

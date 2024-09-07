@@ -2,6 +2,6 @@
 {
 	public record AuthorGroupPermission
 	(
-		Guid ID, AuthorOID Author, IEnumerable<AuthorGroupPermissionType> Permissions
+		Guid ID, AuthorOID Author, AuthorGroupPermissionType Permissions
 	);
 }

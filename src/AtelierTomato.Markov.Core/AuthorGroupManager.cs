@@ -22,14 +22,12 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupPermissionAccess.WriteAuthorGroupPermission(new(
 				ID,
 				sender,
-				[
-					AuthorGroupPermissionType.SentencesInGroup,
-					AuthorGroupPermissionType.UseGroup,
-					AuthorGroupPermissionType.AddAuthor,
-					AuthorGroupPermissionType.RemoveAuthor,
-					AuthorGroupPermissionType.RenameGroup,
-					AuthorGroupPermissionType.DeleteGroup
-				]
+				AuthorGroupPermissionType.SentencesInGroup |
+				AuthorGroupPermissionType.UseGroup |
+				AuthorGroupPermissionType.AddAuthor |
+				AuthorGroupPermissionType.RemoveAuthor |
+				AuthorGroupPermissionType.RenameGroup |
+				AuthorGroupPermissionType.DeleteGroup
 			));
 		}
 
@@ -39,7 +37,7 @@ namespace AtelierTomato.Markov.Core
 				throw new ArgumentNullException(nameof(name));
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, sender)
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{ID}\".", nameof(sender));
-			if (!senderAuthorGroupPermission.Permissions.Contains(AuthorGroupPermissionType.RenameGroup))
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.RenameGroup))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to rename group with ID \"{ID}\".", nameof(sender));
 			// All guards passed, allow rename.
 			await authorGroupAccess.WriteAuthorGroup(new AuthorGroup(ID, name));
@@ -49,7 +47,7 @@ namespace AtelierTomato.Markov.Core
 		{
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, sender)
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{ID}\".", nameof(sender));
-			if (!senderAuthorGroupPermission.Permissions.Contains(AuthorGroupPermissionType.DeleteGroup))
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.DeleteGroup))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to delete group with ID \"{ID}\".", nameof(sender));
 			// All guards passed, allow delete.
 			await authorGroupAccess.DeleteAuthorGroup(ID);
@@ -61,13 +59,13 @@ namespace AtelierTomato.Markov.Core
 				throw new ArgumentException($"You cannot update your own permissions in a group.", nameof(sender));
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(authorGroupPermission.ID, sender)
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{authorGroupPermission.ID}\".", nameof(sender));
-			if (!senderAuthorGroupPermission.Permissions.Contains(AuthorGroupPermissionType.AddAuthor))
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.AddAuthor))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to add authors to group with ID \"{authorGroupPermission.ID}\".", nameof(sender));
-			foreach (var permission in authorGroupPermission.Permissions)
-			{
-				if (!senderAuthorGroupPermission.Permissions.Contains(permission))
-					throw new ArgumentException($"Author \"{sender}\" does not have permission \"{permission}\", so they cannot give it to other authors that they add.", nameof(authorGroupPermission));
-			}
+
+			// Check if any permissions to assign are not held by the sender
+			if ((authorGroupPermission.Permissions & ~senderAuthorGroupPermission.Permissions) != 0)
+				throw new ArgumentException($"Author \"{sender}\" does not have some of the permissions they are trying to assign.", nameof(authorGroupPermission));
+
 			// All guards passed, allow write.
 			await authorGroupPermissionAccess.WriteAuthorGroupPermission(authorGroupPermission);
 		}
@@ -78,7 +76,7 @@ namespace AtelierTomato.Markov.Core
 				throw new ArgumentException($"You cannot remove yourself from a group. Please use the \"{nameof(LeaveGroup)}\" function instead.", nameof(user));
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(groupID, sender)
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{groupID}\".", nameof(sender));
-			if (!senderAuthorGroupPermission.Permissions.Contains(AuthorGroupPermissionType.RemoveAuthor))
+			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.RemoveAuthor))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to remove authors from group with ID \"{groupID}\".", nameof(sender));
 			// All guards passed, allow remove.
 			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(groupID, user);

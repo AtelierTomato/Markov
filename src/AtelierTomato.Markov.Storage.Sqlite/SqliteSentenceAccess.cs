@@ -148,7 +148,7 @@ on conflict ({nameof(Sentence.OID)}) do update set
 				author = sentenceRaw.Author,
 				date = sentenceRaw.Date,
 				text = sentenceRaw.Text
-			}); ;
+			});
 		}
 	}
 }

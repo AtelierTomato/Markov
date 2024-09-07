@@ -8,7 +8,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		public string Author { get; set; }
 		public string OriginScope { get; set; }
 		public string AllowedScope { get; set; }
-		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new InvalidObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
+		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new SpecialObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
 		public AuthorPermissionRaw(string author, string originScope, string allowedScope)
 		{
 			Author = author;

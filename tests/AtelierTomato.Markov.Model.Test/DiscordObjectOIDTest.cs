@@ -112,7 +112,7 @@ namespace AtelierTomato.Markov.Model.Test
 		[Fact]
 		public void DiscordParseNotADiscordTest()
 		{
-			Action act = () => DiscordObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg");
+			Action act = () => DiscordObjectOID.Parse("Special:1:Appleseed:???:4:Greg");
 			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a DiscordObjectOID, as it does not begin with Discord. (Parameter 'OID')");
 		}
 		[Fact]

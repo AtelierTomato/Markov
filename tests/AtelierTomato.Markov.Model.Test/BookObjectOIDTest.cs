@@ -106,7 +106,7 @@ namespace AtelierTomato.Markov.Model.Test
 		[Fact]
 		public void BookParseNotABookTest()
 		{
-			Action act = () => BookObjectOID.Parse("Invalid:1:Appleseed:???:4:Greg");
+			Action act = () => BookObjectOID.Parse("Special:1:Appleseed:???:4:Greg");
 			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a BookObjectOID, as it does not begin with Book. (Parameter 'OID')");
 		}
 		[Fact]

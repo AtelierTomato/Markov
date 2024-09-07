@@ -11,7 +11,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		public string Author { get; set; }
 		public string Date { get; set; }
 		public string Text { get; set; }
-		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new InvalidObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
+		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new SpecialObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
 		public SentenceRaw(string OID, string author, string date, string text)
 		{
 			this.OID = OID;

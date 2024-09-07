@@ -38,14 +38,14 @@ DELETE FROM {nameof(Sentence)} WHERE
 			connection.Close();
 		}
 
-		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null, IObjectOID? origin = null)
+		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QueryAsync<SentenceRow>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
-( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
+( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' ) AND
 ( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
@@ -57,11 +57,12 @@ LIMIT @amount
 ",
 			new
 			{
+				queryScope = queryScope?.ToString(),
 				oid = filter.OID?.ToString(),
 				author = filter.Author?.ToString(),
-				keyword,
 				previousIDs = previousIDs.Select(x => x.ToString()),
 				prevList = string.Join(' ', prevList),
+				keyword,
 				amount
 			});
 
@@ -70,14 +71,14 @@ LIMIT @amount
 			return result.Select(s => s.ToSentence());
 		}
 
-		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null, IObjectOID? origin = null)
+		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
 SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
-( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @origin || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
+( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @oid IS NULL OR {nameof(Sentence.OID)} LIKE @oid || '%' ) AND
 ( @author IS NULL OR {nameof(Sentence.Author)} LIKE @author || '%' )
 ORDER BY
@@ -87,6 +88,7 @@ LIMIT 1
 ",
 			new
 			{
+				queryScope = queryScope?.ToString(),
 				oid = filter.OID?.ToString(),
 				author = filter.Author?.ToString(),
 				keyword

@@ -2,6 +2,6 @@
 {
 	public record AuthorPermission
 	(
-		AuthorOID Author, IObjectOID OriginScope, IObjectOID AllowedScope
+		AuthorOID Author, IObjectOID QueryScope, IObjectOID AllowedScope
 	);
 }

@@ -20,7 +20,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			connection.Open();
 
 			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
-SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)}
+SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)}
 			");
 
@@ -29,20 +29,20 @@ FROM {nameof(AuthorPermission)}
 			return result.Select(u => u.ToAuthorPermission());
 		}
 
-		public async Task<AuthorPermission?> ReadAuthorPermission(AuthorOID author, IObjectOID originScope)
+		public async Task<AuthorPermission?> ReadAuthorPermission(AuthorOID author, IObjectOID queryScope)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QuerySingleOrDefaultAsync<AuthorPermissionRow>($@"
-SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)}
+SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)}
-WHERE {nameof(AuthorPermission.Author)} = @author AND {nameof(AuthorPermission.OriginScope)} = @originScope
+WHERE {nameof(AuthorPermission.Author)} = @author AND {nameof(AuthorPermission.QueryScope)} = @queryScope
 ",
 			new
 			{
 				author,
-				originScope
+				queryScope
 			});
 
 			connection.Close();
@@ -50,20 +50,20 @@ WHERE {nameof(AuthorPermission.Author)} = @author AND {nameof(AuthorPermission.O
 			return result?.ToAuthorPermission();
 		}
 
-		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID> originScopes)
+		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID> queryScopes)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
-SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)}
+SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)}
-WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission.OriginScope)} in @originScopes
+WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission.QueryScope)} in @queryScopes
 ",
 			new
 			{
 				authors,
-				originScopes
+				queryScopes
 			});
 
 			connection.Close();
@@ -75,15 +75,15 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 		{
 			AuthorPermissionRow authorPermissionRaw = new AuthorPermissionRow(authorPermission);
 			await connection.ExecuteAsync($@"
-INSERT INTO {nameof(AuthorPermission)} ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)}, {nameof(AuthorPermission.AllowedScope)} )
-VALUES ( @author, @originScope, allowedScope )
-ON CONFLICT ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.OriginScope)} ) DO UPDATE SET
+INSERT INTO {nameof(AuthorPermission)} ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)} )
+VALUES ( @author, @queryScope, allowedScope )
+ON CONFLICT ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)} ) DO UPDATE SET
 {nameof(AuthorPermission.AllowedScope)} = excluded.{nameof(AuthorPermission.AllowedScope)}
 ",
 			new
 			{
 				author = authorPermissionRaw.Author,
-				originScope = authorPermissionRaw.OriginScope,
+				queryScope = authorPermissionRaw.QueryScope,
 				allowedScope = authorPermissionRaw.AllowedScope
 			});
 		}

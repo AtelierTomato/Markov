@@ -30,11 +30,11 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 
 			if (filter.OIDs.ToList() is not null and not [])
 			{
-				await CreateTempTable(filter.OIDs, connection);
+				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
 				await connection.ExecuteAsync($@"
-DELETE FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+DELETE FROM {nameof(Sentence)} INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
@@ -75,11 +75,11 @@ DELETE FROM {nameof(Sentence)} WHERE
 
 			if (filter.OIDs.ToList() is not null and not [])
 			{
-				await CreateTempTable(filter.OIDs, connection);
+				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
 				result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( {nameof(Sentence)}.{nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
@@ -138,11 +138,11 @@ LIMIT @amount
 
 			if (filter.OIDs.ToList() is not null and not [])
 			{
-				await CreateTempTable(filter.OIDs, connection);
+				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
 				result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
-SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
@@ -190,11 +190,11 @@ LIMIT 1
 
 			if (filter.OIDs.ToList() is not null and not [])
 			{
-				await CreateTempTable(filter.OIDs, connection);
+				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
 				result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
@@ -257,10 +257,10 @@ on conflict ({nameof(Sentence.OID)}) do update set
 			});
 		}
 
-		private static async Task CreateTempTable(IEnumerable<IObjectOID> objectOIDs, SqliteConnection connection)
+		private static async Task CreateSentenceFilterOIDsTempTable(IEnumerable<IObjectOID> objectOIDs, SqliteConnection connection)
 		{
 			await connection.ExecuteAsync(@$"
-CREATE TEMPORARY TABLE IF NOT EXISTS TempTable (
+CREATE TEMPORARY TABLE IF NOT EXISTS {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)} (
 	{nameof(Sentence.OID)}	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY ({nameof(Sentence.OID)})
 );
@@ -270,7 +270,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS TempTable (
 			foreach (var objectOID in objectOIDs)
 			{
 				await connection.ExecuteAsync($@"
-INSERT INTO TempTable ( {nameof(Sentence.OID)} )
+INSERT INTO {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)} ( {nameof(Sentence.OID)} )
 VALUES ( @oid )
 ON CONFLICT DO NOTHING
 				",

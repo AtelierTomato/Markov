@@ -179,9 +179,9 @@ on conflict ({nameof(Sentence.OID)}) do update set
 		private static async Task CreateTempTable(IEnumerable<IObjectOID> objectOIDs, SqliteConnection connection)
 		{
 			await connection.ExecuteAsync(@$"
-CREATE TEMPORARY TABLE ""TempTable"" (
-	""{nameof(Sentence.OID)}""	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY (""{nameof(Sentence.OID)}"")
+CREATE TEMPORARY TABLE TempTable (
+	{nameof(Sentence.OID)}	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY ({nameof(Sentence.OID)})
 );
 			");
 			await using var transaction = await connection.BeginTransactionAsync();

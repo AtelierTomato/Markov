@@ -189,13 +189,13 @@ CREATE TEMPORARY TABLE TempTable (
 			foreach (var objectOID in objectOIDs)
 			{
 				await connection.ExecuteAsync($@"
-INSERT INTO TempTable VALUES ( {nameof(Sentence.OID)} )
-VALUES @oid
+INSERT INTO TempTable ( {nameof(Sentence.OID)} )
+VALUES ( @oid )
 ON CONFLICT DO NOTHING
 				",
 				new
 				{
-					oid = objectOID
+					oid = objectOID.ToString()
 				});
 			}
 

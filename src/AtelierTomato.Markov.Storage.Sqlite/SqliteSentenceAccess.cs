@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using AtelierTomato.Markov.Model;
+﻿using AtelierTomato.Markov.Model;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
@@ -20,8 +18,6 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			if (filter.OIDs.ToList() is null or [] && filter.Authors.ToList() is null or [] && searchString is null)
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
-			var sbOIDs = GenerateOIDStringBuilder(filter);
-
 			IEnumerable<string>? authors = null;
 			if (filter.Authors is not null && filter.Authors.Any())
 			{
@@ -31,10 +27,11 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await using var connection = new SqliteConnection(options.ConnectionString);
 
 			connection.Open();
+			await CreateTempTable(filter.OIDs, connection);
 
 			await connection.ExecuteAsync($@"
-DELETE FROM {nameof(Sentence)} WHERE
-{sbOIDs}
+DELETE FROM {nameof(Sentence)} INNER JOIN TempTable
+ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
@@ -49,8 +46,6 @@ DELETE FROM {nameof(Sentence)} WHERE
 
 		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
 		{
-			var sbOIDs = GenerateOIDStringBuilder(filter);
-
 			IEnumerable<string>? authors = null;
 			if (filter.Authors is not null && filter.Authors.Any())
 			{
@@ -59,10 +54,11 @@ DELETE FROM {nameof(Sentence)} WHERE
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
+			await CreateTempTable(filter.OIDs, connection);
 
 			var result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
-{sbOIDs}
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
+ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
@@ -87,8 +83,6 @@ LIMIT @amount
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
 		{
-			var sbOIDs = GenerateOIDStringBuilder(filter);
-
 			IEnumerable<string>? authors = null;
 			if (filter.Authors is not null && filter.Authors.Any())
 			{
@@ -97,10 +91,11 @@ LIMIT @amount
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
+			await CreateTempTable(filter.OIDs, connection);
 
 			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
-{sbOIDs}
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
+ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
@@ -120,8 +115,6 @@ LIMIT 1
 
 		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
-			var sbOIDs = GenerateOIDStringBuilder(filter);
-
 			IEnumerable<string>? authors = null;
 			if (filter.Authors is not null && filter.Authors.Any())
 			{
@@ -130,10 +123,11 @@ LIMIT 1
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
+			await CreateTempTable(filter.OIDs, connection);
 
 			var result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
-{sbOIDs}
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
+ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
@@ -182,25 +176,30 @@ on conflict ({nameof(Sentence.OID)}) do update set
 			});
 		}
 
-		private static StringBuilder GenerateOIDStringBuilder(SentenceFilter filter)
+		private static async Task CreateTempTable(IEnumerable<IObjectOID> objectOIDs, SqliteConnection connection)
 		{
-			var sbOIDs = new StringBuilder();
-			if (filter.OIDs is not null && filter.OIDs.Any())
+			await connection.ExecuteAsync(@$"
+CREATE TEMPORARY TABLE ""TempTable"" (
+	""{nameof(Sentence.OID)}""	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY (""{nameof(Sentence.OID)}"")
+);
+			");
+			await using var transaction = await connection.BeginTransactionAsync();
+
+			foreach (var objectOID in objectOIDs)
 			{
-				sbOIDs.Append('(');
-				var oids = filter.OIDs.ToList();
-				for (int i = 0; i < oids.Count; i++)
+				await connection.ExecuteAsync($@"
+INSERT INTO TempTable VALUES ( {nameof(Sentence.OID)} )
+VALUES @oid
+ON CONFLICT DO NOTHING
+				",
+				new
 				{
-					if (i > 0)
-					{
-						sbOIDs.Append(" OR");
-					}
-					sbOIDs.Append(CultureInfo.InvariantCulture, $" {nameof(Sentence.OID)} LIKE '{oids[i]}%'");
-				}
-				sbOIDs.Append(" ) AND" + Environment.NewLine);
+					oid = objectOID
+				});
 			}
 
-			return sbOIDs;
+			await transaction.CommitAsync();
 		}
 	}
 }

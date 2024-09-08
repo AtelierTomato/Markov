@@ -27,19 +27,36 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await using var connection = new SqliteConnection(options.ConnectionString);
 
 			connection.Open();
-			await CreateTempTable(filter.OIDs, connection);
 
-			await connection.ExecuteAsync($@"
+			if (filter.OIDs.ToList() is not null and not [])
+			{
+				await CreateTempTable(filter.OIDs, connection);
+
+				await connection.ExecuteAsync($@"
 DELETE FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
-			new
+				new
+				{
+					authors,
+					searchString
+				});
+			}
+			else
 			{
-				authors,
-				searchString
-			});
+				await connection.ExecuteAsync($@"
+DELETE FROM {nameof(Sentence)} WHERE
+( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
+",
+				new
+				{
+					authors,
+					searchString
+				});
+			}
 
 			connection.Close();
 		}
@@ -54,27 +71,53 @@ ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{name
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
-			await CreateTempTable(filter.OIDs, connection);
+			IEnumerable<SentenceRaw> result;
 
-			var result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+			if (filter.OIDs.ToList() is not null and not [])
+			{
+				await CreateTempTable(filter.OIDs, connection);
+
+				result = await connection.QueryAsync<SentenceRaw>($@"
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
-( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
+( {nameof(Sentence)}.{nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
 LIMIT @amount
 ",
-			new
+				new
+				{
+					authors,
+					keyword,
+					previousIDs = previousIDs.Select(x => x.ToString()),
+					prevList = string.Join(' ', prevList),
+					amount
+				});
+			}
+			else
 			{
-				authors,
-				keyword,
-				previousIDs = previousIDs.Select(x => x.ToString()),
-				prevList = string.Join(' ', prevList),
-				amount
-			});
+				result = await connection.QueryAsync<SentenceRaw>($@"
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
+( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( {nameof(Sentence)}.{nameof(Sentence.OID)} NOT IN @previousIDs ) AND
+( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
+ORDER BY
+CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+RANDOM()
+LIMIT @amount
+",
+				new
+				{
+					authors,
+					keyword,
+					previousIDs = previousIDs.Select(x => x.ToString()),
+					prevList = string.Join(' ', prevList),
+					amount
+				});
+			}
 
 			connection.Close();
 
@@ -91,23 +134,43 @@ LIMIT @amount
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
-			await CreateTempTable(filter.OIDs, connection);
+			SentenceRaw? result;
 
-			var result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+			if (filter.OIDs.ToList() is not null and not [])
+			{
+				await CreateTempTable(filter.OIDs, connection);
+
+				result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
 LIMIT 1
 ",
-			new
+				new
+				{
+					authors,
+					keyword
+				});
+			}
+			else
 			{
-				authors,
-				keyword
-			});
-
+				result = await connection.QuerySingleOrDefaultAsync<SentenceRaw?>($@"
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
+( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
+ORDER BY
+CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+RANDOM()
+LIMIT 1
+",
+				new
+				{
+					authors,
+					keyword
+				});
+			}
 			connection.Close();
 
 			return result?.ToSentence();
@@ -123,19 +186,37 @@ LIMIT 1
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
-			await CreateTempTable(filter.OIDs, connection);
+			IEnumerable<SentenceRaw> result;
 
-			var result = await connection.QueryAsync<SentenceRaw>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
-ON ({nameof(Sentence.Text)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
+			if (filter.OIDs.ToList() is not null and not [])
+			{
+				await CreateTempTable(filter.OIDs, connection);
+
+				result = await connection.QueryAsync<SentenceRaw>($@"
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN TempTable
+ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE (TempTable.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
-			new
+				new
+				{
+					authors,
+					searchString
+				});
+			}
+			else
 			{
-				authors,
-				searchString
-			});
+				result = await connection.QueryAsync<SentenceRaw>($@"
+SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
+( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
+",
+				new
+				{
+					authors,
+					searchString
+				});
+			}
 
 			connection.Close();
 			return result.Select(s => s.ToSentence());
@@ -179,7 +260,7 @@ on conflict ({nameof(Sentence.OID)}) do update set
 		private static async Task CreateTempTable(IEnumerable<IObjectOID> objectOIDs, SqliteConnection connection)
 		{
 			await connection.ExecuteAsync(@$"
-CREATE TEMPORARY TABLE TempTable (
+CREATE TEMPORARY TABLE IF NOT EXISTS TempTable (
 	{nameof(Sentence.OID)}	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY ({nameof(Sentence.OID)})
 );

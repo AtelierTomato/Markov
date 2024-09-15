@@ -76,7 +76,7 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 			AuthorPermissionRow authorPermissionRaw = new AuthorPermissionRow(authorPermission);
 			await connection.ExecuteAsync($@"
 INSERT INTO {nameof(AuthorPermission)} ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)} )
-VALUES ( @author, @queryScope, allowedScope )
+VALUES ( @author, @queryScope, @allowedScope )
 ON CONFLICT ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)} ) DO UPDATE SET
 {nameof(AuthorPermission.AllowedScope)} = excluded.{nameof(AuthorPermission.AllowedScope)}
 ",

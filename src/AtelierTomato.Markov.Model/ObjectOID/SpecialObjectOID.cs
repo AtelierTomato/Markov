@@ -5,8 +5,9 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 {
 	public class SpecialObjectOID : IObjectOID
 	{
+		private const string DefaultInstance = "_";
 		public ServiceType Service { get; } = ServiceType.Special;
-		public string Instance { get; } = "_";
+		public string Instance { get; } = DefaultInstance;
 		public SpecialObjectOIDType Type { get; set; }
 		public SpecialObjectOID(string type)
 		{
@@ -34,8 +35,8 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			if (match.Groups[nameof(ServiceType)].Value != ServiceType.Special.ToString())
 				throw new ArgumentException("The OID given is not an SpecialObjectOID, as it does not begin with Special.", nameof(OID));
 
-			if (match.Groups[nameof(Instance)].Value != "_")
-				throw new ArgumentException("The SpecialObjectOID given is invalid, as it has an Instance other than \"_\".", nameof(OID));
+			if (match.Groups[nameof(Instance)].Value != DefaultInstance)
+				throw new ArgumentException($"The SpecialObjectOID given is invalid, as it has an Instance other than \"{DefaultInstance}\".", nameof(OID));
 
 			if (!match.Groups[nameof(Type)].Success)
 				throw new ArgumentException("The SpecialObjectOID given is invalid, as it does not have a Type.", nameof(OID));

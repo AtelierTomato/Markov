@@ -33,4 +33,11 @@ CREATE TABLE IF NOT EXISTS "AuthorGroupPermission" (
 	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
 	PRIMARY KEY("ID","Author")
 );
+CREATE TABLE IF NOT EXISTS "AuthorGroupRequest" (
+	"ID"	TEXT NOT NULL,
+	"Author"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Author")
+);
 COMMIT;

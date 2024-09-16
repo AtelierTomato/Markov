@@ -5,7 +5,7 @@ using FluentAssertions;
 
 namespace AtelierTomato.Markov.Core.Test
 {
-	public class InMemorySentenceAccessTest
+	public class InMemorySentenceAccessTests
 	{
 		[Fact]
 		public void SentenceAddTest()

@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using AtelierTomato.Markov.Model;
-using AtelierTomato.Markov.Model.ObjectOID.Parser;
 
 namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
@@ -11,7 +10,6 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		public string Author { get; set; }
 		public string Date { get; set; }
 		public string Text { get; set; }
-		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new SpecialObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
 		public SentenceRow(string OID, string author, string date, string text)
 		{
 			this.OID = OID;
@@ -26,10 +24,10 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			Date = sentence.Date.ToString("o");
 			Text = sentence.Text;
 		}
-		public Sentence ToSentence()
+		public Sentence ToSentence(MultiParser<IObjectOID> objectOIDParser)
 		{
 			DateTimeOffset.TryParseExact(Date, "o", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date);
-			return new Sentence(ObjectOIDParser.Parse(OID), AuthorOID.Parse(Author), date, Text);
+			return new Sentence(objectOIDParser.Parse(OID), AuthorOID.Parse(Author), date, Text);
 		}
 	}
 }

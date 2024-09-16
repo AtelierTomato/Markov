@@ -9,9 +9,11 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 	public class SqliteAuthorPermissionAccess : IAuthorPermissionAccess
 	{
 		private readonly SqliteAccessOptions options;
-		public SqliteAuthorPermissionAccess(IOptions<SqliteAccessOptions> options)
+		private readonly MultiParser<IObjectOID> objectOIDParser;
+		public SqliteAuthorPermissionAccess(IOptions<SqliteAccessOptions> options, MultiParser<IObjectOID> objectOIDParser)
 		{
 			this.options = options.Value;
+			this.objectOIDParser = objectOIDParser;
 		}
 
 		public async Task<IEnumerable<AuthorPermission>> ReadAllAuthorPermissions()
@@ -26,7 +28,7 @@ FROM {nameof(AuthorPermission)}
 
 			connection.Close();
 
-			return result.Select(u => u.ToAuthorPermission());
+			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
 		}
 
 		public async Task<AuthorPermission?> ReadAuthorPermission(AuthorOID author, IObjectOID queryScope)
@@ -47,7 +49,7 @@ WHERE {nameof(AuthorPermission.Author)} = @author AND {nameof(AuthorPermission.Q
 
 			connection.Close();
 
-			return result?.ToAuthorPermission();
+			return result?.ToAuthorPermission(objectOIDParser);
 		}
 
 		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID> queryScopes)
@@ -68,7 +70,7 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 
 			connection.Close();
 
-			return result.Select(u => u.ToAuthorPermission());
+			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
 		}
 
 		private static async Task WriteCore(SqliteConnection connection, AuthorPermission authorPermission)

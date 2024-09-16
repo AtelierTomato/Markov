@@ -9,9 +9,11 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 	public class SqliteSentenceAccess : ISentenceAccess
 	{
 		private readonly SqliteAccessOptions options;
-		public SqliteSentenceAccess(IOptions<SqliteAccessOptions> options)
+		private readonly MultiParser<IObjectOID> objectOIDParser;
+		public SqliteSentenceAccess(IOptions<SqliteAccessOptions> options, MultiParser<IObjectOID> objectOIDParser)
 		{
 			this.options = options.Value;
+			this.objectOIDParser = objectOIDParser;
 		}
 
 		public async Task DeleteSentenceRange(SentenceFilter filter, string? searchString = null)
@@ -68,7 +70,7 @@ LIMIT @amount
 
 			connection.Close();
 
-			return result.Select(s => s.ToSentence());
+			return result.Select(s => s.ToSentence(objectOIDParser));
 		}
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
@@ -96,7 +98,7 @@ LIMIT 1
 
 			connection.Close();
 
-			return result?.ToSentence();
+			return result?.ToSentence(objectOIDParser);
 		}
 
 		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
@@ -118,7 +120,7 @@ SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)
 			});
 
 			connection.Close();
-			return result.Select(s => s.ToSentence());
+			return result.Select(s => s.ToSentence(objectOIDParser));
 		}
 
 		public async Task WriteSentence(Sentence sentence) => await WriteSentenceRange([sentence]);

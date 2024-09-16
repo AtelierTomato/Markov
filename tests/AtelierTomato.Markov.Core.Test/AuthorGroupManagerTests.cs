@@ -565,7 +565,7 @@ namespace AtelierTomato.Markov.Core.Test
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
 			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.LeaveGroup(sender, guid);
-			await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"The {nameof(AuthorGroup)} with ID \"{guid}\" has no members with permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. This is unexpected");
+			await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"The {nameof(AuthorGroup)} with ID \"{guid}\" has no members with permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. This is unexpected.");
 			Mock.Get(authorGroupPermissionAccess).Verify();
 		}
 

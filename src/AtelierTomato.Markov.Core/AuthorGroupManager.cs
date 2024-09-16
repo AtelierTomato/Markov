@@ -1,5 +1,6 @@
 ﻿using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace AtelierTomato.Markov.Core
 {
@@ -8,11 +9,13 @@ namespace AtelierTomato.Markov.Core
 		private readonly IAuthorGroupAccess authorGroupAccess;
 		private readonly IAuthorGroupPermissionAccess authorGroupPermissionAccess;
 		private readonly IAuthorGroupRequestAccess authorGroupRequestAccess;
-		public AuthorGroupManager(IAuthorGroupAccess authorGroupAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, IAuthorGroupRequestAccess authorGroupRequestAccess)
+		private readonly ILogger<AuthorGroupManager> logger;
+		public AuthorGroupManager(IAuthorGroupAccess authorGroupAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, IAuthorGroupRequestAccess authorGroupRequestAccess, ILogger<AuthorGroupManager> logger)
 		{
 			this.authorGroupAccess = authorGroupAccess;
 			this.authorGroupPermissionAccess = authorGroupPermissionAccess;
 			this.authorGroupRequestAccess = authorGroupRequestAccess;
+			this.logger = logger;
 		}
 
 		public async Task CreateGroup(AuthorOID sender, string name)
@@ -122,21 +125,37 @@ namespace AtelierTomato.Markov.Core
 			 ?? throw new ArgumentException($"Author \"{sender}\" is not registered to group with ID \"{ID}\".", nameof(sender));
 			if (!senderAuthorGroupPermission.Permissions.HasFlag(AuthorGroupPermissionType.RemoveAuthor))
 				throw new ArgumentException($"Author \"{sender}\" does not have permission to remove authors from group with ID \"{ID}\".", nameof(sender));
+			var authorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, user)
+			 ?? throw new ArgumentException($"Author \"{user}\" is not registered to group with ID \"{ID}\".", nameof(user));
+			if ((authorGroupPermission.Permissions & ~senderAuthorGroupPermission.Permissions) != 0)
+				throw new ArgumentException($"Author \"{sender}\" does not have some of the permissions that the author they are trying to remove has.", nameof(sender));
 
 			// All guards passed, allow remove.
 			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(ID, user);
 		}
 
-		public async Task LeaveGroup(AuthorOID sender, Guid groupID)
+		public async Task LeaveGroup(AuthorOID sender, Guid ID)
 		{
-			var senderAuthorGroupPermissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID(groupID);
-			if (!senderAuthorGroupPermissions.Select(p => p.Author).Contains(sender))
-				throw new ArgumentException($"Author \"{sender}\" cannot leave group with ID \"{groupID}\" as they are not registered to it.", nameof(sender));
-			if (senderAuthorGroupPermissions.Count() is 1)
-				throw new ArgumentException($"Author \"{sender}\" cannot leave group with ID \"{groupID}\" as they are the only member of it. Please use \"{nameof(DeleteGroup)}\" function instead.", nameof(sender));
+			var authorGroupPermissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID(ID);
+			if (!authorGroupPermissions.Select(p => p.Author).Contains(sender))
+				throw new ArgumentException($"Author \"{sender}\" cannot leave group with ID \"{ID}\" as they are not registered to it.", nameof(sender));
+			var authorGroupPerissionsWithDeleteGroup = authorGroupPermissions.Where(p => p.Permissions.HasFlag(AuthorGroupPermissionType.DeleteGroup));
+			if (!authorGroupPerissionsWithDeleteGroup.Any())
+			{
+				_logOrphanedGroupWarning(logger, ID, null);
+				throw new InvalidOperationException($"The {nameof(AuthorGroup)} with ID \"{ID}\" has no members with permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. This is unexpected");
+			}
+			if (authorGroupPerissionsWithDeleteGroup.Count() is 1)
+				throw new ArgumentException($"Author \"{sender}\" cannot leave group with ID \"{ID}\" as they are the only member of it that has the permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. Please use \"{nameof(DeleteGroup)}\" function instead.", nameof(sender));
 
 			// All guards passed, allow leave.
-			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(groupID, sender);
+			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(ID, sender);
 		}
+
+		private static readonly Action<ILogger, Guid, Exception?> _logOrphanedGroupWarning =
+			LoggerMessage.Define<Guid>(
+				LogLevel.Warning,
+				new EventId(2, nameof(LeaveGroup)),
+				"The AuthorGroup with ID \"{ID}\" has no members with permission DeleteGroup. This is unexpected.");
 	}
 }

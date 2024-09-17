@@ -15,22 +15,22 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 
 		public async Task DeleteSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
-			if (filter.OIDs.ToList() is null or [] && filter.Authors.ToList() is null or [] && searchString is null)
+			if (filter.OIDs.Count is 0 && filter.Authors.Count is 0 && string.IsNullOrWhiteSpace(searchString))
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
 			IEnumerable<string>? authors = null;
-			if (filter.Authors is not null && filter.Authors.Any())
+			if (filter.Authors.Count is not 0)
 			{
-				authors = filter.Authors.Select(a => a.ToString());
+				authors = filter.Authors!.Select(a => a.ToString());
 			}
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 
 			connection.Open();
 
-			if (filter.OIDs.ToList() is not null and not [])
+			if (filter.OIDs.Count is not 0)
 			{
-				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
+				await CreateSentenceFilterOIDsTempTable(filter.OIDs!, connection);
 
 				await connection.ExecuteAsync($@"
 DELETE FROM {nameof(Sentence)} INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
@@ -64,7 +64,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
 		{
 			IEnumerable<string>? authors = null;
-			if (filter.Authors is not null && filter.Authors.Any())
+			if (filter.Authors.Count is not 0)
 			{
 				authors = filter.Authors.Select(a => a.ToString());
 			}
@@ -73,7 +73,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 			connection.Open();
 			IEnumerable<SentenceRaw> result;
 
-			if (filter.OIDs.ToList() is not null and not [])
+			if (filter.OIDs.Count is not 0)
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
@@ -127,7 +127,7 @@ LIMIT @amount
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
 		{
 			IEnumerable<string>? authors = null;
-			if (filter.Authors is not null && filter.Authors.Any())
+			if (filter.Authors.Count is not 0)
 			{
 				authors = filter.Authors.Select(a => a.ToString());
 			}
@@ -136,7 +136,7 @@ LIMIT @amount
 			connection.Open();
 			SentenceRaw? result;
 
-			if (filter.OIDs.ToList() is not null and not [])
+			if (filter.OIDs.Count is not 0)
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
@@ -179,7 +179,7 @@ LIMIT 1
 		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
 			IEnumerable<string>? authors = null;
-			if (filter.Authors is not null && filter.Authors.Any())
+			if (filter.Authors.Count is not 0)
 			{
 				authors = filter.Authors.Select(a => a.ToString());
 			}
@@ -188,7 +188,7 @@ LIMIT 1
 			connection.Open();
 			IEnumerable<SentenceRaw> result;
 
-			if (filter.OIDs.ToList() is not null and not [])
+			if (filter.OIDs.Count is not 0)
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
@@ -257,7 +257,7 @@ on conflict ({nameof(Sentence.OID)}) do update set
 			});
 		}
 
-		private static async Task CreateSentenceFilterOIDsTempTable(IEnumerable<IObjectOID> objectOIDs, SqliteConnection connection)
+		private static async Task CreateSentenceFilterOIDsTempTable(IReadOnlyCollection<IObjectOID> objectOIDs, SqliteConnection connection)
 		{
 			await connection.ExecuteAsync(@$"
 CREATE TEMPORARY TABLE IF NOT EXISTS {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)} (

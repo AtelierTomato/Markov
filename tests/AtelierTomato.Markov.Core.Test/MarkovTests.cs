@@ -22,11 +22,25 @@ namespace AtelierTomato.Markov.Core.Test
 		}
 
 		[Fact]
-		public async Task DatabaseFailure()
+		public async Task DatabaseFailureEmpty()
 		{
 			var options = Options.Create(new MarkovChainOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
 			var filter = new SentenceFilter([], []);
+
+			var target = new MarkovChain(sentenceAccess, options);
+			var result = await target.Generate(filter);
+			result.Should().Be(string.Empty);
+		}
+
+		[Fact]
+		public async Task DatabaseFailureNull()
+		{
+			var options = Options.Create(new MarkovChainOptions { });
+			var sentenceAccess = Mock.Of<ISentenceAccess>();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+			var filter = new SentenceFilter(null, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
 			var target = new MarkovChain(sentenceAccess, options);
 			var result = await target.Generate(filter);

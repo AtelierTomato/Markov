@@ -141,7 +141,7 @@ SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)
 
 		private async Task WriteCore(Sentence sentence, SqliteConnection connection)
 		{
-			SentenceRow sentenceRaw = new(sentence);
+			SentenceRow sentenceRow = new(sentence);
 			await connection.ExecuteAsync($@"
 insert into {nameof(Sentence)} ( {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} )
 Values ( @oid, @author, @date, @text )
@@ -151,10 +151,10 @@ on conflict ({nameof(Sentence.OID)}) do update set
 ",
 			new
 			{
-				oid = sentenceRaw.OID,
-				author = sentenceRaw.Author,
-				date = sentenceRaw.Date,
-				text = sentenceRaw.Text
+				oid = sentenceRow.OID,
+				author = sentenceRow.Author,
+				date = sentenceRow.Date,
+				text = sentenceRow.Text
 			}); ;
 		}
 	}

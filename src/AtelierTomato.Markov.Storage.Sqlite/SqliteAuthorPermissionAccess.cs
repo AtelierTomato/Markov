@@ -75,7 +75,7 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 
 		private static async Task WriteCore(SqliteConnection connection, AuthorPermission authorPermission)
 		{
-			AuthorPermissionRow authorPermissionRaw = new AuthorPermissionRow(authorPermission);
+			AuthorPermissionRow authorPermissionRow = new AuthorPermissionRow(authorPermission);
 			await connection.ExecuteAsync($@"
 INSERT INTO {nameof(AuthorPermission)} ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)} )
 VALUES ( @author, @queryScope, @allowedScope )
@@ -84,9 +84,9 @@ ON CONFLICT ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryS
 ",
 			new
 			{
-				author = authorPermissionRaw.Author,
-				queryScope = authorPermissionRaw.QueryScope,
-				allowedScope = authorPermissionRaw.AllowedScope
+				author = authorPermissionRow.Author,
+				queryScope = authorPermissionRow.QueryScope,
+				allowedScope = authorPermissionRow.AllowedScope
 			});
 		}
 

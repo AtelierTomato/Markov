@@ -18,7 +18,7 @@ namespace AtelierTomato.Markov.Core
 |                        # nor
 [.!?]\w                  # punctuation with word after it
 )+)                      # 1 or multiple
-(\.|[.!?]+|$|\r?\n)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+((\.|[.!?]+)[\)\]}""”«»]*|(|$|\r?\n))", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex spaceifyEllipsesPattern = new(@"(?<=[^\s.,?!¿¡])([.,?!¿¡])(?=[.,?!¿¡])", RegexOptions.Compiled);
 		private readonly Regex ignoreCountPattern = new(@"^[\p{P}]*$", RegexOptions.Compiled);
 		private readonly Regex deleteLinkPattern = new(@"\S*://\S*", RegexOptions.Compiled);
@@ -56,9 +56,10 @@ namespace AtelierTomato.Markov.Core
 		/// </summary>
 		public virtual IEnumerable<string> ParseIntoSentenceTexts(string text)
 		{
-			text = ProcessText(text);
-
+			text = NormalizeEllipses(text);
 			var sentences = SplitIntoSentences(text);
+
+			sentences = sentences.Select(ProcessText);
 			sentences = sentences.Select(SpaceifyEllipses);
 
 			var tokenizedSentences = sentences.Select(s => TokenizeProcessedSentence(s));

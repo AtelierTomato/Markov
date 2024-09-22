@@ -56,11 +56,11 @@ namespace AtelierTomato.Markov.Core
 		/// </summary>
 		public virtual IEnumerable<string> ParseIntoSentenceTexts(string text)
 		{
+			// Called to ensure that spaced ellipses are included in the same sentence and not split.
 			text = NormalizeEllipses(text);
 			var sentences = SplitIntoSentences(text);
 
 			sentences = sentences.Select(ProcessText);
-			sentences = sentences.Select(SpaceifyEllipses);
 
 			var tokenizedSentences = sentences.Select(s => TokenizeProcessedSentence(s));
 			// Remove sentences where the minimum length of the sentence (not including punctuation) is less than the minimum input length for a sentence.
@@ -90,7 +90,9 @@ namespace AtelierTomato.Markov.Core
 			text = SplitOffApostropheSequences(text);
 			text = SplitOffDashSequences(text);
 
+			// This is called again because ProcessDetachCharacters splits up ellipses. 
 			text = NormalizeEllipses(text);
+			text = SpaceifyEllipses(text);
 			return text;
 		}
 

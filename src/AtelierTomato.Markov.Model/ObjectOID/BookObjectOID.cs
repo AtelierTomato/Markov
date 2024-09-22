@@ -46,7 +46,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			var match = bookOIDRegex.Match(OID);
 
 			if (!match.Success)
-				throw new ArgumentException("The OID given is not a valid DiscordObjectOID.", nameof(OID));
+				throw new ArgumentException("The OID given is not a valid BookObjectOID.", nameof(OID));
 
 			if (match.Groups[nameof(ServiceType)].Value != ServiceType.Book.ToString())
 				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.", nameof(OID));

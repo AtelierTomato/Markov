@@ -1,7 +1,7 @@
 ﻿using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID.Parser;
 
-namespace AtelierTomato.Markov.Storage.Sqlite
+namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class LocationRow
 	{

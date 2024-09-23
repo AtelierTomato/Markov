@@ -10,15 +10,16 @@ namespace AtelierTomato.Markov.Core
 	{
 		private readonly Regex sentenceSeparatorPattern = new(@"
 ((?:
-[^.!?\r\n]               # neither sentence punctuation nor newlines
-|                        # nor
-\.\.+                    # ellipses
-|                        # nor
-(?<=\s[!?]*)[!?][!?]+    # questionexciteclusters
-|                        # nor
-[.!?]\w                  # punctuation with word after it
-)+)                      # 1 or multiple
-((\.|[.!?]+)[\)\]}""”«»]*|(|$|\r?\n))", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+[^.!?\r\n]                                    # neither sentence punctuation nor newlines
+|                                             # nor
+\.\.+                                         # ellipses
+|                                             # nor
+(?<=\s[!?]*)[!?][!?]+                         # questionexciteclusters
+|                                             # nor
+[.!?]\w                                       # punctuation with word after it
+)+)                                           # 1 or multiple
+((?:\.|[.!?]+)[\)\]}""”«»]*|(?:$|\r?\n))      # capture the sentence ender and any punctuation that should be a part of the same sentence
+		", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex spaceifyEllipsesPattern = new(@"(?<=[^\s.,?!¿¡])([.,?!¿¡])(?=[.,?!¿¡])", RegexOptions.Compiled);
 		private readonly Regex ignoreCountPattern = new(@"^[\p{P}]*$", RegexOptions.Compiled);
 		private readonly Regex deleteLinkPattern = new(@"\S*://\S*", RegexOptions.Compiled);

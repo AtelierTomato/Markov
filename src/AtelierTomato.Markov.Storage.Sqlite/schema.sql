@@ -21,4 +21,28 @@ CREATE TABLE IF NOT EXISTS "Location" (
 	"Name"	TEXT NOT NULL,
 	PRIMARY KEY("ID")
 );
+CREATE TABLE IF NOT EXISTS "AuthorPermission" (
+	"Author"	TEXT NOT NULL,
+	"QueryScope"	TEXT,
+	"AllowedScope"	TEXT,
+	PRIMARY KEY("Author","QueryScope")
+);
+CREATE VIEW IF NOT EXISTS SentenceAfterLinkWithPermission As
+	SELECT s.OID, s.Author, s.Date, s.Text, up.AllowedScope
+	FROM Sentence s
+	INNER JOIN AuthorPermission up
+	ON s.Author = up.Author
+	AND (
+		up.QueryScope IS NULL 
+		OR INSTR(s.OID, up.QueryScope) = 1
+	)
+	WHERE LENGTH(COALESCE(up.QueryScope, '')) = (
+		SELECT MAX(LENGTH(COALESCE(up2.QueryScope, '')))
+		FROM AuthorPermission up2
+		WHERE s.Author = up2.Author
+		AND (
+			up2.QueryScope IS NULL 
+			OR INSTR(s.OID, up2.QueryScope) = 1
+		)
+	);
 COMMIT;

@@ -2,6 +2,9 @@
 
 namespace AtelierTomato.Markov.Storage
 {
+	/// <summary>
+	/// Internal use only, due to lack of persistence this is not to be used in production.
+	/// </summary>
 	public class InMemorySentenceAccess : ISentenceAccess
 	{
 		private readonly Random random = new();
@@ -19,7 +22,7 @@ namespace AtelierTomato.Markov.Storage
 			return Task.CompletedTask;
 		}
 
-		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
+		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
 			List<Sentence>? sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			if (sentenceQueryResult is null or [])
@@ -36,7 +39,7 @@ namespace AtelierTomato.Markov.Storage
 			return sentenceQueryResult.Take(resultCount);
 		}
 
-		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
+		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
 			List<Sentence> sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).ToList();
 			if (sentenceQueryResult is null or [])

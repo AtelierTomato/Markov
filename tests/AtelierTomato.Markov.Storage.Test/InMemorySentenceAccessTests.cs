@@ -1,11 +1,10 @@
 ﻿using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
-using AtelierTomato.Markov.Storage;
 using FluentAssertions;
 
-namespace AtelierTomato.Markov.Core.Test
+namespace AtelierTomato.Markov.Storage.Test
 {
-	public class InMemorySentenceAccessTest
+	public class InMemorySentenceAccessTests
 	{
 		[Fact]
 		public void SentenceAddTest()

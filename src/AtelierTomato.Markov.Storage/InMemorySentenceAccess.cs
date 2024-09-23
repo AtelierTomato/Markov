@@ -9,12 +9,12 @@ namespace AtelierTomato.Markov.Storage
 		public IReadOnlyList<Sentence> SentenceStorage { get => sentenceStorage; }
 		public Task DeleteSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
-			if (filter.OIDs.Count is 0 && filter.Authors.Count is 0 && string.IsNullOrWhiteSpace(searchString))
+			if (filter is { Authors: [], OIDs: [] } && string.IsNullOrWhiteSpace(searchString))
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
 			sentenceStorage.RemoveAll(s =>
-				(filter.OIDs.Count is 0 || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
-				(filter.Authors.Count is 0 || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) && (searchString is null || s.Text.Contains(searchString)));
+				(filter.OIDs is [] || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) && (searchString is null || s.Text.Contains(searchString)));
 			return Task.CompletedTask;
 		}
 
@@ -52,8 +52,8 @@ namespace AtelierTomato.Markov.Storage
 		public Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
 			return Task.FromResult(sentenceStorage.Where(s =>
-				(filter.OIDs.Count is 0 || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
-				(filter.Authors.Count is 0 || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) &&
+				(filter.OIDs is [] || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) &&
 				(searchString is null || s.Text.Contains(searchString))
 			));
 		}

@@ -3,7 +3,7 @@ using Moq;
 
 namespace AtelierTomato.Markov.Storage.Test
 {
-	public class IWordStatisticAccessTest
+	public class IWordStatisticAccessTests
 	{
 		[Fact]
 		public async Task WriteWordStatisticsFromStringTest()

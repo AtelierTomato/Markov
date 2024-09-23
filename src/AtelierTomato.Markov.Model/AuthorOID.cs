@@ -25,9 +25,9 @@
 			}
 			else
 			{
-				if (serviceType == ServiceType.Invalid)
+				if (serviceType == ServiceType.Special)
 				{
-					throw new ArgumentException("The AuthorOID given is of ServiceType Invalid, which is not a valid ServiceType.", nameof(OID));
+					throw new ArgumentException("The AuthorOID given is of ServiceType Special, which is not a valid ServiceType for AuthorOIDs.", nameof(OID));
 				}
 				else
 				{

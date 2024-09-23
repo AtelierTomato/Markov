@@ -1,4 +1,5 @@
 ﻿using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Storage.Sqlite.Model;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;

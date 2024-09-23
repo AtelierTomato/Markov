@@ -1,13 +1,13 @@
 ﻿using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID.Parser;
 
-namespace AtelierTomato.Markov.Storage.Sqlite
+namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class LocationRow
 	{
 		public string ID { get; set; }
 		public string Name { get; set; }
-		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new InvalidObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
+		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new SpecialObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
 		public LocationRow(string ID, string name)
 		{
 			this.ID = ID;

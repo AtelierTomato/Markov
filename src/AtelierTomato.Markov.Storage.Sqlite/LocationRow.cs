@@ -7,7 +7,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 	{
 		public string ID { get; set; }
 		public string Name { get; set; }
-		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new InvalidObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
+		private readonly MultiParser<IObjectOID> ObjectOIDParser = new([new SpecialObjectOIDParser(), new BookObjectOIDParser(), new DiscordObjectOIDParser()]);
 		public LocationRow(string ID, string name)
 		{
 			this.ID = ID;

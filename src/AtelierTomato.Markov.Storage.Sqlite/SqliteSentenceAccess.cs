@@ -151,10 +151,11 @@ on conflict ({nameof(Sentence.OID)}) do update set
 ",
 			new
 			{
-        oid = sentenceRow.OID,
+				oid = sentenceRow.OID,
 				author = sentenceRow.Author,
 				date = sentenceRow.Date,
 				text = sentenceRow.Text
+			});
 		}
 	}
 }

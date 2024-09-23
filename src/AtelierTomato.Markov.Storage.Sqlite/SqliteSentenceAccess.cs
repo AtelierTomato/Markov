@@ -94,11 +94,11 @@ LIMIT @amount
 ",
 				new
 				{
-          queryScope = queryScope?.ToString(),
+					queryScope = queryScope?.ToString(),
 					authors,
 					previousIDs = previousIDs.Select(x => x.ToString()),
 					prevList = string.Join(' ', prevList),
-          keyword,
+					keyword,
 					amount
 				});
 			}
@@ -117,11 +117,11 @@ LIMIT @amount
 ",
 				new
 				{
-          queryScope = queryScope?.ToString(),
+					queryScope = queryScope?.ToString(),
 					authors,
 					previousIDs = previousIDs.Select(x => x.ToString()),
 					prevList = string.Join(' ', prevList),
-          keyword,
+					keyword,
 					amount
 				});
 			}
@@ -145,8 +145,8 @@ LIMIT @amount
 			if (filter.OIDs is not [])
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
-        
-        result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
+
+				result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
 SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 ON (SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
@@ -156,16 +156,16 @@ CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE 
 RANDOM()
 LIMIT 1
 ",
-				new
-				{
-          queryScope = queryScope?.ToString(),
-					authors,
-					keyword
-				});
+						new
+						{
+							queryScope = queryScope?.ToString(),
+							authors,
+							keyword
+						});
 			}
 			else
 			{
-        result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
+				result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
 SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
@@ -174,14 +174,14 @@ CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE 
 RANDOM()
 LIMIT 1
 ",
-				new
-				{
-          queryScope = queryScope?.ToString(),
-					authors,
-					keyword
-				});
-      }
-      
+						new
+						{
+							queryScope = queryScope?.ToString(),
+							authors,
+							keyword
+						});
+			}
+
 			connection.Close();
 
 			return result?.ToSentence(objectOIDParser);

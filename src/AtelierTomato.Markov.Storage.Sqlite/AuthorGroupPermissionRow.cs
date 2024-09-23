@@ -22,7 +22,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 		public AuthorGroupPermission ToAuthorGroupPermission()
 		{
 			if (!Enum.TryParse(Permissions, out AuthorGroupPermissionType permissions))
-				throw new InvalidOperationException($"Invalid permission type: {Permissions}");
+				throw new InvalidOperationException($"One or more of listed permissions is invalid: {Permissions}");
 
 			return new(
 				Guid.Parse(ID),

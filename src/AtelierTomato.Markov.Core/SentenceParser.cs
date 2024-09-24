@@ -36,7 +36,7 @@ namespace AtelierTomato.Markov.Core
 ([()[\]{}«»“”]|[¿¡]|""|[&]|(?<!,),(?!,)|-)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex processDetachFromPrecedingPattern = new(@"
-(?<!\s|:|;)(:|;)(?=\s)
+(?<!\s|:|;)(:|;)(?=\s|$)
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex processDetachFromSucceedingPattern = new(@"
 (?<=\s)([.]{2,}|[,]{2,}|[?!]{2,})(?=\S)

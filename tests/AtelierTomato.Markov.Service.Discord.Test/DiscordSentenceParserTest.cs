@@ -322,6 +322,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData(@"the students' council decided you die today", @"the students ' council decided you die today")]
 		[InlineData(@"check out http://zombo.com the best website", @"check out the best website")]
 		[InlineData(@"funny money :laala: time yo", @"funny money :laala : time yo")]
+		[InlineData(@":madou: 1 2 3 4 :mikanScreech: :gregor:", @":madou : 1 2 3 4 :mikanScreech : :gregor :")]
 		public void ParseSimpleText(string input, string output)
 		{
 			var options = new SentenceParserOptions();

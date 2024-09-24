@@ -29,21 +29,21 @@
 		public ActivityPubPoll? Poll { get; set; }
 		public string Text { get; set; }
 		// Ignored fields: MediaAttachments, Card
-		public ActivityPubPost(string id, DateTimeOffset createdAt, string? inReplyToId, string? inReplyToAccountId, bool sensitive, string spoilerText, string visibility, string language, string uri, string url, int repliesCount, int reblogsCount, int favouritesCount, bool favourited, bool reblogged, bool muted, bool bookmarked, bool pinned, string content, ActivityPubPost? reblog, ActivityPubAccount account, IReadOnlyList<ActivityPubMention> mentions, IReadOnlyList<ActivityPubTag> tags, IReadOnlyList<ActivityPubEmoji> emojis, ActivityPubPoll? poll, string text)
+		public ActivityPubPost(string id, DateTimeOffset created_at, string? in_reply_to_id, string? in_reply_to_account_id, bool sensitive, string spoiler_text, string visibility, string language, string uri, string url, int replies_count, int reblogs_count, int favourites_count, bool favourited, bool reblogged, bool muted, bool bookmarked, bool pinned, string content, ActivityPubPost? reblog, ActivityPubAccount account, IReadOnlyList<ActivityPubMention> mentions, IReadOnlyList<ActivityPubTag> tags, IReadOnlyList<ActivityPubEmoji> emojis, ActivityPubPoll? poll, string text)
 		{
 			Id = id;
-			CreatedAt = createdAt;
-			InReplyToId = inReplyToId;
-			InReplyToAccountId = inReplyToAccountId;
+			CreatedAt = created_at;
+			InReplyToId = in_reply_to_id;
+			InReplyToAccountId = in_reply_to_account_id;
 			Sensitive = sensitive;
-			SpoilerText = spoilerText;
+			SpoilerText = spoiler_text;
 			Visibility = visibility;
 			Language = language;
 			Uri = uri;
 			Url = url;
-			RepliesCount = repliesCount;
-			ReblogsCount = reblogsCount;
-			FavouritesCount = favouritesCount;
+			RepliesCount = replies_count;
+			ReblogsCount = reblogs_count;
+			FavouritesCount = favourites_count;
 			Favourited = favourited;
 			Reblogged = reblogged;
 			Muted = muted;

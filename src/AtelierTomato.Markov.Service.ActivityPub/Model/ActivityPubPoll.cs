@@ -11,13 +11,13 @@
 		public IReadOnlyList<ActivityPubPollOption> Options { get; set; }
 		public IReadOnlyList<ActivityPubEmoji> Emojis { get; set; }
 		// Ignored fields: VotersCount, OwnVotes
-		public ActivityPubPoll(string id, DateTimeOffset expiresAt, bool expired, bool multiple, int votesCount, bool voted, IReadOnlyList<ActivityPubPollOption> options, IReadOnlyList<ActivityPubEmoji> emojis)
+		public ActivityPubPoll(string id, DateTimeOffset expires_at, bool expired, bool multiple, int votes_count, bool voted, IReadOnlyList<ActivityPubPollOption> options, IReadOnlyList<ActivityPubEmoji> emojis)
 		{
 			Id = id;
-			ExpiresAt = expiresAt;
+			ExpiresAt = expires_at;
 			Expired = expired;
 			Multiple = multiple;
-			VotesCount = votesCount;
+			VotesCount = votes_count;
 			Voted = voted;
 			Options = options;
 			Emojis = emojis;

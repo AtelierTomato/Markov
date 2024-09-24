@@ -6,9 +6,9 @@
 		public string Username { get; set; }
 		public string Url { get; set; }
 		public string Acct { get; set; }
-		public ActivityPubMention(string iD, string username, string url, string acct)
+		public ActivityPubMention(string id, string username, string url, string acct)
 		{
-			ID = iD;
+			ID = id;
 			Username = username;
 			Url = url;
 			Acct = acct;

@@ -18,28 +18,28 @@
 		public int FollowersCount { get; set; }
 		public int FollowingCount { get; set; }
 		public int StatusesCount { get; set; }
-		public DateTimeOffset LastStatusAt { get; set; }
+		public DateTimeOffset? LastStatusAt { get; set; }
 		public ActivityPubRole Role { get; set; }
 		// Ignored fields: Emojis, Fields
-		public ActivityPubAccount(string id, string username, string acct, string displayName, bool locked, bool discoverable, bool bot, DateTimeOffset createdAt, string note, string url, string avatar, string avatarStatic, string header, int followersCount, int followingCount, int statusesCount, DateTimeOffset lastStatusAt, ActivityPubRole role)
+		public ActivityPubAccount(string id, string username, string acct, string display_name, bool locked, bool discoverable, bool bot, DateTimeOffset created_at, string note, string url, string avatar, string avatar_static, string header, int followers_count, int following_count, int statuses_count, DateTimeOffset? last_status_at, ActivityPubRole role)
 		{
 			Id = id;
 			Username = username;
 			Acct = acct;
-			DisplayName = displayName;
+			DisplayName = display_name;
 			Locked = locked;
 			Discoverable = discoverable;
 			Bot = bot;
-			CreatedAt = createdAt;
+			CreatedAt = created_at;
 			Note = note;
 			Url = url;
 			Avatar = avatar;
-			AvatarStatic = avatarStatic;
+			AvatarStatic = avatar_static;
 			Header = header;
-			FollowersCount = followersCount;
-			FollowingCount = followingCount;
-			StatusesCount = statusesCount;
-			LastStatusAt = lastStatusAt;
+			FollowersCount = followers_count;
+			FollowingCount = following_count;
+			StatusesCount = statuses_count;
+			LastStatusAt = last_status_at;
 			Role = role;
 		}
 	}

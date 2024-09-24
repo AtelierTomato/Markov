@@ -4,10 +4,10 @@
 	{
 		public string Title { get; set; }
 		public int VotesCount { get; set; }
-		public ActivityPubPollOption(string title, int votesCount)
+		public ActivityPubPollOption(string title, int votes_count)
 		{
 			Title = title;
-			VotesCount = votesCount;
+			VotesCount = votes_count;
 		}
 	}
 }

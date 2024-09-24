@@ -6,12 +6,12 @@
 		public string Url { get; set; }
 		public string StaticUrl { get; set; }
 		public bool VisibleInPicker { get; set; }
-		public ActivityPubEmoji(string shortcode, string url, string staticUrl, bool visibleInPicker)
+		public ActivityPubEmoji(string shortcode, string url, string static_url, bool visible_in_picker)
 		{
 			Shortcode = shortcode;
 			Url = url;
-			StaticUrl = staticUrl;
-			VisibleInPicker = visibleInPicker;
+			StaticUrl = static_url;
+			VisibleInPicker = visible_in_picker;
 		}
 	}
 }

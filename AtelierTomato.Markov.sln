@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Storag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Service.ActivityPub", "src\AtelierTomato.Markov.Service.ActivityPub\AtelierTomato.Markov.Service.ActivityPub.csproj", "{9BD6003E-91FE-4183-9444-05074CAD7707}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Service.ActivityPub.Test", "tests\AtelierTomato.Markov.Service.ActivityPub.Test\AtelierTomato.Markov.Service.ActivityPub.Test.csproj", "{CBEED7EE-8ECF-417C-B8F6-DAE4BAAB7309}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{9BD6003E-91FE-4183-9444-05074CAD7707}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BD6003E-91FE-4183-9444-05074CAD7707}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BD6003E-91FE-4183-9444-05074CAD7707}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBEED7EE-8ECF-417C-B8F6-DAE4BAAB7309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBEED7EE-8ECF-417C-B8F6-DAE4BAAB7309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBEED7EE-8ECF-417C-B8F6-DAE4BAAB7309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBEED7EE-8ECF-417C-B8F6-DAE4BAAB7309}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

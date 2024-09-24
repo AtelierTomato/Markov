@@ -23,13 +23,13 @@
 		public string Content { get; set; }
 		public ActivityPubPost? Reblog { get; set; }
 		public ActivityPubAccount Account { get; set; }
-		public IEnumerable<ActivityPubMention> Mentions { get; set; }
-		public IEnumerable<ActivityPubTag> Tags { get; set; }
-		public IEnumerable<ActivityPubEmoji> Emojis { get; set; }
-		public ActivityPubPoll Poll { get; set; }
+		public IReadOnlyList<ActivityPubMention> Mentions { get; set; }
+		public IReadOnlyList<ActivityPubTag> Tags { get; set; }
+		public IReadOnlyList<ActivityPubEmoji> Emojis { get; set; }
+		public ActivityPubPoll? Poll { get; set; }
 		public string Text { get; set; }
 		// Ignored fields: MediaAttachments, Card
-		public ActivityPubPost(string id, DateTimeOffset createdAt, string? inReplyToId, string? inReplyToAccountId, bool sensitive, string spoilerText, string visibility, string language, string uri, string url, int repliesCount, int reblogsCount, int favouritesCount, bool favourited, bool reblogged, bool muted, bool bookmarked, bool pinned, string content, ActivityPubPost? reblog, ActivityPubAccount account, IEnumerable<ActivityPubMention> mentions, IEnumerable<ActivityPubTag> tags, IEnumerable<ActivityPubEmoji> emojis, ActivityPubPoll poll, string text)
+		public ActivityPubPost(string id, DateTimeOffset createdAt, string? inReplyToId, string? inReplyToAccountId, bool sensitive, string spoilerText, string visibility, string language, string uri, string url, int repliesCount, int reblogsCount, int favouritesCount, bool favourited, bool reblogged, bool muted, bool bookmarked, bool pinned, string content, ActivityPubPost? reblog, ActivityPubAccount account, IReadOnlyList<ActivityPubMention> mentions, IReadOnlyList<ActivityPubTag> tags, IReadOnlyList<ActivityPubEmoji> emojis, ActivityPubPoll? poll, string text)
 		{
 			Id = id;
 			CreatedAt = createdAt;

@@ -8,8 +8,19 @@
 		public bool Multiple { get; set; }
 		public int VotesCount { get; set; }
 		public bool Voted { get; set; }
-		public IEnumerable<ActivityPubPollOptions> Options { get; set; }
-		public IEnumerable<ActivityPubEmoji> Emojis { get; set; }
+		public IReadOnlyList<ActivityPubPollOption> Options { get; set; }
+		public IReadOnlyList<ActivityPubEmoji> Emojis { get; set; }
 		// Ignored fields: VotersCount, OwnVotes
+		public ActivityPubPoll(string id, DateTimeOffset expiresAt, bool expired, bool multiple, int votesCount, bool voted, IReadOnlyList<ActivityPubPollOption> options, IReadOnlyList<ActivityPubEmoji> emojis)
+		{
+			Id = id;
+			ExpiresAt = expiresAt;
+			Expired = expired;
+			Multiple = multiple;
+			VotesCount = votesCount;
+			Voted = voted;
+			Options = options;
+			Emojis = emojis;
+		}
 	}
 }

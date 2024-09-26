@@ -45,4 +45,23 @@ CREATE VIEW IF NOT EXISTS SentenceAfterLinkWithPermission As
 			OR INSTR(s.OID, up2.QueryScope) = 1
 		)
 	);
+CREATE TABLE IF NOT EXISTS "AuthorGroup" (
+	"ID"	TEXT NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
+	PRIMARY KEY("ID")
+);
+CREATE TABLE IF NOT EXISTS "AuthorGroupPermission" (
+	"ID"	TEXT NOT NULL,
+	"Author"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Author")
+);
+CREATE TABLE IF NOT EXISTS "AuthorGroupRequest" (
+	"ID"	TEXT NOT NULL,
+	"Author"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Author")
+);
 COMMIT;

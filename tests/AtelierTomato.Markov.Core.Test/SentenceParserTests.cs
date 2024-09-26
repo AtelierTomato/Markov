@@ -146,5 +146,25 @@ Life in the Vault is about to change.";
 
 			result.Should().ContainSingle().And.Contain(output);
 		}
+
+		[Theory]
+		[InlineData("(this is a sentence in parentheses.) This is sentence number two", new string[] { "( this is a sentence in parentheses . )", "This is sentence number two" })]
+		[InlineData("[this is a sentence in brackets.] This is sentence number two", new string[] { "[ this is a sentence in brackets . ]", "This is sentence number two" })]
+		[InlineData("{this is a sentence in curly braces.} This is sentence number two", new string[] { "{ this is a sentence in curly braces . }", "This is sentence number two" })]
+		[InlineData("\"this is a sentence in quotes.\" This is sentence number two", new string[] { "\" this is a sentence in quotes . \"", "This is sentence number two" })]
+		[InlineData("»this is a sentence in quotes.« This is sentence number two", new string[] { "» this is a sentence in quotes . «", "This is sentence number two" })]
+		[InlineData("«this is a sentence in quotes.» This is sentence number two", new string[] { "« this is a sentence in quotes . »", "This is sentence number two" })]
+		[InlineData("“this is a sentence in quotes.” This is sentence number two", new string[] { "“ this is a sentence in quotes . ”", "This is sentence number two" })]
+		[InlineData("[(this is a sentence in multiple closers.)] This is sentence number two", new string[] { "[ ( this is a sentence in multiple closers . ) ]", "This is sentence number two" })]
+		[InlineData("(this is a sentence in parentheses. ) This is sentence number two", new string[] { "( this is a sentence in parentheses .", ") This is sentence number two" })]
+		public void CaptureTrailingPunctuationTests(string input, IEnumerable<string> output)
+		{
+			var options = new SentenceParserOptions();
+			var target = new SentenceParser(Options.Create(options));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
+		}
 	}
 }

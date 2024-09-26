@@ -10,15 +10,16 @@ namespace AtelierTomato.Markov.Core
 	{
 		private readonly Regex sentenceSeparatorPattern = new(@"
 ((?:
-[^.!?\r\n]               # neither sentence punctuation nor newlines
-|                        # nor
-\.\.+                    # ellipses
-|                        # nor
-(?<=\s[!?]*)[!?][!?]+    # questionexciteclusters
-|                        # nor
-[.!?]\w                  # punctuation with word after it
-)+)                      # 1 or multiple
-(\.|[.!?]+|$|\r?\n)", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+[^.!?\r\n]                                    # neither sentence punctuation nor newlines
+|                                             # nor
+\.\.+                                         # ellipses
+|                                             # nor
+(?<=\s[!?]*)[!?][!?]+                         # questionexciteclusters
+|                                             # nor
+[.!?]\w                                       # punctuation with word after it
+)+)                                           # 1 or multiple
+((?:\.|[.!?]+)[\)\]}""”«»]*|(?:$|\r?\n))      # capture the sentence ender and any punctuation that should be a part of the same sentence
+		", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		private readonly Regex spaceifyEllipsesPattern = new(@"(?<=[^\s.,?!¿¡])([.,?!¿¡])(?=[.,?!¿¡])", RegexOptions.Compiled);
 		private readonly Regex ignoreCountPattern = new(@"^[\p{P}]*$", RegexOptions.Compiled);
 		private readonly Regex deleteLinkPattern = new(@"\S*://\S*", RegexOptions.Compiled);
@@ -56,10 +57,11 @@ namespace AtelierTomato.Markov.Core
 		/// </summary>
 		public virtual IEnumerable<string> ParseIntoSentenceTexts(string text)
 		{
-			text = ProcessText(text);
-
+			// Called to ensure that spaced ellipses are included in the same sentence and not split.
+			text = NormalizeEllipses(text);
 			var sentences = SplitIntoSentences(text);
-			sentences = sentences.Select(SpaceifyEllipses);
+
+			sentences = sentences.Select(ProcessText);
 
 			var tokenizedSentences = sentences.Select(s => TokenizeProcessedSentence(s));
 			// Remove sentences where the minimum length of the sentence (not including punctuation) is less than the minimum input length for a sentence.
@@ -89,7 +91,9 @@ namespace AtelierTomato.Markov.Core
 			text = SplitOffApostropheSequences(text);
 			text = SplitOffDashSequences(text);
 
+			// This is called again because ProcessDetachCharacters splits up ellipses. 
 			text = NormalizeEllipses(text);
+			text = SpaceifyEllipses(text);
 			return text;
 		}
 

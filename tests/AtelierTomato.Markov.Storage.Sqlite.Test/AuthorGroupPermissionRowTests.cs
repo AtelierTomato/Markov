@@ -45,8 +45,8 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Test
 		public void AuthorGroupPermissionRowToAuthorGroupPermissionFailTest()
 		{
 			AuthorGroupPermissionRow authorGroupPermissionRow = new("17595b6b-821f-4c3e-93c6-789e054d04e5", "Discord:discord.com:644249977840730118", "CheeseInGroup, UseGroup, AddAuthor, RemoveAuthor, RenameGroup, DeleteGroup");
-			Func<Task> act = () => Task.Run(() => authorGroupPermissionRow.ToAuthorGroupPermission());
-			act.Should().ThrowAsync<InvalidOperationException>().WithMessage("One or more of listed permissions is invalid: CheeseInGroup, UseGroup, AddAuthor, RemoveAuthor, RenameGroup, DeleteGroup");
+			Action act = () => authorGroupPermissionRow.ToAuthorGroupPermission();
+			act.Should().Throw<InvalidOperationException>().WithMessage($"One or more of listed permissions is invalid: {authorGroupPermissionRow.Permissions}");
 		}
 	}
 }

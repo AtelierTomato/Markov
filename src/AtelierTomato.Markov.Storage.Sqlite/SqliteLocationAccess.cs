@@ -60,5 +60,25 @@ ON CONFLICT ({nameof(Location.ID)}) DO UPDATE SET
 
 			await transaction.CommitAsync();
 		}
+
+		public async Task<AuthorOID?> ReadLocationOwner(IObjectOID ID)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QuerySingleOrDefaultAsync<string>($@"SELECT {nameof(Location.Owner)} FROM {nameof(Location)} WHERE @id || ':' LIKE {nameof(ID)} || ':%' ORDER BY Length(ID) DESC LIMIT 1",
+			new
+			{
+				id = ID.ToString()
+			});
+
+			connection.Close();
+
+			return result switch
+			{
+				null => null,
+				_ => AuthorOID.Parse(result)
+			};
+		}
 	}
 }

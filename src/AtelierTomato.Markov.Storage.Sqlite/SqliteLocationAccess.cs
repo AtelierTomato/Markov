@@ -9,9 +9,11 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 	public class SqliteLocationAccess : ILocationAccess
 	{
 		private readonly SqliteAccessOptions options;
-		public SqliteLocationAccess(IOptions<SqliteAccessOptions> options)
+		private readonly MultiParser<IObjectOID> objectOIDParser;
+		public SqliteLocationAccess(IOptions<SqliteAccessOptions> options, MultiParser<IObjectOID> objectOIDParser)
 		{
 			this.options = options.Value;
+			this.objectOIDParser = objectOIDParser;
 		}
 
 		public async Task<Location?> ReadLocation(IObjectOID ID) => (await ReadLocationRange([ID])).FirstOrDefault();
@@ -28,7 +30,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 
 			connection.Close();
 
-			return result.Select(a => a.ToLocation());
+			return result.Select(a => a.ToLocation(objectOIDParser));
 		}
 
 		public async Task WriteLocation(Location location) => await WriteLocationRange([location]);

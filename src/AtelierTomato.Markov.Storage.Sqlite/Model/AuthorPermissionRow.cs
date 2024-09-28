@@ -19,6 +19,6 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			QueryScope = authorPermission.QueryScope.ToString();
 			AllowedScope = authorPermission.AllowedScope.ToString();
 		}
-		public AuthorPermission ToAuthorPermission(MultiParser<IObjectOID> objectOIDParser) => new AuthorPermission(AuthorOID.Parse(Author), objectOIDParser.Parse(QueryScope), objectOIDParser.Parse(AllowedScope));
+		public AuthorPermission ToAuthorPermission(MultiParser<IObjectOID> objectOIDParser) => new(AuthorOID.Parse(Author), objectOIDParser.Parse(QueryScope), objectOIDParser.Parse(AllowedScope));
 	}
 }

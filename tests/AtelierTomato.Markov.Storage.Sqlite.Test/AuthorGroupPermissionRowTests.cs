@@ -1,4 +1,5 @@
 ﻿using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Storage.Sqlite.Model;
 using FluentAssertions;
 
 namespace AtelierTomato.Markov.Storage.Sqlite.Test

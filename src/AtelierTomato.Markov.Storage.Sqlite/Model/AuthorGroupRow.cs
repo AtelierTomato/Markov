@@ -1,6 +1,6 @@
 ﻿using AtelierTomato.Markov.Model;
 
-namespace AtelierTomato.Markov.Storage.Sqlite
+namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class AuthorGroupRow
 	{

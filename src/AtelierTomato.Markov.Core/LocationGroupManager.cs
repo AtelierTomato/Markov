@@ -156,13 +156,13 @@ namespace AtelierTomato.Markov.Core
 			if (sender != locationOwner)
 				throw new ArgumentException($"""Sender "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{location}".""", nameof(location));
 			var senderLocationGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission(ID, senderLocation)
-			 ?? throw new ArgumentException($"""Location "{location}" is not registered to group with ID "{ID}".""", nameof(location));
+			 ?? throw new ArgumentException($"""Location "{senderLocation}" is not registered to group with ID "{ID}".""", nameof(senderLocation));
 			if (!senderLocationGroupPermission.Permissions.HasFlag(LocationGroupPermissionType.RemoveLocation))
-				throw new ArgumentException($"""Location "{location}" does not have permission to remove locations from group with ID "{ID}".""", nameof(location));
+				throw new ArgumentException($"""Location "{senderLocation}" does not have permission to remove locations from group with ID "{ID}".""", nameof(senderLocation));
 			var locationGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission(ID, location)
 			 ?? throw new ArgumentException($"""Location "{location}" is not registered to group with ID "{ID}".""", nameof(location));
 			if ((locationGroupPermission.Permissions & ~senderLocationGroupPermission.Permissions) != 0)
-				throw new ArgumentException($"""Location "{location}" does not have some of the permissions that the location it is trying to remove has.""", nameof(location));
+				throw new ArgumentException($"""Location "{senderLocation}" does not have some of the permissions that the location it is trying to remove has.""", nameof(location));
 
 			// All guards passed, allow remove.
 			await locationGroupPermissionAccess.DeleteLocationFromLocationGroup(ID, location);

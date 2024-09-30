@@ -27,7 +27,7 @@ namespace AtelierTomato.Markov.Core
 			var locationOwner = await locationAccess.ReadLocationOwner(senderLocation)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)} creation as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
 			if (sender != locationOwner)
-				throw new ArgumentException($"""Sender "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{senderLocation}".""", nameof(senderLocation));
+				throw new ArgumentException($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{senderLocation}".""", nameof(senderLocation));
 
 			// All guards passed, allow create.
 			var ID = Guid.NewGuid();
@@ -87,7 +87,7 @@ namespace AtelierTomato.Markov.Core
 			var locationOwner = await locationAccess.ReadLocationOwner(locationID)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)}Request accepting as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
 			if (sender != locationOwner)
-				throw new ArgumentException($"""Sender "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{locationID}".""", nameof(locationID));
+				throw new ArgumentException($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{locationID}".""", nameof(locationID));
 			var senderLocationGroupRequest = await locationGroupRequestAccess.ReadLocationGroupRequest(ID, locationID)
 			 ?? throw new ArgumentException($"""Location "{locationID}" has not been sent an invitation to group with ID "{ID}".""", nameof(ID));
 
@@ -101,7 +101,7 @@ namespace AtelierTomato.Markov.Core
 			var locationOwner = await locationAccess.ReadLocationOwner(locationID)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)}Request denying as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
 			if (sender != locationOwner)
-				throw new ArgumentException($"""Sender "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{locationID}".""", nameof(locationID));
+				throw new ArgumentException($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{locationID}".""", nameof(locationID));
 			_ = await locationGroupRequestAccess.ReadLocationGroupRequest(ID, locationID)
 			 ?? throw new ArgumentException($"""Location "{locationID}" has not been sent an invitation to group with ID "{ID}".""", nameof(ID));
 
@@ -139,7 +139,7 @@ namespace AtelierTomato.Markov.Core
 				throw new InvalidOperationException($"""The {nameof(LocationGroup)} with ID "{ID}" has no members with permission {nameof(LocationGroupPermissionType.DeleteGroup)}. This is unexpected.""");
 			}
 			if (locationGroupPerissionsWithDeleteGroup.Count() is 1)
-				throw new ArgumentException($"""Location "{location}" cannot be removed from group with ID "{ID}" as it is the only member of it that has the permission {nameof(LocationGroupPermissionType.DeleteGroup)}. Please use "{nameof(DeleteGroup)}" function instead.""", nameof(sender));
+				throw new ArgumentException($"""Location "{location}" cannot be removed from group with ID "{ID}" as it is the only member of it that has the permission {nameof(LocationGroupPermissionType.DeleteGroup)}. Please use "{nameof(DeleteGroup)}" function instead.""", nameof(location));
 
 			if ((locationGroupPermissions.Where(p => p.Location == location).First().Permissions & ~senderGroupPermission) != 0)
 				throw new ArgumentException($"""Author "{sender}" does not have some of the permissions that the location they are trying to remove has.""", nameof(location));

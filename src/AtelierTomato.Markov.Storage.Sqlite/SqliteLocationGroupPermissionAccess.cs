@@ -90,6 +90,48 @@ WHERE {nameof(LocationGroupPermission.ID)} IS @id
 			return result.Select(u => u.ToLocationGroupPermission(objectOIDParser));
 		}
 
+		public async Task<LocationGroupPermissionType> ReadLocationGroupPermissionRangeByOwner(Guid ID, AuthorOID author)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<string>($@"
+SELECT {nameof(LocationGroupPermission)}.{nameof(LocationGroupPermission.Permissions)} FROM {nameof(LocationGroupPermission)} INNER JOIN {nameof(Location)}
+ON {nameof(LocationGroupPermission)}.{nameof(LocationGroupPermission.Location)} = {nameof(Location)}.{nameof(Location.ID)}
+WHERE
+	{nameof(Location)}.{nameof(Location.Owner)} IS @author AND
+	{nameof(LocationGroupPermission)}.{nameof(ID)} IS @id
+",
+			new
+			{
+				author = author.ToString(),
+				id = ID.ToString()
+			});
+
+			connection.Close();
+
+			return result switch
+			{
+				null => LocationGroupPermissionType.None,
+				_ => ParseAndAggregateLocationGroupPermissionType(result)
+			};
+		}
+
+		public static LocationGroupPermissionType ParseAndAggregateLocationGroupPermissionType(IEnumerable<string> locationGroupPermissionTypeStringRange)
+		{
+			return locationGroupPermissionTypeStringRange.Select(locationGroupPermissionTypeString =>
+			{
+				if (Enum.TryParse<LocationGroupPermissionType>(locationGroupPermissionTypeString, out var result))
+				{
+					return result;
+				}
+				else
+				{
+					throw new InvalidOperationException($"One or more of listed permissions is invalid: {locationGroupPermissionTypeString}");
+				}
+			}).Aggregate(LocationGroupPermissionType.None, (current, next) => current | next);
+		}
+
 		public async Task WriteLocationGroupPermission(LocationGroupPermission locationGroupPermission) => await WriteLocationGroupPermissionRange([locationGroupPermission]);
 
 		public async Task WriteLocationGroupPermissionRange(IEnumerable<LocationGroupPermission> locationGroupPermissions)

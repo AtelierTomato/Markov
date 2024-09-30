@@ -2,6 +2,13 @@
 {
 	public record AuthorSetting
 	(
-		AuthorOID Author, IObjectOID? Location, IEnumerable<Guid> AuthorGroups, IEnumerable<Guid> LocationGroups, DisplayOptionType DisplayOption, SentenceFilter Filter, string? Keyword = null, string? FirstWord = null
+		AuthorOID Author,
+		IObjectOID? Location,
+		DisplayOptionType DisplayOption,
+		SentenceFilter Filter,
+		Guid? AuthorGroup = null,
+		Guid? LocationGroup = null,
+		string? Keyword = null,
+		string? FirstWord = null
 	);
 }

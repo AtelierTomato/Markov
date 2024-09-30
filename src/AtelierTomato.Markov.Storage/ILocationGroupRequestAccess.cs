@@ -7,6 +7,7 @@ namespace AtelierTomato.Markov.Storage
 		Task<LocationGroupPermission?> ReadLocationGroupRequest(Guid ID, IObjectOID location);
 		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByID(Guid ID);
 		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByLocation(IObjectOID location);
+		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByOwner(AuthorOID author);
 		Task WriteLocationGroupRequest(LocationGroupPermission locationGroupPermission);
 		Task WriteLocationGroupRequestRange(IEnumerable<LocationGroupPermission> locationGroupPermissions);
 		Task DeleteLocationGroupRequest(Guid ID, IObjectOID location);

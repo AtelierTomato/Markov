@@ -68,8 +68,9 @@ WHERE {nameof(LocationGroupPermission.Location)} IS @location
 
 			connection.Close();
 
-			return result.Select(u => u.ToLocationGroupPermission(objectOIDParser));
+			return result.Select(p => p.ToLocationGroupPermission(objectOIDParser));
 		}
+
 
 		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByID(Guid ID)
 		{
@@ -87,10 +88,29 @@ WHERE {nameof(LocationGroupPermission.ID)} IS @id
 
 			connection.Close();
 
-			return result.Select(u => u.ToLocationGroupPermission(objectOIDParser));
+			return result.Select(p => p.ToLocationGroupPermission(objectOIDParser));
+		}
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByOwner(AuthorOID author)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<LocationGroupPermissionRow>($@"
+SELECT {nameof(LocationGroupPermission)}.{nameof(LocationGroupPermission.ID)}, {nameof(LocationGroupPermission)}.{nameof(LocationGroupPermission.Location)}, {nameof(LocationGroupPermission)}.{nameof(LocationGroupPermission.Permissions)} FROM {nameof(LocationGroupPermission)} INNER JOIN {nameof(Location)}
+ON {nameof(LocationGroupPermission)}.{nameof(LocationGroupPermission.Location)} = {nameof(Location)}.{nameof(Location.ID)}
+WHERE {nameof(Location)}.{nameof(Location.Owner)} IS @author
+",
+			new
+			{
+				author = author.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(p => p.ToLocationGroupPermission(objectOIDParser));
 		}
 
-		public async Task<LocationGroupPermissionType> ReadLocationGroupPermissionRangeByOwner(Guid ID, AuthorOID author)
+		public async Task<LocationGroupPermissionType> ReadLocationGroupPermissionsForOwner(Guid ID, AuthorOID author)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();

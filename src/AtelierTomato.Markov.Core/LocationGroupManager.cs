@@ -48,7 +48,7 @@ namespace AtelierTomato.Markov.Core
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
-			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByOwner(ID, sender);
+			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
 			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.RenameGroup))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to rename group with ID "{ID}".""", nameof(sender));
 
@@ -58,7 +58,7 @@ namespace AtelierTomato.Markov.Core
 
 		public async Task DeleteGroup(AuthorOID sender, Guid ID)
 		{
-			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByOwner(ID, sender);
+			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
 			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.DeleteGroup))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to delete group with ID "{ID}".""", nameof(sender));
 
@@ -68,7 +68,7 @@ namespace AtelierTomato.Markov.Core
 
 		public async Task SendOrUpdateLocationGroupRequest(AuthorOID sender, LocationGroupPermission locationGroupPermission)
 		{
-			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByOwner(locationGroupPermission.ID, sender);
+			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(locationGroupPermission.ID, sender);
 			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.AddLocation))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to add locations to group with ID "{locationGroupPermission.ID}".""", nameof(sender));
 			if ((await locationGroupPermissionAccess.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location)) is not null)
@@ -111,7 +111,7 @@ namespace AtelierTomato.Markov.Core
 
 		public async Task UpdateLocation(AuthorOID sender, LocationGroupPermission locationGroupPermission)
 		{
-			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByOwner(locationGroupPermission.ID, sender);
+			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(locationGroupPermission.ID, sender);
 			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.AddLocation))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to add locations to group with ID "{locationGroupPermission.ID}".""", nameof(sender));
 
@@ -125,7 +125,7 @@ namespace AtelierTomato.Markov.Core
 
 		public async Task RemoveLocation(AuthorOID sender, Guid ID, IObjectOID location)
 		{
-			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByOwner(ID, sender);
+			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
 			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.RemoveLocation))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to remove locations from group with ID "{ID}".""", nameof(sender));
 

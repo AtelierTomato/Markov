@@ -30,8 +30,8 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			Author = authorSetting.Author.ToString();
 			Location = authorSetting.Location?.ToString() ?? string.Empty;
 			DisplayOption = authorSetting.DisplayOption.ToString();
-			FilterOIDs = string.Join("::", authorSetting.Filter.OIDs);
-			FilterAuthors = string.Join("::", authorSetting.Filter.Authors);
+			FilterOIDs = string.Join(":::", authorSetting.Filter.OIDs);
+			FilterAuthors = string.Join(":::", authorSetting.Filter.Authors);
 			AuthorGroup = authorSetting.AuthorGroup?.ToString();
 			LocationGroup = authorSetting.LocationGroup?.ToString();
 			Keyword = authorSetting.Keyword;
@@ -92,8 +92,8 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 				location,
 				displayOption,
 				new SentenceFilter(
-					FilterOIDs.Split("::").Select(objectOIDParser.Parse).ToList(),
-					FilterAuthors.Split("::").Select(AuthorOID.Parse).ToList()
+					FilterOIDs.Split(":::").Select(objectOIDParser.Parse).ToList(),
+					FilterAuthors.Split(":::").Select(AuthorOID.Parse).ToList()
 				),
 				authorGroup,
 				locationGroup,

@@ -5,9 +5,12 @@ namespace AtelierTomato.Markov.Storage
 	public interface IAuthorSettingAccess
 	{
 		Task<IEnumerable<AuthorSetting>> ReadAllAuthorSettings();
-		Task<AuthorSetting?> ReadAuthorSetting(AuthorOID author, IObjectOID queryScope);
-		Task<IEnumerable<AuthorSetting>> ReadAuthorSettingRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID> queryScopes);
+		Task<AuthorSetting?> ReadAuthorSetting(AuthorOID author, IObjectOID location);
+		Task<IEnumerable<AuthorSetting>> ReadAuthorSettingRangeByAuthor(AuthorOID author);
+		Task<IEnumerable<AuthorSetting>> ReadAuthorSettingRangeByLocation(IObjectOID location);
 		Task WriteAuthorSetting(AuthorSetting authorSetting);
-		Task WriteAuthorSettingRange(IEnumerable<AuthorSetting> authorSettings);
+		Task DeleteAuthorSetting(AuthorOID author, IObjectOID location);
+		Task DeleteAuthorSettingRangeByAuthor(AuthorOID author);
+		Task DeleteAuthorSettingRangeByLocation(IObjectOID location);
 	}
 }

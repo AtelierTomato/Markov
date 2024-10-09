@@ -312,6 +312,25 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 			result.Should().BeEquivalentTo(output);
 		}
 
+		[Theory]
+		[InlineData("1 2 3 4 5 <t:2396027640:R>", "1 2 3 4 5 in 21 years")]
+		[InlineData("1 2 3 4 5 <t:2396027640:D>", "1 2 3 4 5 December 4 , 2045")]
+		[InlineData("1 2 3 4 5 <t:2396027640:d>", "1 2 3 4 5 12/04/2045")]
+		[InlineData("1 2 3 4 5 <t:2396027640:T>", "1 2 3 4 5 11:14:00 AM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:t>", "1 2 3 4 5 11:14 AM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:F>", "1 2 3 4 5 Monday , December 4 , 2045 11:14 AM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:f>", "1 2 3 4 5 December 4 , 2045 11:14 AM")]
+		public void ReplaceTimestampsTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
+		}
+
 		// Below are tests copied from SentenceParserTests, but using the DiscordSentenceParser. All should pass or those that should not pass have been removed.
 		[Theory]
 		[InlineData(@"hello world how are you", @"hello world how are you")]

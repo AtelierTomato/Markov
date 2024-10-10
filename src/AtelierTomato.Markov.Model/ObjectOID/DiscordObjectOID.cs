@@ -7,8 +7,8 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 	{
 		public ServiceType Service { get; } = ServiceType.Discord;
 		public string Instance { get; set; }
-		public ulong? Category { get; set; }
 		public ulong? Server { get; set; }
+		public ulong? Category { get; set; }
 		public ulong? Channel { get; set; }
 		public ulong? Thread { get; set; }
 		public ulong? Message { get; set; }

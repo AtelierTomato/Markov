@@ -28,7 +28,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		public AuthorRetortConfigRow(AuthorRetortConfig authorRetortConfig)
 		{
 			Author = authorRetortConfig.Author.ToString();
-			Location = authorRetortConfig.Location?.ToString() ?? string.Empty;
+			Location = authorRetortConfig.Location.ToString();
 			DisplayOption = authorRetortConfig.DisplayOption.ToString();
 			FilterOIDs = string.Join(":::", authorRetortConfig.Filter.OIDs);
 			FilterAuthors = string.Join(":::", authorRetortConfig.Filter.Authors);
@@ -39,17 +39,6 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		}
 		public AuthorRetortConfig ToAuthorRetortConfig(MultiParser<IObjectOID> objectOIDParser)
 		{
-			// LOCATION
-			IObjectOID? location;
-			if (string.IsNullOrEmpty(Location))
-			{
-				location = null;
-			}
-			else
-			{
-				location = objectOIDParser.Parse(Location);
-			}
-
 			// DISPLAY OPTION
 			if (!Enum.TryParse<DisplayOptionType>(DisplayOption, out var displayOption))
 			{
@@ -89,7 +78,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			// RETURN
 			return new AuthorRetortConfig(
 				AuthorOID.Parse(Author),
-				location,
+				objectOIDParser.Parse(Location),
 				displayOption,
 				new SentenceFilter(
 					FilterOIDs.Split(":::").Select(objectOIDParser.Parse).ToList(),

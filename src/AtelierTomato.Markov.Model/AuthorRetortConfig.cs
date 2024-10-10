@@ -3,7 +3,7 @@
 	public record AuthorRetortConfig
 	(
 		AuthorOID Author,
-		IObjectOID? Location,
+		IObjectOID Location,
 		DisplayOptionType DisplayOption,
 		SentenceFilter Filter,
 		Guid? AuthorGroup = null,

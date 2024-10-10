@@ -168,7 +168,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 
 			var tags = new List<ITag> { userMentionTag, roleMentionTag, emojiTag, channelTag };
 
-			var result = target.ParseIntoSentenceTexts(input, tags);
+			var result = target.ParseIntoSentenceTexts(input, tags, DateTimeOffset.UtcNow);
 
 			result.Should().ContainSingle().And.Contain(output);
 
@@ -308,6 +308,27 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
 
 			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
+		}
+
+		[Theory]
+		[InlineData("1 2 3 4 5 <t:2396027640:R>", "1 2 3 4 5 in 21 years")]
+		[InlineData("1 2 3 4 5 <t:1396027640:R>", "1 2 3 4 5 10 years ago")]
+		[InlineData("1 2 3 4 5 <t:1731191051:R>", "1 2 3 4 5 in 1 month")]
+		[InlineData("1 2 3 4 5 <t:2396027640:D>", "1 2 3 4 5 December 4 , 2045")]
+		[InlineData("1 2 3 4 5 <t:2396027640:d>", "1 2 3 4 5 12/04/2045")]
+		[InlineData("1 2 3 4 5 <t:2396027640:T>", "1 2 3 4 5 7:14:00 PM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:t>", "1 2 3 4 5 7:14 PM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:F>", "1 2 3 4 5 Monday , December 4 , 2045 7:14 PM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:f>", "1 2 3 4 5 December 4 , 2045 7:14 PM")]
+		public void ReplaceTimestampsTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var result = target.ParseIntoSentenceTexts(input, [], DateTimeOffset.FromUnixTimeSeconds(1728511273));
 
 			result.Should().BeEquivalentTo(output);
 		}

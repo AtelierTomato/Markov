@@ -1,6 +1,6 @@
 ﻿namespace AtelierTomato.Markov.Model
 {
-	public record AuthorSetting
+	public record AuthorRetortConfig
 	(
 		AuthorOID Author,
 		IObjectOID? Location,

@@ -2,7 +2,7 @@
 
 namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
-	public class AuthorSettingRow
+	public class AuthorRetortConfigRow
 	{
 		public string Author { get; set; }
 		public string Location { get; set; }
@@ -13,7 +13,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		public string? LocationGroup { get; set; }
 		public string? Keyword { get; set; }
 		public string? FirstWord { get; set; }
-		public AuthorSettingRow(string author, string location, string displayOption, string filterOIDs, string filterAuthors, string? authorGroup = null, string? locationGroup = null, string? keyword = null, string? firstWord = null)
+		public AuthorRetortConfigRow(string author, string location, string displayOption, string filterOIDs, string filterAuthors, string? authorGroup = null, string? locationGroup = null, string? keyword = null, string? firstWord = null)
 		{
 			Author = author;
 			Location = location;
@@ -25,19 +25,19 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			Keyword = keyword;
 			FirstWord = firstWord;
 		}
-		public AuthorSettingRow(AuthorSetting authorSetting)
+		public AuthorRetortConfigRow(AuthorRetortConfig authorRetortConfig)
 		{
-			Author = authorSetting.Author.ToString();
-			Location = authorSetting.Location?.ToString() ?? string.Empty;
-			DisplayOption = authorSetting.DisplayOption.ToString();
-			FilterOIDs = string.Join(":::", authorSetting.Filter.OIDs);
-			FilterAuthors = string.Join(":::", authorSetting.Filter.Authors);
-			AuthorGroup = authorSetting.AuthorGroup?.ToString();
-			LocationGroup = authorSetting.LocationGroup?.ToString();
-			Keyword = authorSetting.Keyword;
-			FirstWord = authorSetting.FirstWord;
+			Author = authorRetortConfig.Author.ToString();
+			Location = authorRetortConfig.Location?.ToString() ?? string.Empty;
+			DisplayOption = authorRetortConfig.DisplayOption.ToString();
+			FilterOIDs = string.Join(":::", authorRetortConfig.Filter.OIDs);
+			FilterAuthors = string.Join(":::", authorRetortConfig.Filter.Authors);
+			AuthorGroup = authorRetortConfig.AuthorGroup?.ToString();
+			LocationGroup = authorRetortConfig.LocationGroup?.ToString();
+			Keyword = authorRetortConfig.Keyword;
+			FirstWord = authorRetortConfig.FirstWord;
 		}
-		public AuthorSetting ToAuthorSetting(MultiParser<IObjectOID> objectOIDParser)
+		public AuthorRetortConfig ToAuthorRetortConfig(MultiParser<IObjectOID> objectOIDParser)
 		{
 			// LOCATION
 			IObjectOID? location;
@@ -87,7 +87,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			}
 
 			// RETURN
-			return new AuthorSetting(
+			return new AuthorRetortConfig(
 				AuthorOID.Parse(Author),
 				location,
 				displayOption,

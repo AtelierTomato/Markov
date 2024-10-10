@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS "AuthorGroupRequest" (
 	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
 	PRIMARY KEY("ID","Author")
 );
-CREATE TABLE IF NOT EXISTS "AuthorSetting" (
+CREATE TABLE IF NOT EXISTS "AuthorRetortConfig" (
 	"Author" TEXT NOT NULL,
 	"Location" TEXT NOT NULL,
 	"DisplayOption" TEXT NOT NULL,

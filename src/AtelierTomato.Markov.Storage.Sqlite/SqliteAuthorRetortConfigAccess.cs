@@ -85,7 +85,8 @@ FROM {nameof(AuthorRetortConfig)}
 SELECT {nameof(AuthorRetortConfig.Author)}, {nameof(AuthorRetortConfig.Location)}, {nameof(AuthorRetortConfig.DisplayOption)}, {nameof(AuthorRetortConfig.Filter)}{nameof(SentenceFilter.OIDs)}, {nameof(AuthorRetortConfig.Filter)}{nameof(SentenceFilter.Authors)}, {nameof(AuthorRetortConfig.AuthorGroup)}, {nameof(AuthorRetortConfig.LocationGroup)}, {nameof(AuthorRetortConfig.Keyword)}, {nameof(AuthorRetortConfig.FirstWord)}
 FROM {nameof(AuthorRetortConfig)} WHERE
 {nameof(AuthorRetortConfig.Author)} IS @author AND
-{nameof(AuthorRetortConfig.Location)} IS @location
+@location || ':' LIKE {nameof(AuthorRetortConfig.Location)} || ':%'
+ORDER BY LENGTH ({nameof(AuthorRetortConfig.Location)}) DESC LIMIT 1
 ",
 			new
 			{

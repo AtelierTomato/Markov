@@ -36,8 +36,12 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs!, connection);
 
 				await connection.ExecuteAsync($@"
-DELETE FROM {nameof(Sentence)} INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
-ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
+DELETE FROM {nameof(Sentence)}
+WHERE {nameof(Sentence)}.{nameof(Sentence.OID)} IN (
+	SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}
+	FROM {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
+	WHERE ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%')
+) AND
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",

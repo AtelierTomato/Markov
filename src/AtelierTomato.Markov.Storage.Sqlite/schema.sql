@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "Location" (
 );
 CREATE TABLE IF NOT EXISTS "AuthorPermission" (
 	"Author"	TEXT NOT NULL,
-	"QueryScope"	TEXT,
+	"QueryScope"	TEXT NOT NULL,
 	"AllowedScope"	TEXT,
 	PRIMARY KEY("Author","QueryScope")
 );
@@ -33,7 +33,7 @@ CREATE VIEW IF NOT EXISTS SentenceAfterLinkWithPermission As
 	INNER JOIN AuthorPermission up
 	ON s.Author = up.Author
 	AND (
-		up.QueryScope IS NULL 
+		up.QueryScope IS '' 
 		OR INSTR(s.OID, up.QueryScope) = 1
 	)
 	WHERE LENGTH(COALESCE(up.QueryScope, '')) = (

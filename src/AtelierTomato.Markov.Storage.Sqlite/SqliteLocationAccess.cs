@@ -22,7 +22,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<LocationRow>($@"SELECT {nameof(Location.ID)}, {nameof(Location.Name)} FROM {nameof(Location)} WHERE {nameof(Location.ID)} IN @ids",
+			var result = await connection.QueryAsync<LocationRow>($@"SELECT {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)} FROM {nameof(Location)} WHERE {nameof(Location.ID)} IN @ids",
 				new
 				{
 					ids = IDs.Select(i => i.ToString())
@@ -44,19 +44,41 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			foreach (LocationRow locationRow in locationRows)
 			{
 				await connection.ExecuteAsync($@"
-INSERT INTO {nameof(Location)} ( {nameof(Location.ID)}, {nameof(Location.Name)} )
-Values ( @id, @name )
+INSERT INTO {nameof(Location)} ( {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)} )
+Values ( @id, @name, @owner )
 ON CONFLICT ({nameof(Location.ID)}) DO UPDATE SET
 {nameof(Location.Name)} = excluded.{nameof(Location.Name)}
+{nameof(Location.Owner)} = excluded.{nameof(Location.Owner)}
 ",
 				new
 				{
 					id = locationRow.ID,
-					name = locationRow.Name
+					name = locationRow.Name,
+					owner = locationRow.Owner
 				});
 			}
 
 			await transaction.CommitAsync();
+		}
+
+		public async Task<AuthorOID?> ReadLocationOwner(IObjectOID ID)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QuerySingleOrDefaultAsync<string>($@"SELECT {nameof(Location.Owner)} FROM {nameof(Location)} WHERE @id || ':' LIKE {nameof(ID)} || ':%' ORDER BY Length(ID) DESC LIMIT 1",
+			new
+			{
+				id = ID.ToString()
+			});
+
+			connection.Close();
+
+			return result switch
+			{
+				null => null,
+				_ => AuthorOID.Parse(result)
+			};
 		}
 	}
 }

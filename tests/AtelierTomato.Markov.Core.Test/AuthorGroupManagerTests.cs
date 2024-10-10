@@ -39,6 +39,7 @@ namespace AtelierTomato.Markov.Core.Test
 			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
 			await authorGroupManager.CreateGroup(sender, "MyNewGroup");
 			Mock.Get(authorGroupAccess).Verify(g => g.WriteAuthorGroup(It.IsAny<AuthorGroup>()), Times.Once);
+			Mock.Get(authorGroupPermissionAccess).Verify(g => g.WriteAuthorGroupPermission(It.IsAny<AuthorGroupPermission>()), Times.Once);
 		}
 
 		[Theory]

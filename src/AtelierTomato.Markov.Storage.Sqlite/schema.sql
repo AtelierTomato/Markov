@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS "Location" (
 );
 CREATE TABLE IF NOT EXISTS "AuthorPermission" (
 	"Author"	TEXT NOT NULL,
-	"QueryScope"	TEXT,
+	"QueryScope"	TEXT NOT NULL,
 	"AllowedScope"	TEXT,
 	PRIMARY KEY("Author","QueryScope")
 );
@@ -34,7 +34,7 @@ CREATE VIEW IF NOT EXISTS SentenceAfterLinkWithPermission As
 	INNER JOIN AuthorPermission up
 	ON s.Author = up.Author
 	AND (
-		up.QueryScope IS NULL 
+		up.QueryScope IS '' 
 		OR INSTR(s.OID, up.QueryScope) = 1
 	)
 	WHERE LENGTH(COALESCE(up.QueryScope, '')) = (
@@ -64,6 +64,18 @@ CREATE TABLE IF NOT EXISTS "AuthorGroupRequest" (
 	"Permissions"	TEXT,
 	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
 	PRIMARY KEY("ID","Author")
+);
+CREATE TABLE IF NOT EXISTS "AuthorRetortConfig" (
+	"Author" TEXT NOT NULL,
+	"Location" TEXT NOT NULL,
+	"DisplayOption" TEXT NOT NULL,
+	"FilterOIDs" TEXT NOT NULL,
+	"FilterAuthors" TEXT NOT NULL,
+	"AuthorGroup" TEXT,
+	"LocationGroup" TEXT,
+	"Keyword" TEXT,
+	"FirstWord" TEXT,
+	PRIMARY KEY("Author","Location")
 );
 CREATE TABLE IF NOT EXISTS "LocationGroup" (
 	"ID"	TEXT NOT NULL UNIQUE,

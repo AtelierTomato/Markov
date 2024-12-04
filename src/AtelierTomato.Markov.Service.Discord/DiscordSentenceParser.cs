@@ -1,7 +1,10 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Service.Discord.MarkdigExtensions;
 using Discord;
+using Humanizer;
+using Humanizer.Localisation;
 using Markdig;
 using Markdig.Extensions.EmphasisExtras;
 using Microsoft.Extensions.Options;
@@ -15,6 +18,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		private readonly Regex escapeQuoteArrowPattern = new(@"(?<=^|\n)(>)(?=\S)(?!>)", RegexOptions.Compiled);
 		private readonly Regex replaceEmojiPattern = new(@"<a?:([^:]+):[0-9]+>", RegexOptions.Compiled);
 		private readonly Regex removeNegativeHeaderPattern = new(@"(?<=^|\n)(-# )(?=\S)", RegexOptions.Compiled);
+		private readonly Regex replaceTimestampPattern = new(@"<t:(\d+):([RDdTtFf])>", RegexOptions.Compiled);
 
 		private readonly DiscordSentenceParserOptions discordOptions;
 		private readonly MarkdownPipeline pipeline;
@@ -24,9 +28,10 @@ namespace AtelierTomato.Markov.Service.Discord
 			pipeline = new MarkdownPipelineBuilder().UseEmphasisExtras(EmphasisExtraOptions.Strikethrough).Use<SpoilerExtension>().Build();
 		}
 
-		public IEnumerable<string> ParseIntoSentenceTexts(string text, IEnumerable<ITag> tags)
+		public IEnumerable<string> ParseIntoSentenceTexts(string text, IEnumerable<ITag> tags, DateTimeOffset dateSent)
 		{
 			text = ReplaceTagEntities(text, tags);
+			text = ReplaceTimestamps(text, dateSent);
 			return ParseIntoSentenceTexts(text);
 		}
 
@@ -105,6 +110,28 @@ namespace AtelierTomato.Markov.Service.Discord
 		private string DeleteInlineCodeBlocks(string text) => inlineCodeBlockPattern.Replace(text, " ");
 		private string EscapeQuoteArrow(string text) => escapeQuoteArrowPattern.Replace(text, m => "\\" + m.Groups[1].Value);
 		private string RemoveNegativeHeader(string text) => removeNegativeHeaderPattern.Replace(text, m => "");
+		private string ReplaceTimestamps(string text, DateTimeOffset dateSent) => replaceTimestampPattern.Replace(text, m =>
+		{
+			if (!long.TryParse(m.Groups[1].Value, out long dateNumber))
+			{
+				throw new ArgumentException("Could not parse a long value from the input.", nameof(text));
+			}
+			var date = DateTimeOffset.FromUnixTimeSeconds(dateNumber).UtcDateTime;
+			TimeSpan timeSpan = date - dateSent;
+			return m.Groups[2].Value switch
+			{
+				"R" => date > dateSent
+					? "in " + timeSpan.Humanize(maxUnit: TimeUnit.Year, minUnit: TimeUnit.Second)
+					: timeSpan.Humanize(maxUnit: TimeUnit.Year, minUnit: TimeUnit.Second) + " ago",
+				"D" => date.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture),
+				"d" => date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture),
+				"T" => date.ToString("h:mm:ss tt", CultureInfo.InvariantCulture),
+				"t" => date.ToString("h:mm tt", CultureInfo.InvariantCulture),
+				"F" => date.ToString("dddd, MMMM d, yyyy h:mm tt", CultureInfo.InvariantCulture),
+				"f" => date.ToString("MMMM d, yyyy h:mm tt", CultureInfo.InvariantCulture),
+				_ => throw new ArgumentException("Could not parse a valid display format from the input.", nameof(text))
+			};
+		});
 		private string ReplaceEmoji(string text) => replaceEmojiPattern.Replace(text, m => "e:" + m.Groups[1].Value + ":");
 		protected override IEnumerable<string> TokenizeProcessedSentence(string s) => s.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Where(w => !w.Contains("discord.gg"));
 	}

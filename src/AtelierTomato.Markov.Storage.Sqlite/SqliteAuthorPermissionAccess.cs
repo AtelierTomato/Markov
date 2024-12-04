@@ -38,8 +38,10 @@ FROM {nameof(AuthorPermission)}
 
 			var result = await connection.QuerySingleOrDefaultAsync<AuthorPermissionRow>($@"
 SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
-FROM {nameof(AuthorPermission)}
-WHERE {nameof(AuthorPermission.Author)} = @author AND {nameof(AuthorPermission.QueryScope)} = @queryScope
+FROM {nameof(AuthorPermission)} WHERE
+{nameof(AuthorPermission.Author)} = @author AND
+@queryScope || ':' LIKE {nameof(AuthorPermission.QueryScope)} || ':%'
+ORDER BY LENGTH ({nameof(AuthorPermission.QueryScope)}) DESC LIMIT 1
 ",
 			new
 			{

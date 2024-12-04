@@ -64,4 +64,16 @@ CREATE TABLE IF NOT EXISTS "AuthorGroupRequest" (
 	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
 	PRIMARY KEY("ID","Author")
 );
+CREATE TABLE IF NOT EXISTS "AuthorRetortConfig" (
+	"Author" TEXT NOT NULL,
+	"Location" TEXT NOT NULL,
+	"DisplayOption" TEXT NOT NULL,
+	"FilterOIDs" TEXT NOT NULL,
+	"FilterAuthors" TEXT NOT NULL,
+	"AuthorGroup" TEXT,
+	"LocationGroup" TEXT,
+	"Keyword" TEXT,
+	"FirstWord" TEXT,
+	PRIMARY KEY("Author","Location")
+);
 COMMIT;

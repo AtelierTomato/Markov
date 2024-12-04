@@ -142,7 +142,7 @@ namespace AtelierTomato.Markov.Core
 			var authorGroupPerissionsWithDeleteGroup = authorGroupPermissions.Where(p => p.Permissions.HasFlag(AuthorGroupPermissionType.DeleteGroup));
 			if (!authorGroupPerissionsWithDeleteGroup.Any())
 			{
-				_logOrphanedGroupWarning(logger, ID, null);
+				_logOrphanedAuthorGroupWarning(logger, ID, null);
 				throw new InvalidOperationException($"""The {nameof(AuthorGroup)} with ID "{ID}" has no members with permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. This is unexpected.""");
 			}
 			if (authorGroupPerissionsWithDeleteGroup.Count() is 1)
@@ -152,7 +152,7 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(ID, sender);
 		}
 
-		private static readonly Action<ILogger, Guid, Exception?> _logOrphanedGroupWarning =
+		private static readonly Action<ILogger, Guid, Exception?> _logOrphanedAuthorGroupWarning =
 			LoggerMessage.Define<Guid>(
 				LogLevel.Warning,
 				new EventId(2, nameof(LeaveGroup)),

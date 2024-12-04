@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS "Author" (
 CREATE TABLE IF NOT EXISTS "Location" (
 	"ID"	TEXT NOT NULL UNIQUE,
 	"Name"	TEXT NOT NULL,
+	"Owner"	TEXT NOT NULL,
 	PRIMARY KEY("ID")
 );
 CREATE TABLE IF NOT EXISTS "AuthorPermission" (
@@ -75,5 +76,24 @@ CREATE TABLE IF NOT EXISTS "AuthorRetortConfig" (
 	"Keyword" TEXT,
 	"FirstWord" TEXT,
 	PRIMARY KEY("Author","Location")
+);
+CREATE TABLE IF NOT EXISTS "LocationGroup" (
+	"ID"	TEXT NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
+	PRIMARY KEY("ID")
+);
+CREATE TABLE IF NOT EXISTS "LocationGroupPermission" (
+	"ID"	TEXT NOT NULL,
+	"Location"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "LocationGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Location")
+);
+CREATE TABLE IF NOT EXISTS "LocationGroupRequest" (
+	"ID"	TEXT NOT NULL,
+	"Location"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "LocationGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Location")
 );
 COMMIT;

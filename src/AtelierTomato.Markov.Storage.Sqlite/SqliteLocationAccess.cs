@@ -22,7 +22,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<LocationRow>($@"SELECT {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)} FROM {nameof(Location)} WHERE {nameof(Location.ID)} IN @ids",
+			var result = await connection.QueryAsync<LocationRow>($@"SELECT {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)}, {nameof(Location.GlobalEnabled)} FROM {nameof(Location)} WHERE {nameof(Location.ID)} IN @ids",
 				new
 				{
 					ids = IDs.Select(i => i.ToString())
@@ -44,17 +44,19 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			foreach (LocationRow locationRow in locationRows)
 			{
 				await connection.ExecuteAsync($@"
-INSERT INTO {nameof(Location)} ( {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)} )
-Values ( @id, @name, @owner )
+INSERT INTO {nameof(Location)} ( {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)}, {nameof(Location.GlobalEnabled)} )
+Values ( @id, @name, @owner, @globalEnabled )
 ON CONFLICT ({nameof(Location.ID)}) DO UPDATE SET
-{nameof(Location.Name)} = excluded.{nameof(Location.Name)}
-{nameof(Location.Owner)} = excluded.{nameof(Location.Owner)}
+{nameof(Location.Name)} = excluded.{nameof(Location.Name)},
+{nameof(Location.Owner)} = excluded.{nameof(Location.Owner)},
+{nameof(Location.GlobalEnabled)} = excluded.{nameof(Location.GlobalEnabled)}
 ",
 				new
 				{
 					id = locationRow.ID,
 					name = locationRow.Name,
-					owner = locationRow.Owner
+					owner = locationRow.Owner,
+					globalEnabled = locationRow.GlobalEnabled
 				});
 			}
 

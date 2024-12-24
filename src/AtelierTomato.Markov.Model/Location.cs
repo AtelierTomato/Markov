@@ -2,6 +2,6 @@
 {
 	public record Location
 	(
-		IObjectOID ID, string Name, AuthorOID Owner
+		IObjectOID ID, string Name, AuthorOID Owner, bool GlobalEnabled
 	);
 }

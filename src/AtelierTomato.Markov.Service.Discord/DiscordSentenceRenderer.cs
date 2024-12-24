@@ -8,7 +8,7 @@ namespace AtelierTomato.Markov.Service.Discord
 	{
 		private readonly Regex escapeRegex = new(@"
 (<a?:[^:]+:[0-9]+>)?	# Match to Discord emojis
-([*_~`>#|\\[\]()])?			# Match to symbols used in Markdown on Discord
+([*_~`>#|\\[\]()])?		# Match to symbols used in Markdown on Discord
 ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 		public string Render(string text, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> allEmojis)
 		{

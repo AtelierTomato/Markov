@@ -53,7 +53,7 @@ namespace AtelierTomato.Markov.Service.Discord
 			return base.ParseIntoSentenceTexts(text).Select(ReplaceEmoji);
 		}
 
-		private static string ReplaceTagEntities(string text, IEnumerable<ITag> tags)
+		private string ReplaceTagEntities(string text, IEnumerable<ITag> tags)
 		{
 			foreach (ITag tag in tags.OrderByDescending(e => e.Index))
 			{
@@ -66,7 +66,34 @@ namespace AtelierTomato.Markov.Service.Discord
 				switch (tag.Type)
 				{
 					case TagType.UserMention:
-						text = text.Remove(tag.Index, tag.Length).Insert(tag.Index, ((IUser)tag.Value).Username);
+						var user = (IUser)tag.Value;
+						string name;
+
+						// Check the options to determine what name we replace with when parsing.
+						switch (discordOptions.MentionNameParseType)
+						{
+							case DiscordMentionNameParseType.Invalid:
+								throw new InvalidOperationException($"MentionNameParseType cannot be {nameof(DiscordMentionNameParseType.Invalid)}.");
+							case DiscordMentionNameParseType.Username:
+								name = user.Username;
+								break;
+							case DiscordMentionNameParseType.GlobalName:
+								name = user.GlobalName ?? user.Username;
+								break;
+							case DiscordMentionNameParseType.DisplayName:
+								if (user is IGuildUser guildUser)
+								{
+									name = guildUser.DisplayName ?? guildUser.GlobalName ?? guildUser.Username;
+								}
+								else
+								{
+									name = user.GlobalName ?? user.Username;
+								}
+								break;
+							default:
+								throw new NotSupportedException($"Unknown {nameof(DiscordMentionNameParseType)} type.");
+						}
+						text = text.Remove(tag.Index, tag.Length).Insert(tag.Index, name);
 						break;
 					case TagType.RoleMention:
 					case TagType.ChannelMention:

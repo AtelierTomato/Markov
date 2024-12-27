@@ -47,7 +47,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 INSERT INTO {nameof(Location)} ( {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)} )
 Values ( @id, @name, @owner )
 ON CONFLICT ({nameof(Location.ID)}) DO UPDATE SET
-{nameof(Location.Name)} = excluded.{nameof(Location.Name)}
+{nameof(Location.Name)} = excluded.{nameof(Location.Name)},
 {nameof(Location.Owner)} = excluded.{nameof(Location.Owner)}
 ",
 				new

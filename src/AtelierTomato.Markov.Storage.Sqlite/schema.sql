@@ -22,6 +22,15 @@ CREATE TABLE IF NOT EXISTS "Location" (
 	"Owner"	TEXT NOT NULL,
 	PRIMARY KEY("ID")
 );
+CREATE TABLE IF NOT EXISTS "LocationSetting" (
+	"ID"	TEXT NOT NULL,
+	"WriteReactions"	TEXT NOT NULL,
+	"DeleteReactions"	TEXT NOT NULL,
+	"FailReactions"	TEXT NOT NULL,
+	"GlobalAllowed"	INTEGER,
+	"LocationGroup"	TEXT,
+	PRIMARY KEY("ID")
+);
 CREATE TABLE IF NOT EXISTS "AuthorPermission" (
 	"Author"	TEXT NOT NULL,
 	"QueryScope"	TEXT NOT NULL,

@@ -31,15 +31,17 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			connection.Close();
 		}
 
-		public async Task<LocationGroupPermission?> ReadLocationGroupPermission(Guid ID, IObjectOID location)
+		public async Task<LocationGroupPermission?> ReadLocationGroupPermission(Guid ID, IObjectOID location) => (await ReadLocationGroupPermissionHierarchyForGroup(ID, location)).FirstOrDefault();
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionHierarchyForGroup(Guid ID, IObjectOID location)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<LocationGroupPermissionRow>($@"
+			var result = await connection.QueryAsync<LocationGroupPermissionRow>($@"
 SELECT {nameof(LocationGroupPermission.ID)}, {nameof(LocationGroupPermission.Location)}, {nameof(LocationGroupPermission.Permissions)} FROM {nameof(LocationGroupPermission)} WHERE
 {nameof(LocationGroupPermission.ID)} IS @id AND
-{nameof(LocationGroupPermission.Location)} IS @location
+@location || ':' LIKE {nameof(LocationGroupPermission.Location)} || ':%'
+ORDER BY LENGTH({nameof(LocationGroupPermission.Location)}) DESC
 ",
 			new
 			{
@@ -49,17 +51,18 @@ SELECT {nameof(LocationGroupPermission.ID)}, {nameof(LocationGroupPermission.Loc
 
 			connection.Close();
 
-			return result?.ToLocationGroupPermission(objectOIDParser);
+			return result.Select(l => l.ToLocationGroupPermission(objectOIDParser));
 		}
 
-		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByLocation(IObjectOID location)
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByBaseLocation(IObjectOID location)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QueryAsync<LocationGroupPermissionRow>($@"
 SELECT {nameof(LocationGroupPermission.ID)}, {nameof(LocationGroupPermission.Location)}, {nameof(LocationGroupPermission.Permissions)} FROM {nameof(LocationGroupPermission)}
-WHERE {nameof(LocationGroupPermission.Location)} IS @location
+WHERE {nameof(LocationGroupPermission.Location)} || ':' LIKE @location || ':%'
+ORDER BY LENGTH({nameof(LocationGroupPermission.Location)}) ASC
 ",
 			new
 			{
@@ -68,7 +71,27 @@ WHERE {nameof(LocationGroupPermission.Location)} IS @location
 
 			connection.Close();
 
-			return result.Select(p => p.ToLocationGroupPermission(objectOIDParser));
+			return result.Select(l => l.ToLocationGroupPermission(objectOIDParser));
+		}
+
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionHierarchy(IObjectOID location)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<LocationGroupPermissionRow>($@"
+SELECT {nameof(LocationGroupPermission.ID)}, {nameof(LocationGroupPermission.Location)}, {nameof(LocationGroupPermission.Permissions)} FROM {nameof(LocationGroupPermission)}
+WHERE @location || ':' LIKE {nameof(LocationGroupPermission.Location)} || ':%'
+ORDER BY LENGTH({nameof(LocationGroupPermission.Location)}) DESC
+",
+			new
+			{
+				location = location.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(l => l.ToLocationGroupPermission(objectOIDParser));
 		}
 
 

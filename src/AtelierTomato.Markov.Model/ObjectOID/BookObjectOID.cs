@@ -12,7 +12,6 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		public string? Chapter { get; set; }
 		public int? Paragraph { get; set; }
 		public int? Sentence { get; set; }
-
 		private BookObjectOID(string instance, string? series = null, string? book = null, string? chapter = null, int? paragraph = null, int? sentence = null)
 		{
 			Instance = instance;
@@ -86,6 +85,13 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 				throw new ArgumentException("The part of the BookObjectOID corresponding to the sentence was not able to be parsed into an integer value.", nameof(OID));
 
 			return ForSentence(instance, series, book, chapter, paragraph, sentence);
+		}
+		public IObjectOID Base()
+		{
+			if (Series is not null)
+				return ForSeries(Instance, Series);
+			else
+				return this;
 		}
 
 		public override string ToString()

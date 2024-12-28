@@ -4,6 +4,7 @@
 	{
 		ServiceType Service { get; }
 		string Instance { get; }
+		IObjectOID Base();
 		string ToString();
 	}
 }

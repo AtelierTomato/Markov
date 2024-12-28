@@ -10,13 +10,17 @@ namespace AtelierTomato.Markov.Core
 		private readonly ILocationGroupAccess locationGroupAccess;
 		private readonly ILocationGroupPermissionAccess locationGroupPermissionAccess;
 		private readonly ILocationGroupRequestAccess locationGroupRequestAccess;
+		private readonly ILocationSettingAccess locationSettingAccess;
+		private readonly IAuthorRetortConfigAccess authorRetortConfigAccess;
 		private readonly ILogger<LocationGroupManager> logger;
-		public LocationGroupManager(ILocationAccess locationAccess, ILocationGroupAccess locationGroupAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILogger<LocationGroupManager> logger)
+		public LocationGroupManager(ILocationAccess locationAccess, ILocationGroupAccess locationGroupAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILogger<LocationGroupManager> logger)
 		{
 			this.locationAccess = locationAccess;
 			this.locationGroupAccess = locationGroupAccess;
 			this.locationGroupPermissionAccess = locationGroupPermissionAccess;
 			this.locationGroupRequestAccess = locationGroupRequestAccess;
+			this.locationSettingAccess = locationSettingAccess;
+			this.authorRetortConfigAccess = authorRetortConfigAccess;
 			this.logger = logger;
 		}
 
@@ -153,5 +157,70 @@ namespace AtelierTomato.Markov.Core
 				LogLevel.Warning,
 				new EventId(3, nameof(RemoveLocation)),
 				"""The LocationGroup with ID "{ID}" has no members with permission DeleteGroup. This is unexpected.""");
+
+		/// <summary>
+		/// Gets the currently in use LocationGroup for the location, the LocationGroup the user would like to use, and the Filter that the user would like to use,
+		/// finds the intersecting locations in both location groups, and the intersection locations in the filter, returns the result.
+		/// </summary>
+		/// <param name="author"></param>
+		/// <param name="location"></param>
+		/// <returns></returns>
+		public async Task<IEnumerable<IObjectOID>> GetLocationsForFilter(AuthorOID author, IObjectOID location)
+		{
+			IEnumerable<IObjectOID> usableLocations = [location.Base()];
+			var locationSettingHierarchy = await locationSettingAccess.ReadLocationSettingHierarchy(location);
+			Guid? locationPreferredLocationGroupID = null;
+			bool globalAllowed = false;
+			foreach (var locationSetting in locationSettingHierarchy)
+			{
+				if (locationSetting.GlobalAllowed is not null && (bool)locationSetting.GlobalAllowed)
+				{
+					globalAllowed = true;
+					break;
+				}
+				if (locationSetting.LocationGroup is not null)
+				{
+					var permission = await locationGroupPermissionAccess.ReadLocationGroupPermission((Guid)locationSetting.LocationGroup, location);
+					if (permission is not null && permission.Permissions.HasFlag(LocationGroupPermissionType.UseGroup))
+					{
+						locationPreferredLocationGroupID = permission.ID;
+						break;
+					}
+				}
+			}
+			if (!globalAllowed && locationPreferredLocationGroupID is not null)
+			{
+				usableLocations = usableLocations.Concat(
+					(await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID((Guid)locationPreferredLocationGroupID))
+						.Where(l => l.Permissions.HasFlag(LocationGroupPermissionType.SentencesInGroup))
+						.Select(l => l.Location)
+				).Distinct();
+			}
+			var authorRetortConfig = await authorRetortConfigAccess.ReadAuthorRetortConfig(author, location);
+			if (authorRetortConfig is not null)
+			{
+				if (authorRetortConfig.LocationGroup is not null)
+				{
+					var authorPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner((Guid)authorRetortConfig.LocationGroup, author);
+					var locationPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission((Guid)authorRetortConfig.LocationGroup, location);
+					if (authorPermission.HasFlag(LocationGroupPermissionType.UseGroup) || locationPermission is not null && locationPermission.Permissions.HasFlag(LocationGroupPermissionType.UseGroup))
+					{
+						var authorUsableLocations = (await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID((Guid)authorRetortConfig.LocationGroup))
+							.Where(l => l.Permissions.HasFlag(LocationGroupPermissionType.SentencesInGroup))
+							.Select(l => l.Location)
+							.Distinct();
+						if (globalAllowed)
+						{
+							usableLocations = authorUsableLocations;
+						}
+						else
+						{
+							usableLocations = authorUsableLocations.Where(a => usableLocations.Any(u => (a.ToString() + ':').StartsWith(u.ToString() + ':', StringComparison.InvariantCulture))).ToList();
+						}
+					}
+				}
+			}
+			return authorRetortConfig?.Filter.OIDs.Where(f => usableLocations.Any(u => (f.ToString() + ':').StartsWith(u.ToString() + ':', StringComparison.InvariantCulture))).ToList() ?? usableLocations;
+		}
 	}
 }

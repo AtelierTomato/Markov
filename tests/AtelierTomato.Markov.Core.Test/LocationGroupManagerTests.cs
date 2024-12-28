@@ -681,5 +681,198 @@ namespace AtelierTomato.Markov.Core.Test
 			Mock.Get(locationGroupPermissionAccess).Verify();
 			Mock.Get(locationGroupPermissionAccess).Verify(g => g.DeleteLocationFromLocationGroup(guid, location));
 		}
+
+		[Fact]
+		public async Task GetLocationsForFilterGlobalDisabledTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(guid, location, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationGroupPermission2 = new LocationGroupPermission(guid, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationGroupPermission3 = new LocationGroupPermission(guid, DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620"), LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationGroupPermission4 = new LocationGroupPermission(guid, DiscordObjectOID.Parse("Discord:discord.com:302152934249070593"), LocationGroupPermissionType.UseGroup);
+			var authorLocationGroup = new Guid("1a0be0c3-32d0-4d0f-93a0-e86620fa848b");
+			var channel = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1318052420265316483:1318063513880494132");
+			var authorPermissions = LocationGroupPermissionType.AddLocation | LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.SentencesInGroup | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.RenameGroup;
+			IEnumerable<LocationGroupPermission> authorLocationGroupPermissions = [
+				new LocationGroupPermission(authorLocationGroup, location, authorPermissions), // in location group
+				new LocationGroupPermission(authorLocationGroup, DiscordObjectOID.Parse("Discord:discord.com:295808243509362700"), authorPermissions), // not in location group
+				new LocationGroupPermission(authorLocationGroup, senderLocation, authorPermissions), // in location group
+			];
+			var filter = new SentenceFilter(
+				[
+					channel, // transitively in location group and author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"), // transitively in location group, not in author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"), // not in location group nor author location group
+					senderLocation, // in location group and author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420") // transitively in location group and author location group
+				],
+				[author]
+			);
+			var authorRetortConfig = new AuthorRetortConfig(author, channel, DisplayOptionType.Mimic, filter, null, authorLocationGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(guid, channel))
+				.Returns(Task.FromResult<LocationGroupPermission?>(locationGroupPermission))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(guid))
+				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([locationGroupPermission, locationGroupPermission2, locationGroupPermission3, locationGroupPermission4]));
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(authorLocationGroup, author))
+				.Returns(Task.FromResult(authorPermissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(authorLocationGroup, channel))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(authorLocationGroup))
+				.Returns(Task.FromResult(authorLocationGroupPermissions))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			Mock.Get(locationSettingAccess)
+					.Setup(l => l.ReadLocationSettingHierarchy(channel))
+					.Returns(Task.FromResult<IEnumerable<LocationSetting>>(
+						[
+							new(channel, [], [], [], false, null),
+							new(location, [], [], [], false, guid),
+							new(DiscordObjectOID.Parse("Discord:discord.com"), [], [], [], false, new()) // Can be whatever, because the important thing is we *shouldn't* get here
+						]
+					))
+					.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			Mock.Get(authorRetortConfigAccess)
+					.Setup(l => l.ReadAuthorRetortConfig(author, channel))
+					.Returns(Task.FromResult<AuthorRetortConfig?>(authorRetortConfig))
+					.Verifiable();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
+			IEnumerable<IObjectOID> expectedData = [
+					channel,
+					senderLocation,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				];
+			result.Should().BeEquivalentTo(expectedData);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationSettingAccess).Verify();
+			Mock.Get(authorRetortConfigAccess).Verify();
+		}
+
+		[Fact]
+		public async Task GetLocationsForFilterGlobalEnabledTest()
+		{
+			var authorLocationGroup = new Guid("1a0be0c3-32d0-4d0f-93a0-e86620fa848b");
+			var channel = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1318052420265316483:1318063513880494132");
+			var authorPermissions = LocationGroupPermissionType.AddLocation | LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.SentencesInGroup | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.RenameGroup;
+			IEnumerable<LocationGroupPermission> authorLocationGroupPermissions = [
+				new LocationGroupPermission(authorLocationGroup, location, authorPermissions),
+				new LocationGroupPermission(authorLocationGroup, DiscordObjectOID.Parse("Discord:discord.com:295808243509362700"), authorPermissions),
+				new LocationGroupPermission(authorLocationGroup, senderLocation, authorPermissions),
+			];
+			var filter = new SentenceFilter(
+				[
+					channel, // transitively in author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"), // not in author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"), // not in author location group
+					senderLocation, // in author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420") // transitively in author location group
+				],
+				[author]
+			);
+			var authorRetortConfig = new AuthorRetortConfig(author, channel, DisplayOptionType.Mimic, filter, null, authorLocationGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(authorLocationGroup, author))
+				.Returns(Task.FromResult(authorPermissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(authorLocationGroup, channel))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(authorLocationGroup))
+				.Returns(Task.FromResult(authorLocationGroupPermissions))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			Mock.Get(locationSettingAccess)
+					.Setup(l => l.ReadLocationSettingHierarchy(channel))
+					.Returns(Task.FromResult<IEnumerable<LocationSetting>>(
+						[
+							new(channel, [], [], [], true, null),
+							new(location, [], [], [], false, guid), // In this test, this will also be ignored
+							new(DiscordObjectOID.Parse("Discord:discord.com"), [], [], [], false, new()) // Can be whatever, because the important thing is we *shouldn't* get here
+						]
+					))
+					.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			Mock.Get(authorRetortConfigAccess)
+					.Setup(l => l.ReadAuthorRetortConfig(author, channel))
+					.Returns(Task.FromResult<AuthorRetortConfig?>(authorRetortConfig))
+					.Verifiable();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
+			IEnumerable<IObjectOID> expectedData = [
+					channel,
+					senderLocation,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				];
+			result.Should().BeEquivalentTo(expectedData);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationSettingAccess).Verify();
+			Mock.Get(authorRetortConfigAccess).Verify();
+		}
+
+		[Fact]
+		public async Task GetLocationsForFilterNoGroupsTest()
+		{
+			var channel = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1318052420265316483:1318063513880494132");
+			var filter = new SentenceFilter(
+				[
+					channel,
+					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"),
+					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"),
+					senderLocation,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				],
+				[author]
+			);
+			var authorRetortConfig = new AuthorRetortConfig(author, channel, DisplayOptionType.Mimic, filter);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			Mock.Get(locationSettingAccess)
+					.Setup(l => l.ReadLocationSettingHierarchy(channel))
+					.Returns(Task.FromResult<IEnumerable<LocationSetting>>(
+						[
+							new(channel, [], [], [], false, null),
+							new(location, [], [], [], false, null),
+						]
+					))
+					.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			Mock.Get(authorRetortConfigAccess)
+					.Setup(l => l.ReadAuthorRetortConfig(author, channel))
+					.Returns(Task.FromResult<AuthorRetortConfig?>(authorRetortConfig))
+					.Verifiable();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
+			IEnumerable<IObjectOID> expectedData = [
+					channel,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				];
+			result.Should().BeEquivalentTo(expectedData);
+			Mock.Get(locationSettingAccess).Verify();
+			Mock.Get(authorRetortConfigAccess).Verify();
+		}
 	}
 }

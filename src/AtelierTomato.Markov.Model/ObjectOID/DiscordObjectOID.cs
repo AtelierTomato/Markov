@@ -101,6 +101,14 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			return ForSentence(instance, serverId, categoryId, channelId, threadId, messageId, sentenceId);
 		}
 
+		public IObjectOID Base()
+		{
+			if (Server is not null)
+				return ForServer(Instance, (ulong)Server);
+			else
+				return this;
+		}
+
 		public override string ToString()
 		{
 			var oidBuilder = new OIDBuilder(Service);

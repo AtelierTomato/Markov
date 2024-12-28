@@ -167,14 +167,20 @@ namespace AtelierTomato.Markov.Core
 		/// <returns></returns>
 		public async Task<IEnumerable<IObjectOID>> GetLocationsForFilter(AuthorOID author, IObjectOID location)
 		{
-			IEnumerable<IObjectOID> usableLocations = [location];
+			IEnumerable<IObjectOID> usableLocations = [location.Base()];
 			var locationSettingHierarchy = await locationSettingAccess.ReadLocationSettingHierarchy(location);
 			Guid? locationPreferredLocationGroupID = null;
-			foreach (var groupID in locationSettingHierarchy.Select(l => l.LocationGroup))
+			bool globalAllowed = false;
+			foreach (var locationSetting in locationSettingHierarchy)
 			{
-				if (groupID is not null)
+				if (locationSetting.GlobalAllowed is not null && (bool)locationSetting.GlobalAllowed)
 				{
-					var permission = await locationGroupPermissionAccess.ReadLocationGroupPermission((Guid)groupID, location);
+					globalAllowed = true;
+					break;
+				}
+				if (locationSetting.LocationGroup is not null)
+				{
+					var permission = await locationGroupPermissionAccess.ReadLocationGroupPermission((Guid)locationSetting.LocationGroup, location);
 					if (permission is not null && permission.Permissions.HasFlag(LocationGroupPermissionType.UseGroup))
 					{
 						locationPreferredLocationGroupID = permission.ID;
@@ -182,7 +188,7 @@ namespace AtelierTomato.Markov.Core
 					}
 				}
 			}
-			if (locationPreferredLocationGroupID is not null)
+			if (!globalAllowed && locationPreferredLocationGroupID is not null)
 			{
 				usableLocations = usableLocations.Concat(
 					(await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID((Guid)locationPreferredLocationGroupID))
@@ -203,8 +209,14 @@ namespace AtelierTomato.Markov.Core
 							.Where(l => l.Permissions.HasFlag(LocationGroupPermissionType.SentencesInGroup))
 							.Select(l => l.Location)
 							.Distinct();
-
-						usableLocations = authorUsableLocations.Where(a => usableLocations.Any(u => (a.ToString() + ':').StartsWith(u.ToString() + ':', StringComparison.InvariantCulture))).ToList();
+						if (globalAllowed)
+						{
+							usableLocations = authorUsableLocations;
+						}
+						else
+						{
+							usableLocations = authorUsableLocations.Where(a => usableLocations.Any(u => (a.ToString() + ':').StartsWith(u.ToString() + ':', StringComparison.InvariantCulture))).ToList();
+						}
 					}
 				}
 			}

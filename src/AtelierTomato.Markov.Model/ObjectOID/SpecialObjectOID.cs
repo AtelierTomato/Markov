@@ -43,6 +43,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 
 			return new SpecialObjectOID(match.Groups[nameof(Type)].Value);
 		}
+		public IObjectOID Base() => this;
 		public override string ToString()
 		{
 			var oidBuilder = new OIDBuilder(Service);

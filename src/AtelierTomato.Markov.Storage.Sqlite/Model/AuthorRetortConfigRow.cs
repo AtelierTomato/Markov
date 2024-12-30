@@ -4,15 +4,16 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class AuthorRetortConfigRow
 	{
-		public string Author { get; set; }
-		public string Location { get; set; }
-		public string DisplayOption { get; set; }
-		public string FilterOIDs { get; set; }
-		public string FilterAuthors { get; set; }
+		public string Author { get; set; } = string.Empty;
+		public string Location { get; set; } = string.Empty;
+		public string DisplayOption { get; set; } = string.Empty;
+		public string FilterOIDs { get; set; } = string.Empty;
+		public string FilterAuthors { get; set; } = string.Empty;
 		public string? AuthorGroup { get; set; }
 		public string? LocationGroup { get; set; }
 		public string? Keyword { get; set; }
 		public string? FirstWord { get; set; }
+		public AuthorRetortConfigRow() { }
 		public AuthorRetortConfigRow(string author, string location, string displayOption, string filterOIDs, string filterAuthors, string? authorGroup = null, string? locationGroup = null, string? keyword = null, string? firstWord = null)
 		{
 			Author = author;

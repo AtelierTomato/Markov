@@ -4,9 +4,10 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class LocationRow
 	{
-		public string ID { get; set; }
-		public string Name { get; set; }
-		public string Owner { get; set; }
+		public string ID { get; set; } = string.Empty;
+		public string Name { get; set; } = string.Empty;
+		public string Owner { get; set; } = string.Empty;
+		public LocationRow() { }
 		public LocationRow(string ID, string name, string owner)
 		{
 			this.ID = ID;

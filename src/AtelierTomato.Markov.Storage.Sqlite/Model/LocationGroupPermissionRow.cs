@@ -4,9 +4,10 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class LocationGroupPermissionRow
 	{
-		public string ID { get; set; }
-		public string Location { get; set; }
-		public string Permissions { get; set; }
+		public string ID { get; set; } = string.Empty;
+		public string Location { get; set; } = string.Empty;
+		public string Permissions { get; set; } = string.Empty;
+		public LocationGroupPermissionRow() { }
 		public LocationGroupPermissionRow(string ID, string location, string permissions)
 		{
 			this.ID = ID;

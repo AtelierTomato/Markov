@@ -45,8 +45,8 @@ ORDER BY LENGTH ({nameof(AuthorPermission.QueryScope)}) DESC LIMIT 1
 ",
 			new
 			{
-				author,
-				queryScope
+				author = author.ToString(),
+				queryScope = queryScope.ToString()
 			});
 
 			connection.Close();
@@ -66,8 +66,8 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 ",
 			new
 			{
-				authors,
-				queryScopes
+				authors = authors.Select(a => a.ToString()),
+				queryScopes = queryScopes.Select(q => q.ToString())
 			});
 
 			connection.Close();

@@ -4,9 +4,10 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class AuthorPermissionRow
 	{
-		public string Author { get; set; }
-		public string QueryScope { get; set; }
+		public string Author { get; set; } = string.Empty;
+		public string QueryScope { get; set; } = string.Empty;
 		public string? AllowedScope { get; set; }
+		public AuthorPermissionRow() { }
 		public AuthorPermissionRow(string author, string queryScope, string? allowedScope)
 		{
 			Author = author;

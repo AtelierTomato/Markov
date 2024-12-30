@@ -4,12 +4,13 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class LocationSettingRow
 	{
-		public string ID { get; set; }
-		public string WriteReactions { get; set; }
-		public string DeleteReactions { get; set; }
-		public string FailReactions { get; set; }
+		public string ID { get; set; } = string.Empty;
+		public string WriteReactions { get; set; } = string.Empty;
+		public string DeleteReactions { get; set; } = string.Empty;
+		public string FailReactions { get; set; } = string.Empty;
 		public int? GlobalAllowed { get; set; }
 		public string? LocationGroup { get; set; }
+		public LocationSettingRow() { }
 		public LocationSettingRow(string ID, string writeReactions, string deleteReactions, string failReactions, int? globalAllowed, string? locationGroup)
 		{
 			this.ID = ID;

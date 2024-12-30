@@ -9,12 +9,14 @@ namespace AtelierTomato.Markov.Core
 		private readonly IAuthorGroupAccess authorGroupAccess;
 		private readonly IAuthorGroupPermissionAccess authorGroupPermissionAccess;
 		private readonly IAuthorGroupRequestAccess authorGroupRequestAccess;
+		private readonly IAuthorRetortConfigAccess authorRetortConfigAccess;
 		private readonly ILogger<AuthorGroupManager> logger;
-		public AuthorGroupManager(IAuthorGroupAccess authorGroupAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, IAuthorGroupRequestAccess authorGroupRequestAccess, ILogger<AuthorGroupManager> logger)
+		public AuthorGroupManager(IAuthorGroupAccess authorGroupAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, IAuthorGroupRequestAccess authorGroupRequestAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILogger<AuthorGroupManager> logger)
 		{
 			this.authorGroupAccess = authorGroupAccess;
 			this.authorGroupPermissionAccess = authorGroupPermissionAccess;
 			this.authorGroupRequestAccess = authorGroupRequestAccess;
+			this.authorRetortConfigAccess = authorRetortConfigAccess;
 			this.logger = logger;
 		}
 
@@ -157,5 +159,41 @@ namespace AtelierTomato.Markov.Core
 				LogLevel.Warning,
 				new EventId(2, nameof(LeaveGroup)),
 				"""The AuthorGroup with ID "{ID}" has no members with permission DeleteGroup. This is unexpected.""");
+
+		public async Task<IEnumerable<AuthorOID>> GetAuthorsForFilter(AuthorOID author, IObjectOID location)
+		{
+			IEnumerable<AuthorOID> authors = [];
+			var retortSetting = await authorRetortConfigAccess.ReadAuthorRetortConfig(author, location);
+			if (retortSetting is null)
+			{
+				return authors;
+			}
+			if (retortSetting.AuthorGroup is not null)
+			{
+				var authorGroupPermissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID((Guid)retortSetting.AuthorGroup);
+				if (authorGroupPermissions.Where(a => a.Author == author).Any(a => a.Permissions.HasFlag(AuthorGroupPermissionType.UseGroup)))
+				{
+					authors = authorGroupPermissions.Where(a => a.Permissions.HasFlag(AuthorGroupPermissionType.SentencesInGroup)).Select(p => p.Author).Concat([author]).Distinct();
+				}
+				else
+				{
+					authors = [author];
+				}
+			}
+			else
+			{
+				authors = [author];
+			}
+			if (retortSetting.Filter.Authors is not [])
+			{
+				authors = authors.Intersect(retortSetting.Filter.Authors);
+			}
+			else
+			{
+				authors = [];
+			}
+			return authors;
+		}
+
 	}
 }

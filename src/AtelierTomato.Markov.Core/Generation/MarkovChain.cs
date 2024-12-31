@@ -10,14 +10,14 @@ namespace AtelierTomato.Markov.Core.Generation
 		private readonly MarkovChainOptions options = options.Value;
 		private static readonly Random random = new();
 
-		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null)
+		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null, IObjectOID? queryScope = null)
 		{
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
 			List<IObjectOID> prevIDs = [];
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
+				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword, queryScope);
 				if (sentence is null)
 					return string.Empty;
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
@@ -49,7 +49,7 @@ namespace AtelierTomato.Markov.Core.Generation
 					allowedRerolls = options.MaximumMarkovRerolls;
 				}
 
-				var sentences = await sentenceAccess.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, filter, keyword);
+				var sentences = await sentenceAccess.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, filter, keyword, queryScope);
 				if (sentences.Any())
 				{
 					foreach (var sent in sentences)

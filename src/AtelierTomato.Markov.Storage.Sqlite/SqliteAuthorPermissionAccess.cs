@@ -107,5 +107,26 @@ ON CONFLICT ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryS
 
 			await transaction.CommitAsync();
 		}
+
+		public async Task DeleteAuthorPermission(AuthorOID author, IObjectOID queryScope)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+
+			connection.Open();
+
+			await connection.ExecuteAsync($@"
+DELETE FROM {nameof(AuthorPermission)}
+WHERE {nameof(AuthorPermission.Author)} IS @author
+AND {nameof(AuthorPermission.QueryScope)} IS @queryScope
+			",
+				new
+				{
+					author = author.ToString(),
+					queryScope = queryScope.ToString()
+				}
+			);
+
+			connection.Close();
+		}
 	}
 }

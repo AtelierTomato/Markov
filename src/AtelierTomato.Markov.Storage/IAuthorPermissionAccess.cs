@@ -9,5 +9,6 @@ namespace AtelierTomato.Markov.Storage
 		Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID> queryScopes);
 		Task WriteAuthorPermission(AuthorPermission authorPermission);
 		Task WriteAuthorPermissionRange(IEnumerable<AuthorPermission> authorPermissions);
+		Task DeleteAuthorPermission(AuthorOID author, IObjectOID queryScope);
 	}
 }

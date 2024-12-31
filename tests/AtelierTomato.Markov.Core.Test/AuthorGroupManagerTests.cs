@@ -21,8 +21,9 @@ namespace AtelierTomato.Markov.Core.Test
 			var authorGroupAccess = Mock.Of<IAuthorGroupAccess>();
 			var authorGroupPermissionAccess = Mock.Of<IAuthorGroupPermissionAccess>();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 #pragma warning disable CS8604 // Possible null reference argument.
 			Func<Task> act = async () => await authorGroupManager.CreateGroup(sender, name);
 #pragma warning restore CS8604 // Possible null reference argument.
@@ -35,8 +36,9 @@ namespace AtelierTomato.Markov.Core.Test
 			var authorGroupAccess = Mock.Of<IAuthorGroupAccess>();
 			var authorGroupPermissionAccess = Mock.Of<IAuthorGroupPermissionAccess>();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			await authorGroupManager.CreateGroup(sender, "MyNewGroup");
 			Mock.Get(authorGroupAccess).Verify(g => g.WriteAuthorGroup(It.IsAny<AuthorGroup>()), Times.Once);
 			Mock.Get(authorGroupPermissionAccess).Verify(g => g.WriteAuthorGroupPermission(It.IsAny<AuthorGroupPermission>()), Times.Once);
@@ -51,8 +53,9 @@ namespace AtelierTomato.Markov.Core.Test
 			var authorGroupAccess = Mock.Of<IAuthorGroupAccess>();
 			var authorGroupPermissionAccess = Mock.Of<IAuthorGroupPermissionAccess>();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 #pragma warning disable CS8604 // Possible null reference argument.
 			Func<Task> act = async () => await authorGroupManager.RenameGroup(sender, guid, name);
 #pragma warning restore CS8604 // Possible null reference argument.
@@ -69,8 +72,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.RenameGroup(sender, guid, "MyNewerGroup");
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not registered to group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -86,8 +90,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.RenameGroup(sender, guid, "MyNewerGroup");
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to rename group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -103,8 +108,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup | AuthorGroupPermissionType.RenameGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			await authorGroupManager.RenameGroup(sender, guid, "MyNewerGroup");
 			Mock.Get(authorGroupAccess).Verify(g => g.WriteAuthorGroup(new(guid, "MyNewerGroup")), Times.Once);
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -120,8 +126,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.DeleteGroup(sender, guid);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not registered to group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -137,8 +144,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.DeleteGroup(sender, guid);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to delete group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -154,8 +162,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup | AuthorGroupPermissionType.DeleteGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			await authorGroupManager.DeleteGroup(sender, guid);
 			Mock.Get(authorGroupAccess).Verify(g => g.DeleteAuthorGroup(guid), Times.Once);
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -167,8 +176,9 @@ namespace AtelierTomato.Markov.Core.Test
 			var authorGroupAccess = Mock.Of<IAuthorGroupAccess>();
 			var authorGroupPermissionAccess = Mock.Of<IAuthorGroupPermissionAccess>();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.SendOrUpdateAuthorGroupRequest(sender, new(guid, sender, new()));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"You cannot invite yourself to a group. (Parameter 'sender')");
 		}
@@ -183,8 +193,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.SendOrUpdateAuthorGroupRequest(sender, new(guid, author, new()));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not registered to group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -200,8 +211,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.SendOrUpdateAuthorGroupRequest(sender, new(guid, author, new()));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to add authors to group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -221,8 +233,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, author, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.SendOrUpdateAuthorGroupRequest(sender, new(guid, author, new()));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{author}" is already registered to group with ID "{guid}". (Parameter 'authorGroupPermission')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -243,8 +256,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, senderPerms)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.SendOrUpdateAuthorGroupRequest(sender, new(guid, author, authorPerms));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have some of the permissions they are trying to assign. (Parameter 'authorGroupPermission')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -260,8 +274,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup | AuthorGroupPermissionType.AddAuthor)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			AuthorGroupPermission authorGroupPermission = new(guid, author, new());
 			await authorGroupManager.SendOrUpdateAuthorGroupRequest(sender, authorGroupPermission);
 			Mock.Get(authorGroupRequestAccess).Verify(r => r.WriteAuthorGroupRequest(authorGroupPermission), Times.Once);
@@ -278,8 +293,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Setup(a => a.ReadAuthorGroupRequest(guid, sender))
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.AcceptInvitation(sender, guid);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" has not been sent an invitation to group with ID "{guid}". (Parameter 'ID')""");
 			Mock.Get(authorGroupRequestAccess).Verify();
@@ -296,8 +312,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Setup(a => a.ReadAuthorGroupRequest(guid, sender))
 				.Returns(Task.FromResult<AuthorGroupPermission?>(authorGroupPermission))
 				.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			await authorGroupManager.AcceptInvitation(sender, guid);
 			Mock.Get(authorGroupRequestAccess).Verify(r => r.DeleteAuthorGroupRequest(guid, sender), Times.Once);
 			Mock.Get(authorGroupPermissionAccess).Verify(p => p.WriteAuthorGroupPermission(authorGroupPermission), Times.Once);
@@ -313,8 +330,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Setup(a => a.ReadAuthorGroupRequest(guid, sender))
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.DenyInvitation(sender, guid);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" has not been sent an invitation to group with ID "{guid}". (Parameter 'ID')""");
 			Mock.Get(authorGroupRequestAccess).Verify();
@@ -331,8 +349,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Setup(a => a.ReadAuthorGroupRequest(guid, sender))
 				.Returns(Task.FromResult<AuthorGroupPermission?>(authorGroupPermission))
 				.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			await authorGroupManager.DenyInvitation(sender, guid);
 			Mock.Get(authorGroupRequestAccess).Verify(r => r.DeleteAuthorGroupRequest(guid, sender), Times.Once);
 		}
@@ -343,8 +362,9 @@ namespace AtelierTomato.Markov.Core.Test
 			var authorGroupAccess = Mock.Of<IAuthorGroupAccess>();
 			var authorGroupPermissionAccess = Mock.Of<IAuthorGroupPermissionAccess>();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.UpdateAuthor(sender, new(guid, sender, new()));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"You cannot update your own permissions in a group. (Parameter 'sender')");
 		}
@@ -358,8 +378,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.UpdateAuthor(sender, new(guid, author, new()));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not registered to group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -375,8 +396,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.UpdateAuthor(sender, new(guid, author, new()));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to add authors to group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -397,8 +419,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, senderPerms)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.UpdateAuthor(sender, new(guid, author, authorPerms));
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have some of the permissions they are trying to assign. (Parameter 'authorGroupPermission')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -414,8 +437,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup | AuthorGroupPermissionType.AddAuthor)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			AuthorGroupPermission authorGroupPermission = new(guid, author, new());
 			await authorGroupManager.UpdateAuthor(sender, authorGroupPermission);
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -428,8 +452,9 @@ namespace AtelierTomato.Markov.Core.Test
 			var authorGroupAccess = Mock.Of<IAuthorGroupAccess>();
 			var authorGroupPermissionAccess = Mock.Of<IAuthorGroupPermissionAccess>();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.RemoveAuthor(sender, guid, sender);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""You cannot remove yourself from a group. Please use the "{nameof(AuthorGroupManager.LeaveGroup)}" function instead. (Parameter 'user')""");
 		}
@@ -444,8 +469,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.RemoveAuthor(sender, guid, author);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not registered to group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -461,8 +487,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.RemoveAuthor(sender, guid, author);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to remove authors from group with ID "{guid}". (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -482,8 +509,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(null))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.RemoveAuthor(sender, guid, author);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{author}" is not registered to group with ID "{guid}". (Parameter 'user')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -508,8 +536,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, author, authorPerms)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.RemoveAuthor(sender, guid, author);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have some of the permissions that the author they are trying to remove has. (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -529,8 +558,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<AuthorGroupPermission?>(new AuthorGroupPermission(guid, author, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			await authorGroupManager.RemoveAuthor(sender, guid, author);
 			Mock.Get(authorGroupPermissionAccess).Verify();
 			Mock.Get(authorGroupPermissionAccess).Verify(p => p.DeleteAuthorFromAuthorGroup(guid, author), Times.Once);
@@ -546,8 +576,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<IEnumerable<AuthorGroupPermission>>([]))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.LeaveGroup(sender, guid);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" cannot leave group with ID "{guid}" as they are not registered to it. (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -563,8 +594,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<IEnumerable<AuthorGroupPermission>>([new(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup)]))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.LeaveGroup(sender, guid);
 			await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"""The {nameof(AuthorGroup)} with ID "{guid}" has no members with permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. This is unexpected.""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -580,8 +612,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<IEnumerable<AuthorGroupPermission>>([new(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup | AuthorGroupPermissionType.DeleteGroup)]))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			Func<Task> act = async () => await authorGroupManager.LeaveGroup(sender, guid);
 			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" cannot leave group with ID "{guid}" as they are the only member of it that has the permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. Please use "{nameof(AuthorGroupManager.DeleteGroup)}" function instead. (Parameter 'sender')""");
 			Mock.Get(authorGroupPermissionAccess).Verify();
@@ -597,8 +630,9 @@ namespace AtelierTomato.Markov.Core.Test
 				.Returns(Task.FromResult<IEnumerable<AuthorGroupPermission>>([new(guid, sender, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup | AuthorGroupPermissionType.DeleteGroup), new(guid, author, AuthorGroupPermissionType.SentencesInGroup | AuthorGroupPermissionType.UseGroup | AuthorGroupPermissionType.DeleteGroup)]))
 				.Verifiable();
 			var authorGroupRequestAccess = Mock.Of<IAuthorGroupRequestAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
 			var logger = Mock.Of<ILogger<AuthorGroupManager>>();
-			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, logger);
+			var authorGroupManager = new AuthorGroupManager(authorGroupAccess, authorGroupPermissionAccess, authorGroupRequestAccess, authorRetortConfigAccess, logger);
 			await authorGroupManager.LeaveGroup(sender, guid);
 			Mock.Get(authorGroupPermissionAccess).Verify();
 			Mock.Get(authorGroupPermissionAccess).Verify(p => p.DeleteAuthorFromAuthorGroup(guid, sender), Times.Once);

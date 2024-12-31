@@ -113,7 +113,7 @@ namespace AtelierTomato.Markov.Model.Test
 		public void BookParseOnlyHasSerivceTypeTest()
 		{
 			Action act = () => BookObjectOID.Parse("Book");
-			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid BookObjectOID. (Parameter 'OID')");
+			act.Should().Throw<ArgumentException>().WithMessage($"OIDs of type '{nameof(BookObjectOID)}' must have an Instance field to be valid.");
 		}
 		[Fact]
 		public void BookParseParagraphNotIntTest()

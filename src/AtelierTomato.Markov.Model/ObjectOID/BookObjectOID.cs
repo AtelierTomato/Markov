@@ -50,6 +50,10 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			if (match.Groups[nameof(ServiceType)].Value != ServiceType.Book.ToString())
 				throw new ArgumentException("The OID given is not a BookObjectOID, as it does not begin with Book.", nameof(OID));
 
+			if (!match.Groups[nameof(Instance)].Success)
+			{
+				throw new ArgumentException($"OIDs of type '{nameof(BookObjectOID)}' must have an Instance field to be valid.");
+			}
 			var instance = OIDEscapement.Unescape(match.Groups[nameof(Instance)].Value);
 
 			if (!match.Groups[nameof(Series)].Success)

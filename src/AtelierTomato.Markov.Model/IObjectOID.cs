@@ -3,7 +3,7 @@
 	public interface IObjectOID
 	{
 		ServiceType Service { get; }
-		string Instance { get; }
+		string? Instance { get; }
 		IObjectOID Base();
 		string ToString();
 	}

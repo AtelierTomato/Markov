@@ -218,7 +218,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			var location = await GetLocation(context);
 			var authorPermission = await authorPermissionAccess.ReadAuthorPermission(new AuthorOID(ServiceType.Discord, options.DiscordInstance, context.User.Id.ToString()), location);
 			// Check whether or not we're allowed to gather this message.
-			if (authorPermission is null || authorPermission.AllowedScope == new SpecialObjectOID(SpecialObjectOIDType.PermissionDenied))
+			if (authorPermission is null || authorPermission.AllowedScope is SpecialObjectOID { Type: SpecialObjectOIDType.PermissionDenied })
 				return false;
 
 			// Parse the text of the message, write the words in it to the WordStatistic table, write the sentences into the Sentences table

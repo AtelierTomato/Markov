@@ -31,7 +31,7 @@ FROM {nameof(AuthorPermission)}
 			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
 		}
 
-		public async Task<AuthorPermission?> ReadAuthorPermission(AuthorOID author, IObjectOID queryScope)
+		public async Task<AuthorPermission?> ReadAuthorPermission(AuthorOID author, IObjectOID? queryScope)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -46,7 +46,7 @@ ORDER BY LENGTH ({nameof(AuthorPermission.QueryScope)}) DESC LIMIT 1
 			new
 			{
 				author = author.ToString(),
-				queryScope = queryScope.ToString()
+				queryScope = queryScope?.ToString() ?? string.Empty
 			});
 
 			connection.Close();
@@ -54,7 +54,7 @@ ORDER BY LENGTH ({nameof(AuthorPermission.QueryScope)}) DESC LIMIT 1
 			return result?.ToAuthorPermission(objectOIDParser);
 		}
 
-		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID> queryScopes)
+		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID?> queryScopes)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -67,7 +67,7 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 			new
 			{
 				authors = authors.Select(a => a.ToString()),
-				queryScopes = queryScopes.Select(q => q.ToString())
+				queryScopes = queryScopes.Select(q => q?.ToString() ?? string.Empty)
 			});
 
 			connection.Close();
@@ -108,7 +108,7 @@ ON CONFLICT ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryS
 			await transaction.CommitAsync();
 		}
 
-		public async Task DeleteAuthorPermission(AuthorOID author, IObjectOID queryScope)
+		public async Task DeleteAuthorPermission(AuthorOID author, IObjectOID? queryScope)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 
@@ -122,7 +122,7 @@ AND {nameof(AuthorPermission.QueryScope)} IS @queryScope
 				new
 				{
 					author = author.ToString(),
-					queryScope = queryScope.ToString()
+					queryScope = queryScope?.ToString() ?? string.Empty
 				}
 			);
 

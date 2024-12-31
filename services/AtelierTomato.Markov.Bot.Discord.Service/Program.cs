@@ -2,20 +2,16 @@
 using AtelierTomato.Markov.Bot.Discord.Core;
 using AtelierTomato.Markov.Bot.Discord.Service;
 using AtelierTomato.Markov.Core;
+using AtelierTomato.Markov.Core.Cooldown;
 using AtelierTomato.Markov.Core.Generation;
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID.Parser;
 using AtelierTomato.Markov.Service.Discord;
 using AtelierTomato.Markov.Storage;
 using AtelierTomato.Markov.Storage.Sqlite;
-using AtelierTomato.MarkovBot.Discord.Core;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -38,6 +34,7 @@ builder.Services.AddOptions<KeywordOptions>().Bind(builder.Configuration.GetSect
 builder.Services.AddOptions<MarkovChainOptions>().Bind(builder.Configuration.GetSection("MarkovChain"));
 builder.Services.AddOptions<DiscordSentenceParserOptions>().Bind(builder.Configuration.GetSection("DiscordSentenceParser"));
 builder.Services.AddOptions<SqliteAccessOptions>().Bind(builder.Configuration.GetSection("SqliteAccess"));
+builder.Services.AddOptions<CooldownOptions>().Bind(builder.Configuration.GetSection("Cooldown"));
 
 builder.Services.AddHostedService<Worker>();
 
@@ -73,9 +70,9 @@ builder.Services
 	.AddSingleton<DiscordSentenceBuilder>()
 	.AddSingleton<AuthorGroupManager>()
 	.AddSingleton<LocationGroupManager>()
+	.AddSingleton<Cooldown>()
 	.AddSingleton(_ => new MultiParser<IObjectOID>([new BookObjectOIDParser(), new SpecialObjectOIDParser(), new DiscordObjectOIDParser()]))
 	.AddSingleton(_ => new CommandService(new CommandServiceConfig { DefaultRunMode = RunMode.Async }));
-// you're not done yet, check for other services we need to add, therés definitely some
 
 var host = builder.Build();
 

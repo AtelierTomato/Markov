@@ -5,7 +5,6 @@ using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Service.Discord;
 using AtelierTomato.Markov.Storage;
-using AtelierTomato.MarkovBot.Discord.Core;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -33,7 +32,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly LocationGroupManager locationGroupManager;
 		private readonly AuthorGroupManager authorGroupManager;
 		private readonly IServiceProvider serviceProvider;
-		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, CommandService commandService, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, IServiceProvider serviceProvider)
+		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider)
 		{
 			this.logger = logger;
 			this.client = client;
@@ -48,9 +47,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.sentenceRenderer = sentenceRenderer;
 			this.sentenceBuilder = sentenceBuilder;
 			this.objectOIDBuilder = objectOIDBuilder;
-			this.commandService = commandService;
 			this.locationGroupManager = locationGroupManager;
 			this.authorGroupManager = authorGroupManager;
+			this.commandService = commandService;
 			this.serviceProvider = serviceProvider;
 
 			this.client.Log += msg => Task.Run(() => this.Client_Log(msg));
@@ -218,7 +217,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			var location = await GetLocation(context);
 			var authorPermission = await authorPermissionAccess.ReadAuthorPermission(new AuthorOID(ServiceType.Discord, options.DiscordInstance, context.User.Id.ToString()), location);
 			// Check whether or not we're allowed to gather this message.
-			if (authorPermission is null || authorPermission.AllowedScope is null)
+			if (authorPermission is null || authorPermission.AllowedScope == new SpecialObjectOID(Model.ObjectOID.Types.SpecialObjectOIDType.Invalid))
 				return false;
 
 			// Parse the text of the message, write the words in it to the WordStatistic table, write the sentences into the Sentences table
@@ -231,15 +230,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				await wordStatisticAccess.WriteWordStatisticsFromString(text);
 			}
 
-			IEnumerable<Sentence> sentences;
-			if (context.Channel is IGuildChannel guildChannel)
-			{
-				sentences = await sentenceBuilder.Build(context.Guild, guildChannel, message.Id, context.User.Id, message.CreatedAt, messageSentenceTexts, options.DiscordInstance);
-			}
-			else
-			{
-				sentences = DiscordSentenceBuilder.Build(context.Channel, message.Id, context.User.Id, message.CreatedAt, messageSentenceTexts);
-			}
+			IEnumerable<Sentence> sentences = await sentenceBuilder.Build(context.Guild, context.Channel, message.Id, context.User.Id, message.CreatedAt, messageSentenceTexts, options.DiscordInstance);
 			await sentenceAccess.WriteSentenceRange(sentences);
 
 			return true;
@@ -264,7 +255,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					(await locationGroupManager.GetLocationsForFilter(author, location)).ToList(), // TODO: maybe combine these functions? I can't foresee any instance where we're not doing both
 					(await authorGroupManager.GetAuthorsForFilter(author, location)).ToList()
 				);
-				var responseText = await markovChain.Generate(effectiveFilter, retortSetting?.Keyword ?? await keywordProvider.Find(context.Message.Content), retortSetting?.FirstWord);
+				var responseText = await markovChain.Generate(effectiveFilter, retortSetting?.Keyword ?? await keywordProvider.Find(context.Message.Content), retortSetting?.FirstWord, location);
 				var responseSentence = sentenceRenderer.Render(responseText, context.Guild.Emotes, client.Guilds.SelectMany(g => g.Emotes));
 				if (!string.IsNullOrEmpty(responseSentence))
 				{

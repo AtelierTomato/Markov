@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace AtelierTomato.MarkovBot.Discord.Core
+namespace AtelierTomato.Markov.Bot.Discord.Core
 {
 	public class DiscordBotOptions
 	{

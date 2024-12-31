@@ -1,7 +1,4 @@
 ﻿using AtelierTomato.Markov.Bot.Discord.Core;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace AtelierTomato.Markov.Bot.Discord.Service
 {

@@ -86,7 +86,6 @@ ORDER BY LENGTH({nameof(LocationSetting.ID)}) ASC
 			connection.Close();
 
 			return result.Select(l => l.ToLocationSetting(objectOIDParser));
-
 		}
 
 		public async Task WriteLocationSetting(LocationSetting locationSetting) => await WriteLocationSettingRange([locationSetting]);

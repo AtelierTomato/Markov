@@ -33,6 +33,27 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			return result.Select(a => a.ToLocation(objectOIDParser));
 		}
 
+		public async Task<IEnumerable<Location>> ReadLocationRangeByBaseLocation(IObjectOID ID)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<LocationRow>($@"
+SELECT {nameof(Location.ID)}, {nameof(Location.Name)}, {nameof(Location.Owner)}
+FROM {nameof(Location)}
+WHERE {nameof(Location.ID)} || ':' LIKE @id || ':%'
+ORDER BY LENGTH({nameof(Location.ID)}) ASC
+",
+			new
+			{
+				id = ID.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(l => l.ToLocation(objectOIDParser));
+		}
+
 		public async Task WriteLocation(Location location) => await WriteLocationRange([location]);
 		public async Task WriteLocationRange(IEnumerable<Location> locations)
 		{

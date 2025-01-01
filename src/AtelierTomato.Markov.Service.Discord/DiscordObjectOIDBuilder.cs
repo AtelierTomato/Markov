@@ -16,8 +16,8 @@ namespace AtelierTomato.Markov.Service.Discord
 		/// <summary>
 		/// Builds a DiscordObjectOID at scope of <see cref="DiscordObjectOID.Channel"/> or <see cref="DiscordObjectOID.Thread"/>.
 		/// </summary>
-		/// <param name="guild">The <see cref="IGuild"/> of the desired DiscordObjectOID. Must contain the <paramref name="guildChannel"/>.</param>
-		/// <param name="guildChannel">The <see cref="IGuildChannel"/> of the desired DiscordObjectOID. Can be <see cref="IThreadChannel"/>. Must be inside the <paramref name="guild"/>.</param>
+		/// <param name="guild">The <see cref="IGuild"/> of the desired DiscordObjectOID. Must contain the <paramref name="channel"/> if specified..</param>
+		/// <param name="channel">The <see cref="IChannel"/> of the desired DiscordObjectOID. Can be any <see cref="IChannel"/> type. Must be inside the <paramref name="guild"/> if specified.</param>
 		/// <param name="instance">Optional parameter, used if on an alternative instance of Discord.</param>
 		/// <remarks>This uses Discord's API, and thus incurs a big cost.</remarks>
 		/// <returns></returns>
@@ -28,6 +28,10 @@ namespace AtelierTomato.Markov.Service.Discord
 				if (guildChannel.GuildId != guild.Id)
 				{
 					throw new ArgumentException($"The {nameof(guild)} provided does not contain the {nameof(guildChannel)} provided.", $"{nameof(guild)}, {nameof(guildChannel)}");
+				}
+				if (guildChannel is ICategoryChannel categoryChannel)
+				{
+					return DiscordObjectOID.ForCategory(instance, guild.Id, categoryChannel.Id);
 				}
 				ulong categoryID, channelID;
 				ulong? threadID;
@@ -70,7 +74,7 @@ namespace AtelierTomato.Markov.Service.Discord
 			}
 			else
 			{
-				return DiscordObjectOID.ForThread(instance, 0, 0, channel.Id, 0);
+				return DiscordObjectOID.ForChannel(instance, 0, 0, channel.Id);
 			}
 		}
 

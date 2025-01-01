@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Core.Generation;
 using AtelierTomato.Markov.Model;
@@ -23,6 +24,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly ISentenceAccess sentenceAccess;
 		private readonly IAuthorPermissionAccess authorPermissionAccess;
 		private readonly IAuthorRetortConfigAccess authorRetortConfigAccess;
+		private readonly ILocationAccess locationAccess;
 		private readonly DiscordBotOptions options;
 		private readonly MarkovChain markovChain;
 		private readonly KeywordProvider keywordProvider;
@@ -33,7 +35,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly LocationGroupManager locationGroupManager;
 		private readonly AuthorGroupManager authorGroupManager;
 		private readonly IServiceProvider serviceProvider;
-		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider)
+		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider)
 		{
 			this.logger = logger;
 			this.client = client;
@@ -42,6 +44,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.sentenceAccess = sentenceAccess;
 			this.authorPermissionAccess = authorPermissionAccess;
 			this.authorRetortConfigAccess = authorRetortConfigAccess;
+			this.locationAccess = locationAccess;
 			this.options = options.Value;
 			this.markovChain = markovChain;
 			this.keywordProvider = keywordProvider;
@@ -58,6 +61,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 			this.client.MessageReceived += this.Client_MessageReceived;
 			this.client.ReactionAdded += this.Client_ReactionAdded;
+			this.client.GuildUpdated += this.Client_GuildUpdated;
+			this.client.ChannelUpdated += this.Client_ChannelUpdated;
 
 			commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
 			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
@@ -108,6 +113,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private async Task Client_Ready()
 		{
 			await this.client.SetGameAsync(options.ActivityString, type: options.ActivityType);
+			// In order to prevent ratelimiting, do not sync locations in the testing environment where we are frequently stopping and starting the bot.
+			if (!Debugger.IsAttached)
+			{
+				await SyncLocationsAsync();
+			}
 		}
 
 		private async Task Client_MessageReceived(SocketMessage messageParam)
@@ -197,6 +207,98 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				await ProcessForDeleting(message, context);
 				await message.AddReactionAsync(reaction.Emote);
 			}
+		}
+
+		public async Task Client_GuildUpdated(SocketGuild oldGuild, SocketGuild newGuild)
+		{
+			if (oldGuild.Name == newGuild.Name && oldGuild.OwnerId == newGuild.OwnerId)
+				return; // we don't care
+
+			var locationOID = DiscordObjectOID.ForServer(options.DiscordInstance, oldGuild.Id);
+			if (oldGuild.Name != newGuild.Name)
+			{
+				var location = await locationAccess.ReadLocation(locationOID);
+				if (location is null)
+					logger.LogWarning("Server with ID '{ID}' expected to have value in database, however, no value was found.", locationOID);
+				var updatedLocation = new Location(locationOID, newGuild.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newGuild.OwnerId.ToString()));
+				await locationAccess.WriteLocation(updatedLocation);
+
+				logger.LogInformation("Server with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldGuild.Name, newGuild.Name);
+			}
+
+			if (oldGuild.OwnerId != newGuild.OwnerId)
+			{
+				var locations = await locationAccess.ReadLocationRangeByBaseLocation(locationOID);
+				var newOwner = new AuthorOID(ServiceType.Discord, options.DiscordInstance, newGuild.OwnerId.ToString());
+				var updatedLocations = locations.Select(l => new Location(l.ID, l.Name, newOwner));
+				await locationAccess.WriteLocationRange(updatedLocations);
+
+				logger.LogInformation("Server with ID '{ID}' owner updated: {OldOwner} -> {NewOwner}", locationOID, oldGuild.OwnerId, newGuild.OwnerId);
+			}
+		}
+
+		public async Task Client_ChannelUpdated(SocketChannel oldChannel, SocketChannel newChannel)
+		{
+			if (oldChannel is ICategoryChannel oldCategory && newChannel is ICategoryChannel newCategory)
+			{
+				if (oldCategory.Name != newCategory.Name)
+				{
+					var locationOID = DiscordObjectOID.ForCategory(options.DiscordInstance, newCategory.Guild.Id, newCategory.Id);
+					var location = await locationAccess.ReadLocation(locationOID);
+					if (location is null)
+						logger.LogWarning("Category with ID '{ID}' expected to have value in database, however, no value was found.", locationOID);
+					var updatedLocation = new Location(locationOID, newCategory.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newCategory.Guild.OwnerId.ToString()));
+					await locationAccess.WriteLocation(updatedLocation);
+
+					logger.LogInformation("Category with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldCategory.Name, newCategory.Name);
+				}
+			}
+			else if (oldChannel is IThreadChannel oldThreadChannel && newChannel is IThreadChannel newThreadChannel)
+			{
+				if (oldThreadChannel.Name != newThreadChannel.Name)
+				{
+					var locationOID = await objectOIDBuilder.Build(newThreadChannel.Guild, newThreadChannel, options.DiscordInstance);
+					var location = await locationAccess.ReadLocation(locationOID);
+					if (location is null)
+						logger.LogWarning("Thread with ID '{ID}' expected to have value in database, however, no value was found.", locationOID);
+					var updatedLocation = new Location(locationOID, newThreadChannel.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newThreadChannel.Guild.OwnerId.ToString()));
+					await locationAccess.WriteLocation(updatedLocation);
+
+					logger.LogInformation("Thread with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldThreadChannel.Name, newThreadChannel.Name);
+				}
+			}
+			else if (oldChannel is INestedChannel oldNestedChannel && newChannel is INestedChannel newNestedChannel)
+			{
+				if (oldNestedChannel.Name == newNestedChannel.Name && oldNestedChannel.CategoryId == newNestedChannel.CategoryId)
+					return; // we don't care
+				var locationOID = await objectOIDBuilder.Build(newNestedChannel.Guild, newNestedChannel, options.DiscordInstance);
+				if (oldNestedChannel.Name != newNestedChannel.Name)
+				{
+					var location = await locationAccess.ReadLocation(locationOID);
+					if (location is null)
+						logger.LogWarning("Channel with ID '{ID}' expected to have value in database, however, no value was found.", locationOID);
+					var updatedLocation = new Location(locationOID, newNestedChannel.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newNestedChannel.Guild.OwnerId.ToString()));
+					await locationAccess.WriteLocation(updatedLocation);
+
+					logger.LogInformation("Channel with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldNestedChannel.Name, newNestedChannel.Name);
+				}
+				if (oldNestedChannel.CategoryId != newNestedChannel.CategoryId)
+				{
+					// todo: uhoh
+				}
+			}
+		}
+
+		public async Task SyncLocationsAsync()
+		{
+			IEnumerable<Location> locations = client.Guilds.Select(g => new Location(DiscordObjectOID.ForServer(options.DiscordInstance, g.Id), g.Name, new AuthorOID(ServiceType.Discord, options.DiscordInstance, g.OwnerId.ToString())));
+			foreach (var guild in client.Guilds)
+			{
+				var owner = locations.Where(l => ((DiscordObjectOID)l.ID).Server == guild.Id).FirstOrDefault()!.Owner;
+				locations = locations.Concat(await Task.WhenAll(guild.Channels.Select(async c => new Location(await objectOIDBuilder.Build(guild, c, options.DiscordInstance), c.Name, owner))));
+			}
+			await locationAccess.WriteLocationRange(locations);
+			logger.LogInformation("Wrote {Number} locations to the database from currently accessible locations.", locations.Count());
 		}
 
 		private static IEnumerable<Emote> ParseEmotesFromName(string n, IEnumerable<Emote> currentEmojis, IEnumerable<Emote> otherAvailableEmojis)

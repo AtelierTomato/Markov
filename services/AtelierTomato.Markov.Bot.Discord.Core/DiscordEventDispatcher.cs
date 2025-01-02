@@ -63,6 +63,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.client.ReactionAdded += this.Client_ReactionAdded;
 			this.client.GuildUpdated += this.Client_GuildUpdated;
 			this.client.ChannelUpdated += this.Client_ChannelUpdated;
+			this.client.ChannelCreated += this.Client_ChannelCreated;
+			this.client.RoleUpdated += this.Client_RoleUpdated;
+			this.client.GuildMemberUpdated += this.Client_GuildMemberUpdated;
+			this.client.ThreadCreated += this.Client_ThreadCreated;
+			this.client.ThreadUpdated += this.Client_ThreadUpdated;
 
 			commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
 			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
@@ -223,7 +228,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				var updatedLocation = new Location(locationOID, newGuild.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newGuild.OwnerId.ToString()));
 				await locationAccess.WriteLocation(updatedLocation);
 
-				logger.LogInformation("Server with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldGuild.Name, newGuild.Name);
+				logger.LogInformation("Server with ID '{ID}' name updated: {OldName} -> {NewName}", oldGuild.Id, oldGuild.Name, newGuild.Name);
 			}
 
 			if (oldGuild.OwnerId != newGuild.OwnerId)
@@ -233,60 +238,96 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				var updatedLocations = locations.Select(l => new Location(l.ID, l.Name, newOwner));
 				await locationAccess.WriteLocationRange(updatedLocations);
 
-				logger.LogInformation("Server with ID '{ID}' owner updated: {OldOwner} -> {NewOwner}", locationOID, oldGuild.OwnerId, newGuild.OwnerId);
+				logger.LogInformation("Server with ID '{ID}' owner updated: {OldOwner} -> {NewOwner}", oldGuild.Id, oldGuild.OwnerId, newGuild.OwnerId);
 			}
 		}
 
 		public async Task Client_ChannelUpdated(SocketChannel oldChannel, SocketChannel newChannel)
 		{
-			if (oldChannel is ICategoryChannel oldCategory && newChannel is ICategoryChannel newCategory)
+			if (oldChannel is SocketGuildChannel oldGuildChannel && newChannel is SocketGuildChannel newGuildChannel)
 			{
-				if (oldCategory.Name != newCategory.Name)
+				// We can't be sure whether we saw the channel before because of permissions, so we update the channel always.
+				await UpdateChannel(newGuildChannel);
+				if (oldGuildChannel.Name != newGuildChannel.Name)
 				{
-					var locationOID = DiscordObjectOID.ForCategory(options.DiscordInstance, newCategory.Guild.Id, newCategory.Id);
-					var location = await locationAccess.ReadLocation(locationOID);
-					if (location is null)
-						logger.LogWarning("Category with ID '{ID}' expected to have value in database, however, no value was found.", locationOID);
-					var updatedLocation = new Location(locationOID, newCategory.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newCategory.Guild.OwnerId.ToString()));
-					await locationAccess.WriteLocation(updatedLocation);
-
-					logger.LogInformation("Category with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldCategory.Name, newCategory.Name);
+					logger.LogInformation("Channel with ID '{ID}' name updated: {OldName} -> {NewName}", oldGuildChannel.Id, oldGuildChannel.Name, newGuildChannel.Name);
+				}
+				else
+				{
+					logger.LogInformation("Channel with ID '{ID}' updated in database", oldGuildChannel.Id);
+				}
+				if (oldGuildChannel is INestedChannel oldNestedChannel && newGuildChannel is INestedChannel newNestedChannel)
+				{
+					if (oldNestedChannel.CategoryId != newNestedChannel.CategoryId)
+					{
+						// todo: uhoh
+					}
 				}
 			}
-			else if (oldChannel is IThreadChannel oldThreadChannel && newChannel is IThreadChannel newThreadChannel)
-			{
-				if (oldThreadChannel.Name != newThreadChannel.Name)
-				{
-					var locationOID = await objectOIDBuilder.Build(newThreadChannel.Guild, newThreadChannel, options.DiscordInstance);
-					var location = await locationAccess.ReadLocation(locationOID);
-					if (location is null)
-						logger.LogWarning("Thread with ID '{ID}' expected to have value in database, however, no value was found.", locationOID);
-					var updatedLocation = new Location(locationOID, newThreadChannel.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newThreadChannel.Guild.OwnerId.ToString()));
-					await locationAccess.WriteLocation(updatedLocation);
+		}
 
-					logger.LogInformation("Thread with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldThreadChannel.Name, newThreadChannel.Name);
-				}
-			}
-			else if (oldChannel is INestedChannel oldNestedChannel && newChannel is INestedChannel newNestedChannel)
+		public async Task Client_ChannelCreated(SocketChannel channel)
+		{
+			if (channel is SocketGuildChannel guildChannel)
 			{
-				if (oldNestedChannel.Name == newNestedChannel.Name && oldNestedChannel.CategoryId == newNestedChannel.CategoryId)
-					return; // we don't care
-				var locationOID = await objectOIDBuilder.Build(newNestedChannel.Guild, newNestedChannel, options.DiscordInstance);
-				if (oldNestedChannel.Name != newNestedChannel.Name)
-				{
-					var location = await locationAccess.ReadLocation(locationOID);
-					if (location is null)
-						logger.LogWarning("Channel with ID '{ID}' expected to have value in database, however, no value was found.", locationOID);
-					var updatedLocation = new Location(locationOID, newNestedChannel.Name, location?.Owner ?? new AuthorOID(ServiceType.Discord, options.DiscordInstance, newNestedChannel.Guild.OwnerId.ToString()));
-					await locationAccess.WriteLocation(updatedLocation);
-
-					logger.LogInformation("Channel with ID '{ID}' name updated: {OldName} -> {NewName}", locationOID, oldNestedChannel.Name, newNestedChannel.Name);
-				}
-				if (oldNestedChannel.CategoryId != newNestedChannel.CategoryId)
-				{
-					// todo: uhoh
-				}
+				await UpdateChannel(guildChannel);
+				logger.LogInformation("Channel with ID '{ID}' created, added to database", guildChannel.Id);
 			}
+		}
+
+		public async Task Client_ThreadCreated(SocketThreadChannel threadChannel)
+		{
+			await UpdateChannel(threadChannel);
+			logger.LogInformation("Channel with ID '{ID}' created, added to database", threadChannel.Id);
+		}
+
+		public async Task Client_ThreadUpdated(Cacheable<SocketThreadChannel, ulong> oldThreadChannel, SocketThreadChannel newThreadChannel)
+		{
+			await UpdateChannel(newThreadChannel);
+			if (oldThreadChannel.Value is null)
+			{
+				logger.LogInformation("Thread with ID '{ID}' became active after being inactive, updated in database.", newThreadChannel.Id);
+			}
+			else if (oldThreadChannel.Value.Name != newThreadChannel.Name)
+			{
+				logger.LogInformation("Thread with ID '{ID}' name updated: {OldName} -> {NewName}", newThreadChannel.Id, oldThreadChannel.Value.Name ?? "unknown name", newThreadChannel.Name);
+			}
+			else
+			{
+				logger.LogInformation("Thread with ID '{ID}' updated in database", newThreadChannel.Id);
+			}
+		}
+
+		public async Task Client_RoleUpdated(SocketRole oldRole, SocketRole newRole)
+		{
+			if (newRole.Guild.CurrentUser.Roles.Contains(newRole))
+			{
+				var guildChannels = newRole.Guild.Channels.ToList();
+				await UpdateChannels(guildChannels);
+				logger.LogInformation("A role the bot has in server with ID '{Server}' was updated, just in case we have access to additional channels, we updated {Count} Locations.", newRole.Guild.Id, guildChannels.Count);
+			}
+		}
+
+		public async Task Client_GuildMemberUpdated(Cacheable<SocketGuildUser, ulong> oldUser, SocketGuildUser newUser)
+		{
+			if (newUser.Guild.CurrentUser.Id == newUser.Id && oldUser.Value.Roles != newUser.Roles)
+			{
+				var guildChannels = newUser.Guild.Channels.ToList();
+				await UpdateChannels(guildChannels);
+				logger.LogInformation("The bot's roles were updated in server with ID '{Server}', just in case we have access to additional channels, we updated {Count} Locations.", newUser.Guild.Id, guildChannels.Count);
+			}
+		}
+
+		private async Task UpdateChannel(SocketGuildChannel guildChannel) => await UpdateChannels([guildChannel]);
+		private async Task UpdateChannels(IList<SocketGuildChannel> guildChannels)
+		{
+			var locationOIDs = await Task.WhenAll(guildChannels.Select(async g => await objectOIDBuilder.Build(g.Guild, g, options.DiscordInstance)));
+			List<Location> updatedLocations = [];
+			for (int i = 0; i < guildChannels.Count; i++)
+			{
+				updatedLocations.Add(new Location(locationOIDs[i], guildChannels[i].Name, new AuthorOID(ServiceType.Discord, options.DiscordInstance, guildChannels[i].Guild.OwnerId.ToString())));
+			}
+			await locationAccess.WriteLocationRange(updatedLocations);
 		}
 
 		public async Task SyncLocationsAsync()

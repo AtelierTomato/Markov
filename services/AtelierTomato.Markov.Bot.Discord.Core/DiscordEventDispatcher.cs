@@ -24,7 +24,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly ISentenceAccess sentenceAccess;
 		private readonly IAuthorPermissionAccess authorPermissionAccess;
 		private readonly IAuthorRetortConfigAccess authorRetortConfigAccess;
+		private readonly ILocationGroupPermissionAccess locationGroupPermissionAccess;
+		private readonly ILocationGroupRequestAccess locationGroupRequestAccess;
 		private readonly ILocationAccess locationAccess;
+		private readonly ILocationSettingAccess locationSettingAccess;
 		private readonly DiscordBotOptions options;
 		private readonly MarkovChain markovChain;
 		private readonly KeywordProvider keywordProvider;
@@ -35,7 +38,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly LocationGroupManager locationGroupManager;
 		private readonly AuthorGroupManager authorGroupManager;
 		private readonly IServiceProvider serviceProvider;
-		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider)
+		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider)
 		{
 			this.logger = logger;
 			this.client = client;
@@ -45,6 +48,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.authorPermissionAccess = authorPermissionAccess;
 			this.authorRetortConfigAccess = authorRetortConfigAccess;
 			this.locationAccess = locationAccess;
+			this.locationGroupPermissionAccess = locationGroupPermissionAccess;
+			this.locationGroupRequestAccess = locationGroupRequestAccess;
+			this.locationSettingAccess = locationSettingAccess;
 			this.options = options.Value;
 			this.markovChain = markovChain;
 			this.keywordProvider = keywordProvider;
@@ -260,7 +266,76 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				{
 					if (oldNestedChannel.CategoryId != newNestedChannel.CategoryId)
 					{
-						// todo: uhoh
+						logger.LogInformation("The category of a channel with ID '{ID}' changed, we will update AuthorPermissions, AuthorRetortConfigs, Locations, " +
+							"LocationGroupPermissions and Requests, and LocationSettings. All Sentences will remain the same, and existing of aforementioned will be kept " +
+							"in order to ensure that those Sentences are still usable.", newNestedChannel.Id);
+						var oldLocation = await objectOIDBuilder.Build(oldNestedChannel.Guild, oldNestedChannel, options.DiscordInstance);
+						var newCategory = newNestedChannel.CategoryId ?? 0;
+
+						// AuthorPermissions
+						var oldAuthorPermissions = await authorPermissionAccess.ReadAuthorPermissionRangeByBaseLocation(oldLocation);
+						// Update category only where we need to
+						var newAuthorPermissions = oldAuthorPermissions.Select(authorPermission => new AuthorPermission(
+							authorPermission.Author,
+							authorPermission.QueryScope?.ToString().StartsWith(oldLocation.ToString()) ?? false
+								? ((DiscordObjectOID)authorPermission.QueryScope!).UpdateCategory(newCategory)
+								: authorPermission.QueryScope,
+							authorPermission.AllowedScope?.ToString().StartsWith(oldLocation.ToString()) ?? false
+								? ((DiscordObjectOID)authorPermission.AllowedScope!).UpdateCategory(newCategory)
+								: authorPermission.AllowedScope));
+						await authorPermissionAccess.WriteAuthorPermissionRange(newAuthorPermissions);
+
+						// AuthorRetortConfigs
+						var oldAuthorRetortConfigs = await authorRetortConfigAccess.ReadAuthorRetortConfigRangeByBaseLocation(oldLocation);
+						var newAuthorRetortConfigs = oldAuthorRetortConfigs.Select(a => new AuthorRetortConfig(
+							a.Author,
+							((DiscordObjectOID)a.Location!).UpdateCategory(newCategory),
+							a.DisplayOption,
+							a.Filter,
+							a.AuthorGroup,
+							a.LocationGroup,
+							a.Keyword,
+							a.FirstWord));
+						await authorRetortConfigAccess.WriteAuthorRetortConfigRange(newAuthorRetortConfigs);
+
+						// Locations
+						var oldLocations = await locationAccess.ReadLocationRangeByBaseLocation(oldLocation);
+						var newLocations = oldLocations.Select(l => new Location(
+							((DiscordObjectOID)l.ID).UpdateCategory(newCategory),
+							l.Name,
+							l.Owner));
+						await locationAccess.WriteLocationRange(newLocations);
+
+						// LocationGroupPermissions
+						var oldLocationGroupPermissions = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByBaseLocation(oldLocation);
+						var newLocationGroupPermissions = oldLocationGroupPermissions.Select(l => new LocationGroupPermission(
+							l.ID,
+							((DiscordObjectOID)l.Location).UpdateCategory(newCategory),
+							l.Permissions));
+						await locationGroupPermissionAccess.WriteLocationGroupPermissionRange(newLocationGroupPermissions);
+
+						// LocationGroupRequests
+						var oldLocationGroupRequests = await locationGroupRequestAccess.ReadLocationGroupRequestRangeByBaseLocation(oldLocation);
+						var newLocationGroupRequests = oldLocationGroupRequests.Select(l => new LocationGroupPermission(
+							l.ID,
+							((DiscordObjectOID)l.Location).UpdateCategory(newCategory),
+							l.Permissions));
+						await locationGroupRequestAccess.WriteLocationGroupRequestRange(newLocationGroupRequests);
+
+						// LocationSettings
+						var oldLocationSettings = await locationSettingAccess.ReadLocationSettingRangeByBaseLocation(oldLocation);
+						var newLocationSettings = oldLocationSettings.Select(l => new LocationSetting(
+							((DiscordObjectOID)l.ID).UpdateCategory(newCategory),
+							l.WriteReactions,
+							l.DeleteReactions,
+							l.FailReactions,
+							l.GlobalAllowed,
+							l.LocationGroup));
+						await locationSettingAccess.WriteLocationSettingRange(newLocationSettings);
+
+						logger.LogInformation("Wrote {APCount} AuthorPermissions, {ARCCount} AuthorRetortConfigs, {LCount} Locations, {LGPCount} LocationGroupPermissions, " +
+							"{LGRCount} LocationGroupRequests, and {LSCount} LocationSettings with update Category.", newAuthorPermissions.Count(), newAuthorRetortConfigs.Count(),
+							newLocations.Count(), newLocationGroupPermissions.Count(), newLocationGroupRequests.Count(), newLocationSettings.Count());
 					}
 				}
 			}

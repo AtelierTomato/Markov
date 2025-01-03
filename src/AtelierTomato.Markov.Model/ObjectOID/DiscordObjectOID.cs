@@ -213,5 +213,38 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		{
 			throw new ArgumentOutOfRangeException(nameof(type), $"This object does not possess a '{type}' value.");
 		}
+
+		/// <summary>
+		/// Returns the OID but with a different category.
+		/// </summary>
+		/// <param name="category"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		public DiscordObjectOID UpdateCategory(ulong category)
+		{
+			if (Category is null)
+				throw new InvalidOperationException($"Cannot update the category for {nameof(DiscordObjectOID)} '{this}' because it does not have a {nameof(Category)}.");
+
+			if (!Channel.HasValue)
+			{
+				return ForCategory(Instance!, (ulong)Server!, category);
+			}
+			else if (!Thread.HasValue)
+			{
+				return ForChannel(Instance!, (ulong)Server!, category, (ulong)Channel);
+			}
+			else if (!Message.HasValue)
+			{
+				return ForThread(Instance!, (ulong)Server!, category, (ulong)Channel, (ulong)Thread);
+			}
+			else if (!Sentence.HasValue)
+			{
+				return ForMessage(Instance!, (ulong)Server!, category, (ulong)Channel, (ulong)Thread, (ulong)Message);
+			}
+			else
+			{
+				return ForSentence(Instance!, (ulong)Server!, category, (ulong)Channel, (ulong)Thread, (ulong)Message, (int)Sentence);
+			}
+		}
 	}
 }

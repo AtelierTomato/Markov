@@ -71,6 +71,26 @@ WHERE {nameof(LocationGroupPermission.Location)} IS @location
 			return result.Select(r => r.ToLocationGroupPermission(objectOIDParser));
 		}
 
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByBaseLocation(IObjectOID location)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<LocationGroupPermissionRow>($@"
+SELECT {nameof(LocationGroupPermission.ID)}, {nameof(LocationGroupPermission.Location)}, {nameof(LocationGroupPermission.Permissions)} FROM {nameof(LocationGroup)}Request
+WHERE {nameof(LocationGroupPermission.Location)} || ':' LIKE @location || ':%'
+ORDER BY LENGTH({nameof(LocationGroupPermission.Location)}) ASC
+",
+			new
+			{
+				location = location.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(l => l.ToLocationGroupPermission(objectOIDParser));
+		}
+
 		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByID(Guid ID)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);

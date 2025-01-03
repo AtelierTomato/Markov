@@ -117,15 +117,16 @@ FROM {nameof(AuthorRetortConfig)} WHERE
 			return result.Select(r => r.ToAuthorRetortConfig(objectOIDParser));
 		}
 
-		public async Task<IEnumerable<AuthorRetortConfig>> ReadAuthorRetortConfigRangeByLocation(IObjectOID location)
+		public async Task<IEnumerable<AuthorRetortConfig>> ReadAuthorRetortConfigRangeByBaseLocation(IObjectOID location)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
 			var result = await connection.QueryAsync<AuthorRetortConfigRow>($@"
 SELECT {nameof(AuthorRetortConfig.Author)}, {nameof(AuthorRetortConfig.Location)}, {nameof(AuthorRetortConfig.DisplayOption)}, {nameof(AuthorRetortConfig.Filter)}{nameof(SentenceFilter.OIDs)}, {nameof(AuthorRetortConfig.Filter)}{nameof(SentenceFilter.Authors)}, {nameof(AuthorRetortConfig.AuthorGroup)}, {nameof(AuthorRetortConfig.LocationGroup)}, {nameof(AuthorRetortConfig.Keyword)}, {nameof(AuthorRetortConfig.FirstWord)}
-FROM {nameof(AuthorRetortConfig)} WHERE
-{nameof(AuthorRetortConfig.Location)} IS @location
+FROM {nameof(AuthorRetortConfig)}
+WHERE {nameof(AuthorRetortConfig.Location)} || ':' LIKE @location || ':%'
+ORDER BY LENGTH({nameof(AuthorRetortConfig.Location)}) ASC
 ",
 			new
 			{
@@ -136,14 +137,33 @@ FROM {nameof(AuthorRetortConfig)} WHERE
 			return result.Select(r => r.ToAuthorRetortConfig(objectOIDParser));
 		}
 
-		public async Task WriteAuthorRetortConfig(AuthorRetortConfig authorRetortConfig)
+		public async Task<IEnumerable<AuthorRetortConfig>> ReadAuthorRetortConfigRangeByLocation(IObjectOID location)
 		{
-			AuthorRetortConfigRow authorRetortConfigRow = new AuthorRetortConfigRow(authorRetortConfig);
-
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			await connection.ExecuteAsync($@"
+			var result = await connection.QueryAsync<AuthorRetortConfigRow>($@"
+c",
+			new
+			{
+				location = location.ToString()
+			});
+
+			connection.Close();
+			return result.Select(r => r.ToAuthorRetortConfig(objectOIDParser));
+		}
+
+		public async Task WriteAuthorRetortConfig(AuthorRetortConfig authorRetortConfig) => await WriteAuthorRetortConfigRange([authorRetortConfig]);
+		public async Task WriteAuthorRetortConfigRange(IEnumerable<AuthorRetortConfig> authorRetortConfigs)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+			await using var transaction = await connection.BeginTransactionAsync();
+
+			foreach (AuthorRetortConfig authorRetortConfig in authorRetortConfigs)
+			{
+				AuthorRetortConfigRow authorRetortConfigRow = new(authorRetortConfig);
+				await connection.ExecuteAsync($@"
 INSERT INTO {nameof(AuthorRetortConfig)} ( {nameof(AuthorRetortConfig.Author)}, {nameof(AuthorRetortConfig.Location)}, {nameof(AuthorRetortConfig.DisplayOption)}, {nameof(AuthorRetortConfig.Filter)}{nameof(SentenceFilter.OIDs)}, {nameof(AuthorRetortConfig.Filter)}{nameof(SentenceFilter.Authors)}, {nameof(AuthorRetortConfig.AuthorGroup)}, {nameof(AuthorRetortConfig.LocationGroup)}, {nameof(AuthorRetortConfig.Keyword)}, {nameof(AuthorRetortConfig.FirstWord)} )
 VALUES ( @author, @location, @displayOption, @filterOIDs, @filterAuthors, @authorGroup, @locationGroup, @keyword, @firstWord )
 ON CONFLICT ( {nameof(AuthorRetortConfig.Author)}, {nameof(AuthorRetortConfig.Location)} ) DO UPDATE SET
@@ -155,20 +175,21 @@ ON CONFLICT ( {nameof(AuthorRetortConfig.Author)}, {nameof(AuthorRetortConfig.Lo
 {nameof(AuthorRetortConfig.Keyword)} = excluded.{nameof(AuthorRetortConfig.Keyword)},
 {nameof(AuthorRetortConfig.FirstWord)} = excluded.{nameof(AuthorRetortConfig.FirstWord)}
 ",
-			new
-			{
-				author = authorRetortConfigRow.Author,
-				location = authorRetortConfigRow.Location,
-				displayOption = authorRetortConfigRow.DisplayOption,
-				filterOIDs = authorRetortConfigRow.FilterOIDs,
-				filterAuthors = authorRetortConfigRow.FilterAuthors,
-				authorGroup = authorRetortConfigRow.AuthorGroup,
-				locationGroup = authorRetortConfigRow.LocationGroup,
-				keyword = authorRetortConfigRow.Keyword,
-				firstWord = authorRetortConfigRow.FirstWord
-			});
+				new
+				{
+					author = authorRetortConfigRow.Author,
+					location = authorRetortConfigRow.Location,
+					displayOption = authorRetortConfigRow.DisplayOption,
+					filterOIDs = authorRetortConfigRow.FilterOIDs,
+					filterAuthors = authorRetortConfigRow.FilterAuthors,
+					authorGroup = authorRetortConfigRow.AuthorGroup,
+					locationGroup = authorRetortConfigRow.LocationGroup,
+					keyword = authorRetortConfigRow.Keyword,
+					firstWord = authorRetortConfigRow.FirstWord
+				});
+			}
 
-			connection.Close();
+			await transaction.CommitAsync();
 		}
 	}
 }

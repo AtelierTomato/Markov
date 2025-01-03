@@ -75,6 +75,47 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
 		}
 
+		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRangeByBaseLocation(IObjectOID location)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
+SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
+FROM {nameof(AuthorPermission)} WHERE
+{nameof(AuthorPermission.QueryScope)} || ':' LIKE @location || ':%' OR
+{nameof(AuthorPermission.AllowedScope)} || ':' LIKE @location || ':%'
+",
+			new
+			{
+				location = location.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
+		}
+
+		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRangeByAuthor(AuthorOID author)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
+SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
+FROM {nameof(AuthorPermission)}
+WHERE {nameof(AuthorPermission.Author)} is @author
+",
+			new
+			{
+				author = author.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(a => a.ToAuthorPermission(objectOIDParser));
+		}
+
 		private static async Task WriteCore(SqliteConnection connection, AuthorPermission authorPermission)
 		{
 			AuthorPermissionRow authorPermissionRow = new AuthorPermissionRow(authorPermission);

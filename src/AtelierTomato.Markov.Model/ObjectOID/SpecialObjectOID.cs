@@ -6,8 +6,8 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 	public class SpecialObjectOID : IObjectOID
 	{
 		private const string DefaultInstance = "_";
-		public ServiceType Service { get; } = ServiceType.Special;
-		public string Instance { get; } = DefaultInstance;
+		public override ServiceType Service { get; } = ServiceType.Special;
+		public override string? Instance { get; set; } = DefaultInstance;
 		public SpecialObjectOIDType Type { get; set; }
 		public SpecialObjectOID(string type)
 		{
@@ -43,11 +43,11 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 
 			return new SpecialObjectOID(match.Groups[nameof(Type)].Value);
 		}
-		public IObjectOID Base() => this;
+		public override IObjectOID Base() => this;
 		public override string ToString()
 		{
 			var oidBuilder = new OIDBuilder(Service);
-			oidBuilder.Append(Instance).Append(Type.ToString());
+			oidBuilder.Append(Instance!).Append(Type.ToString());
 			return oidBuilder.Build();
 		}
 	}

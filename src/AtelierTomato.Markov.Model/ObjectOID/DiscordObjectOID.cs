@@ -6,8 +6,8 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 {
 	public class DiscordObjectOID : IObjectOID
 	{
-		public ServiceType Service { get; } = ServiceType.Discord;
-		public string? Instance { get; set; }
+		public override ServiceType Service { get; } = ServiceType.Discord;
+		public override string? Instance { get; set; }
 		public ulong? Server { get; set; }
 		public ulong? Category { get; set; }
 		public ulong? Channel { get; set; }
@@ -108,7 +108,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			return ForSentence(instance, serverId, categoryId, channelId, threadId, messageId, sentenceId);
 		}
 
-		public IObjectOID Base()
+		public override IObjectOID Base()
 		{
 			if (Server is not null)
 				return ForServer(Instance!, (ulong)Server);

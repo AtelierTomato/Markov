@@ -5,14 +5,14 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 {
 	public class BookObjectOID : IObjectOID
 	{
-		public ServiceType Service { get; } = ServiceType.Book;
-		public string Instance { get; set; }
+		public override ServiceType Service { get; } = ServiceType.Book;
+		public override string? Instance { get; set; }
 		public string? Series { get; set; }
 		public string? Book { get; set; }
 		public string? Chapter { get; set; }
 		public int? Paragraph { get; set; }
 		public int? Sentence { get; set; }
-		private BookObjectOID(string instance, string? series = null, string? book = null, string? chapter = null, int? paragraph = null, int? sentence = null)
+		private BookObjectOID(string? instance = null, string? series = null, string? book = null, string? chapter = null, int? paragraph = null, int? sentence = null)
 		{
 			Instance = instance;
 			Series = series;
@@ -21,6 +21,8 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			Paragraph = paragraph;
 			Sentence = sentence;
 		}
+		public static BookObjectOID ForService()
+			=> new();
 		public static BookObjectOID ForInstance(string instance)
 			=> new(instance);
 		public static BookObjectOID ForSeries(string instance, string series)
@@ -52,7 +54,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 
 			if (!match.Groups[nameof(Instance)].Success)
 			{
-				throw new ArgumentException($"OIDs of type '{nameof(BookObjectOID)}' must have an Instance field to be valid.");
+				return ForService();
 			}
 			var instance = OIDEscapement.Unescape(match.Groups[nameof(Instance)].Value);
 
@@ -90,9 +92,9 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 
 			return ForSentence(instance, series, book, chapter, paragraph, sentence);
 		}
-		public IObjectOID Base()
+		public override IObjectOID Base()
 		{
-			if (Series is not null)
+			if (Series is not null && Instance is not null)
 				return ForSeries(Instance, Series);
 			else
 				return this;
@@ -101,7 +103,10 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		public override string ToString()
 		{
 			var oidBuilder = new OIDBuilder(Service);
-			oidBuilder.Append(Instance);
+			if (Instance is not null)
+			{
+				oidBuilder.Append(Instance);
+			}
 			if (Series is not null)
 			{
 				oidBuilder.Append(Series);

@@ -1,10 +1,27 @@
 ﻿namespace AtelierTomato.Markov.Model
 {
-	public interface IObjectOID
+	public abstract class IObjectOID
 	{
-		ServiceType Service { get; }
-		string? Instance { get; }
-		IObjectOID Base();
-		string ToString();
+		public abstract ServiceType Service { get; }
+		public abstract string? Instance { get; set; }
+		public abstract IObjectOID Base();
+		public abstract override string ToString();
+
+		public override bool Equals(object? obj)
+		{
+			if (obj is not IObjectOID other) return false;
+			return ToString() == other.ToString();
+		}
+
+		public override int GetHashCode() => ToString().GetHashCode();
+
+		public static bool operator ==(IObjectOID? left, IObjectOID? right)
+		{
+			if (ReferenceEquals(left, right)) return true;
+			if (left is null || right is null) return false;
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(IObjectOID? left, IObjectOID? right) => !(left == right);
 	}
 }

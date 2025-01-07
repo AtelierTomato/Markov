@@ -17,7 +17,7 @@ namespace AtelierTomato.Markov.Storage
 
 			sentenceStorage.RemoveAll(s =>
 				(filter.OIDs is [] || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
-				(filter.Authors is [] || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) && (searchString is null || s.Text.Contains(searchString)));
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author == author)) && (searchString is null || s.Text.Contains(searchString)));
 			return Task.CompletedTask;
 		}
 
@@ -56,7 +56,7 @@ namespace AtelierTomato.Markov.Storage
 		{
 			return Task.FromResult(sentenceStorage.Where(s =>
 				(filter.OIDs is [] || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
-				(filter.Authors is [] || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) &&
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author == author)) &&
 				(searchString is null || s.Text.Contains(searchString))
 			));
 		}

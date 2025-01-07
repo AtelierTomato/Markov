@@ -35,5 +35,22 @@
 				}
 			}
 		}
+
+		public override bool Equals(object? obj)
+		{
+			if (obj is not AuthorOID other) return false;
+			return Service == other.Service && Instance == other.Instance && Author == other.Author;
+		}
+
+		public override int GetHashCode() => HashCode.Combine(Service, Instance, Author);
+
+		public static bool operator ==(AuthorOID? left, AuthorOID? right)
+		{
+			if (ReferenceEquals(left, right)) return true;
+			if (left is null || right is null) return false;
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(AuthorOID? left, AuthorOID? right) => !(left == right);
 	}
 }

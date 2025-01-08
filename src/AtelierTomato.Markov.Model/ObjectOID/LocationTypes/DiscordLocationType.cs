@@ -1,4 +1,4 @@
-﻿namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules.ParameterTypes
+﻿namespace AtelierTomato.Markov.Model.ObjectOID.LocationTypes
 {
 	public enum DiscordLocationType
 	{

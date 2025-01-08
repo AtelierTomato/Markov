@@ -1,9 +1,9 @@
 ﻿using System.Text;
-using AtelierTomato.Markov.Bot.Discord.Core.CommandModules.ParameterTypes;
 using AtelierTomato.Markov.Core.Cooldown;
 using AtelierTomato.Markov.Core.TableFormatters;
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
+using AtelierTomato.Markov.Model.ObjectOID.LocationTypes;
 using AtelierTomato.Markov.Model.ObjectOID.Types;
 using AtelierTomato.Markov.Service.Discord;
 using AtelierTomato.Markov.Storage;

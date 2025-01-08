@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using AtelierTomato.Markov.Bot.Discord.Core.CommandModules.ParameterTypes;
+using AtelierTomato.Markov.Model.ObjectOID.LocationTypes;
 
 namespace AtelierTomato.Markov.Model.ObjectOID
 {

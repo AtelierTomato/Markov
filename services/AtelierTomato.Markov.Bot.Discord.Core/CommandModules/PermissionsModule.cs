@@ -1,5 +1,7 @@
-﻿using AtelierTomato.Markov.Bot.Discord.Core.CommandModules.ParameterTypes;
+﻿using System.Text;
+using AtelierTomato.Markov.Bot.Discord.Core.CommandModules.ParameterTypes;
 using AtelierTomato.Markov.Core.Cooldown;
+using AtelierTomato.Markov.Core.TableFormatters;
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Model.ObjectOID.Types;
@@ -19,7 +21,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly Cooldown cooldown;
 		private readonly DiscordObjectOIDBuilder objectOIDBuilder;
 		private readonly MultiParser<IObjectOID> objectOIDParser;
-		public PermissionsModule(IAuthorPermissionAccess authorPermissionAccess, IAuthorAccess authorAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser)
+		private readonly AuthorPermissionTableFormatter authorPermissionTableFormatter;
+		public PermissionsModule(IAuthorPermissionAccess authorPermissionAccess, IAuthorAccess authorAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser, AuthorPermissionTableFormatter authorPermissionTableFormatter)
 		{
 			this.authorPermissionAccess = authorPermissionAccess;
 			this.authorAccess = authorAccess;
@@ -27,6 +30,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.cooldown = cooldown;
 			this.objectOIDBuilder = objectOIDBuilder;
 			this.objectOIDParser = objectOIDParser;
+			this.authorPermissionTableFormatter = authorPermissionTableFormatter;
 		}
 
 		[Command("optin")]
@@ -174,6 +178,33 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			catch
 			{
 				// TODO: help reply
+			}
+		}
+
+		[Command("permsuser")]
+		[Alias("pu", "permissionsuser")]
+		[Summary("Checks if the user is opted in and replies showing where and with what permissions.")]
+		public async Task PermissionsUser()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.PermissionsCheck))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+
+			var authorPermissions = await authorPermissionAccess.ReadAuthorPermissionRangeByAuthor(authorOID);
+			if (authorPermissions.Any())
+			{
+				var message = await authorPermissionTableFormatter.Format(authorPermissions, $"Permissions for Author '{Context.User.GlobalName}'");
+				using var stream = new MemoryStream(Encoding.UTF8.GetBytes(message));
+				await ReplyAsync(message: "sending you the output in DM!");
+				await Context.User.SendFileAsync(stream, Context.User.GlobalName + " permissions.txt");
+			}
+			else
+			{
+				await ReplyAsync(message: "you aren't in the database");
 			}
 		}
 	}

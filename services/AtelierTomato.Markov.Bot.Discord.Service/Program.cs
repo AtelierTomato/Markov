@@ -4,6 +4,7 @@ using AtelierTomato.Markov.Bot.Discord.Service;
 using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Core.Cooldown;
 using AtelierTomato.Markov.Core.Generation;
+using AtelierTomato.Markov.Core.TableFormatters;
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID.Parser;
 using AtelierTomato.Markov.Service.Discord;
@@ -71,6 +72,7 @@ builder.Services
 	.AddSingleton<AuthorGroupManager>()
 	.AddSingleton<LocationGroupManager>()
 	.AddSingleton<Cooldown>()
+	.AddSingleton<AuthorPermissionTableFormatter>()
 	.AddSingleton(_ => new MultiParser<IObjectOID>([new BookObjectOIDParser(), new SpecialObjectOIDParser(), new DiscordObjectOIDParser()]))
 	.AddSingleton(_ => new CommandService(new CommandServiceConfig { DefaultRunMode = RunMode.Async }));
 

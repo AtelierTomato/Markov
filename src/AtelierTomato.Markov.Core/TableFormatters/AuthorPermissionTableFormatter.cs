@@ -18,13 +18,14 @@ namespace AtelierTomato.Markov.Core.TableFormatters
 			this.locationAccess = locationAccess;
 		}
 
-		public async Task<string> Format(List<AuthorPermission> authorPermissions, string header)
+		public async Task<string> Format(IEnumerable<AuthorPermission> authorPermissions, string header)
 		{
-			var authors = (await authorAccess.ReadAuthorRange(authorPermissions.Select(a => a.Author))).ToList();
-			var locations = (await locationAccess.ReadLocationRange(authorPermissions.Select(a => a.QueryScope).Concat(authorPermissions.Select(a => a.AllowedScope)).Where(l => l is not null).Select(l => l!))).ToList();
-			var authorLength = Math.Max(FormattingUtils.GetAuthorLength(authorPermissions.Select(ap => ap.Author), authors), AuthorColumn.Length) + ExtraPadding;
-			var queryScopeLength = Math.Max(FormattingUtils.GetLocationLength(authorPermissions.Select(ap => ap.QueryScope), locations), QueryScopeColumn.Length) + ExtraPadding;
-			var allowedScopeLength = Math.Max(FormattingUtils.GetLocationLength(authorPermissions.Select(ap => ap.AllowedScope), locations), AllowedScopeColumn.Length) + ExtraPadding;
+			var authorPermissionsList = authorPermissions.ToList();
+			var authors = (await authorAccess.ReadAuthorRange(authorPermissionsList.Select(a => a.Author))).ToList();
+			var locations = (await locationAccess.ReadLocationRange(authorPermissionsList.Select(a => a.QueryScope).Concat(authorPermissionsList.Select(a => a.AllowedScope)).Where(l => l is not null).Select(l => l!))).ToList();
+			var authorLength = Math.Max(FormattingUtils.GetAuthorLength(authorPermissionsList.Select(ap => ap.Author), authors), AuthorColumn.Length) + ExtraPadding;
+			var queryScopeLength = Math.Max(FormattingUtils.GetLocationLength(authorPermissionsList.Select(ap => ap.QueryScope), locations), QueryScopeColumn.Length) + ExtraPadding;
+			var allowedScopeLength = Math.Max(FormattingUtils.GetLocationLength(authorPermissionsList.Select(ap => ap.AllowedScope), locations), AllowedScopeColumn.Length) + ExtraPadding;
 			var sb = new StringBuilder();
 			sb.AppendLine(header);
 			sb.AppendLine();
@@ -33,12 +34,12 @@ namespace AtelierTomato.Markov.Core.TableFormatters
 			sb.AppendLine(new string('-', Math.Max(columnNames.Length, header.Length)));
 			sb.AppendLine();
 			AuthorPermission? lastAuthorPermission = null;
-			authorPermissions = authorPermissions
+			authorPermissionsList = authorPermissionsList
 				.OrderBy(ap => ap.QueryScope)
 				.ThenBy(ap => ap.AllowedScope)
 				.ThenBy(ap => ap.Author)
 				.ToList();
-			foreach (var authorPermission in authorPermissions)
+			foreach (var authorPermission in authorPermissionsList)
 			{
 				string authorString, authorOIDString, queryScopeString, queryScopeOIDString, allowedScopeString, allowedScopeOIDString;
 				if (lastAuthorPermission is not null && authorPermission.Author == lastAuthorPermission.Author)
@@ -87,6 +88,7 @@ namespace AtelierTomato.Markov.Core.TableFormatters
 				}
 				sb.AppendLine(authorString + queryScopeString + allowedScopeString);
 				sb.AppendLine(authorOIDString + queryScopeOIDString + allowedScopeOIDString);
+				lastAuthorPermission = authorPermission;
 			}
 			return sb.ToString();
 		}

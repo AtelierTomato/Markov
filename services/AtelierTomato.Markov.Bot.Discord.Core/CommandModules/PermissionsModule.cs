@@ -186,15 +186,15 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Summary("Checks if the user is opted in and replies showing where and with what permissions.")]
 		public async Task PermissionsUser()
 		{
-			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var author = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.PermissionsCheck))
+			if (!cooldown.HandleCooldown(author, location, CooldownType.PermissionsCheck))
 			{
 				await ReplyAsync(message: "slow down!!");
 				return;
 			}
 
-			var authorPermissions = await authorPermissionAccess.ReadAuthorPermissionRangeByAuthor(authorOID);
+			var authorPermissions = await authorPermissionAccess.ReadAuthorPermissionRangeByAuthor(author);
 			if (authorPermissions.Any())
 			{
 				var message = await authorPermissionTableFormatter.Format(authorPermissions, $"Permissions for Author '{Context.User.GlobalName}'");
@@ -204,7 +204,76 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			else
 			{
-				await ReplyAsync(message: "you aren't in the database");
+				await ReplyAsync(message: "you aren't in the database!");
+			}
+		}
+
+		[Command("permsserver")]
+		[Alias("ps", "permserver", "permissionsserver", "permissionserver")]
+		[Summary("Checks if the server has any opted in members and replies showing who and with what permissions.")]
+		public async Task PermissionsServer()
+		{
+			if (Context.Channel is IDMChannel)
+			{
+				await ReplyAsync(message: "you're not in a server right now!");
+				return;
+			}
+			if (!(Context.User.Id == Context.Guild.OwnerId || options.DeveloperIDs.Contains(Context.User.Id)))
+			{
+				await ReplyAsync(message: "sorry, only the owner of the server is allowed to use this command!");
+				return;
+			}
+			var author = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(author, location, CooldownType.PermissionsCheck))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+
+			var authorPermissions = await authorPermissionAccess.ReadAuthorPermissionRangeByBaseLocation(DiscordObjectOID.ForServer(options.DiscordInstance, Context.Guild.Id));
+			if (authorPermissions.Any())
+			{
+				var message = await authorPermissionTableFormatter.Format(authorPermissions, $"Permissions for Location '{Context.Guild.Name}'");
+				using var stream = new MemoryStream(Encoding.UTF8.GetBytes(message));
+				await ReplyAsync(message: "sending you the output in DM!");
+				await Context.User.SendFileAsync(stream, Context.Guild.Name + " permissions.txt");
+			}
+			else
+			{
+				await ReplyAsync(message: "there's nobody in the database for this server!");
+			}
+		}
+
+		[Command("permsall")]
+		[Alias("pa", "permissionsall")]
+		[Summary("Checks all of the permissions in the entire database, bot developers only!")]
+		public async Task PermissionsAll()
+		{
+			if (!options.DeveloperIDs.Contains(Context.User.Id))
+			{
+				await ReplyAsync(message: "sorry, only the bot developers are allowed to use this command!");
+				return;
+			}
+			var author = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(author, location, CooldownType.PermissionsCheck))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+
+			var authorPermissions = await authorPermissionAccess.ReadAllAuthorPermissions();
+			if (authorPermissions.Any())
+			{
+				var message = await authorPermissionTableFormatter.Format(authorPermissions, $"Permissions for {options.BotName}");
+				using var stream = new MemoryStream(Encoding.UTF8.GetBytes(message));
+				await ReplyAsync(message: "sending you the output in DM!");
+				await Context.User.SendFileAsync(stream, options.BotName + " permissions.txt");
+			}
+			else
+			{
+				await ReplyAsync(message: "there's nobody in the database!");
 			}
 		}
 	}

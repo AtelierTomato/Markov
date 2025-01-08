@@ -1,6 +1,6 @@
 ﻿namespace AtelierTomato.Markov.Model
 {
-	public class AuthorOID(ServiceType service, string instance, string author)
+	public class AuthorOID(ServiceType service, string instance, string author) : IComparable<AuthorOID>
 	{
 		public ServiceType Service { get; set; } = service;
 		public string Instance { get; set; } = instance;
@@ -44,6 +44,13 @@
 
 		public override int GetHashCode() => HashCode.Combine(Service, Instance, Author);
 
+		public int CompareTo(AuthorOID? other)
+		{
+			if (other is null) return 1;
+
+			return string.Compare(ToString(), other.ToString(), StringComparison.Ordinal);
+		}
+
 		public static bool operator ==(AuthorOID? left, AuthorOID? right)
 		{
 			if (ReferenceEquals(left, right)) return true;
@@ -52,5 +59,25 @@
 		}
 
 		public static bool operator !=(AuthorOID? left, AuthorOID? right) => !(left == right);
+
+		public static bool operator <(AuthorOID left, AuthorOID right)
+		{
+			return ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
+		}
+
+		public static bool operator <=(AuthorOID left, AuthorOID right)
+		{
+			return ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
+		}
+
+		public static bool operator >(AuthorOID left, AuthorOID right)
+		{
+			return !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
+		}
+
+		public static bool operator >=(AuthorOID left, AuthorOID right)
+		{
+			return ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
+		}
 	}
 }

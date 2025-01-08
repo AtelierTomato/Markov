@@ -129,6 +129,13 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			{
 				await SyncLocationsAsync();
 			}
+
+			// Register the Service and Instance name in the bot in order to ensure they output correctly in tables. The owner is more or less a placeholder that doesn't matter.
+			var firstDeveloper = new AuthorOID(ServiceType.Discord, options.DiscordInstance, options.DeveloperIDs.First().ToString());
+			await locationAccess.WriteLocationRange([
+				new Location(DiscordObjectOID.ForService(), ServiceType.Discord.ToString(), firstDeveloper),
+				new Location(DiscordObjectOID.ForInstance(options.DiscordInstance), options.DiscordInstance, firstDeveloper)
+			]);
 		}
 
 		private async Task Client_MessageReceived(SocketMessage messageParam)
@@ -433,7 +440,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 		private async Task<bool> ProcessForGathering(IUserMessage message, ICommandContext context)
 		{
-			var location = await GetLocation(context);
+			var location = await objectOIDBuilder.Build(context.Guild, context.Channel, options.DiscordInstance);
 			var authorPermission = await authorPermissionAccess.ReadAuthorPermission(new AuthorOID(ServiceType.Discord, options.DiscordInstance, context.User.Id.ToString()), location);
 			// Check whether or not we're allowed to gather this message.
 			if (authorPermission is null || authorPermission.AllowedScope is SpecialObjectOID { Type: SpecialObjectOIDType.PermissionDenied })
@@ -465,7 +472,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 			using (context.Channel.EnterTypingState())
 			{
-				var location = await GetLocation(context);
+				var location = await objectOIDBuilder.Build(context.Guild, context.Channel, options.DiscordInstance);
 				var author = new AuthorOID(ServiceType.Discord, options.DiscordInstance, context.User.Id.ToString());
 				// Get the user's retort settings.
 				var retortSetting = await authorRetortConfigAccess.ReadAuthorRetortConfig(author, location);
@@ -497,23 +504,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 		private async Task ProcessForDeleting(IUserMessage message, ICommandContext context)
 		{
-			var oid = (await GetLocation(context)).WithMessage(message.Id);
+			var oid = (await objectOIDBuilder.Build(context.Guild, context.Channel, options.DiscordInstance)).WithMessage(message.Id);
 			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([oid], []), null);
-		}
-
-		private async Task<DiscordObjectOID> GetLocation(ICommandContext context)
-		{
-			DiscordObjectOID location;
-			if (context.Channel is IGuildChannel guildChannel)
-			{
-				location = await objectOIDBuilder.Build(context.Guild, guildChannel, options.DiscordInstance);
-			}
-			else
-			{
-				location = DiscordObjectOID.ForChannel(options.DiscordInstance, 0, 0, context.Channel.Id);
-			}
-
-			return location;
 		}
 	}
 }

@@ -136,6 +136,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				new Location(DiscordObjectOID.ForService(), ServiceType.Discord.ToString(), firstDeveloper),
 				new Location(DiscordObjectOID.ForInstance(options.DiscordInstance), options.DiscordInstance, firstDeveloper)
 			]);
+
+			// Register slash commands
+			await RegisterCommandsAsync();
 		}
 
 		private async Task Client_MessageReceived(SocketMessage messageParam)
@@ -506,6 +509,39 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		{
 			var oid = (await objectOIDBuilder.Build(context.Guild, context.Channel, options.DiscordInstance)).WithMessage(message.Id);
 			await sentenceAccess.DeleteSentenceRange(new SentenceFilter([oid], []), null);
+		}
+
+		private async Task RegisterCommandsAsync()
+		{
+			List<SlashCommandBuilder> commandBuilders = [
+				new SlashCommandBuilder()
+					.WithName("querysentences")
+					.WithDescription("Query sentences based on various parameters.")
+					.AddOption("authorgroup", ApplicationCommandOptionType.String, "GUID for the author group", isRequired: false)
+					.AddOption("locationgroup", ApplicationCommandOptionType.String, "GUID for the location group", isRequired: false)
+					.AddOption("authorfilter", ApplicationCommandOptionType.String, "Double colon (::) separated list of authors", isRequired: false)
+					.AddOption("locationfilter", ApplicationCommandOptionType.String, "Double colon (::) separated list of locations", isRequired: false)
+					.AddOption("searchstring", ApplicationCommandOptionType.String, "Text to search for", isRequired: false)
+					.AddOption("count", ApplicationCommandOptionType.Integer, "Number of sentences to return", isRequired: false),
+			];
+
+			foreach (var commandBuilder in commandBuilders)
+			{
+				var command = commandBuilder.Build();
+				try
+				{
+					foreach (var guild in client.Guilds)
+					{
+						await client.Rest.CreateGuildCommand(command, guild.Id);
+					}
+
+					logger.LogInformation("Slash command '{Command}' registered for all connected guilds.", command.Name);
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex, "Failed to register slash command '{Command}'.", command.Name);
+				}
+			}
 		}
 	}
 }

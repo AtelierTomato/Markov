@@ -171,6 +171,8 @@ namespace AtelierTomato.Markov.Core
 			var locationSettingHierarchy = await locationSettingAccess.ReadLocationSettingHierarchy(location);
 			Guid? locationPreferredLocationGroupID = null;
 			bool globalAllowed = false;
+
+			// Determine which locations are usable from the location
 			foreach (var locationSetting in locationSettingHierarchy)
 			{
 				if (locationSetting.GlobalAllowed is not null && (bool)locationSetting.GlobalAllowed)
@@ -188,6 +190,8 @@ namespace AtelierTomato.Markov.Core
 					}
 				}
 			}
+
+			// If global isn't allowed, and the location has a preferred location group, get the usable locations in that location group, add them to usableLocations
 			if (!globalAllowed && locationPreferredLocationGroupID is not null)
 			{
 				usableLocations = usableLocations.Concat(
@@ -196,6 +200,8 @@ namespace AtelierTomato.Markov.Core
 						.Select(l => l.Location)
 				).Distinct();
 			}
+
+			// If the author retort config is not null, determine what locationGroup and filter the author wishes to use, filter the usableLocations further by this.
 			var authorRetortConfig = await authorRetortConfigAccess.ReadAuthorRetortConfig(author, location);
 			if (authorRetortConfig is not null)
 			{

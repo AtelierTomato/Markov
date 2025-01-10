@@ -22,6 +22,25 @@
 			return string.Compare(ToString(), other.ToString(), StringComparison.Ordinal);
 		}
 
+		public bool IsParentOf(IObjectOID? other)
+		{
+			if (other is null) return false;
+
+			string thisString = ToString() + ':';
+			string otherString = other.ToString() + ':';
+
+			return otherString.StartsWith(thisString, StringComparison.Ordinal) && otherString.Length > thisString.Length;
+		}
+
+		public bool IsChildOf(IObjectOID? other)
+		{
+			if (other is null) return true; // Normally, you'd want to check if this is null, but this function fails if this is null, so always return true
+			return other.IsParentOf(this);
+		}
+
+		public bool IsParentOrEqualTo(IObjectOID? other) => Equals(other) || IsParentOf(other);
+		public bool IsChildOrEqualTo(IObjectOID? other) => Equals(other) || IsChildOf(other);
+
 		public static bool operator ==(IObjectOID? left, IObjectOID? right)
 		{
 			if (ReferenceEquals(left, right)) return true;

@@ -221,12 +221,12 @@ namespace AtelierTomato.Markov.Core
 						}
 						else
 						{
-							usableLocations = authorUsableLocations.Where(a => usableLocations.Any(u => (a.ToString() + ':').StartsWith(u.ToString() + ':', StringComparison.InvariantCulture))).ToList();
+							usableLocations = authorUsableLocations.Where(a => usableLocations.Any(u => u.IsParentOrEqualTo(a))).ToList();
 						}
 					}
 				}
 			}
-			return authorRetortConfig?.Filter.OIDs.Where(f => usableLocations.Any(u => (f.ToString() + ':').StartsWith(u.ToString() + ':', StringComparison.InvariantCulture))).ToList() ?? usableLocations;
+			return authorRetortConfig?.Filter.OIDs.Where(f => usableLocations.Any(u => u.IsParentOrEqualTo(f))).ToList() ?? usableLocations;
 		}
 	}
 }

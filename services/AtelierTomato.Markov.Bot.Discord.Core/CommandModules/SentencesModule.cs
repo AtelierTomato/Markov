@@ -203,7 +203,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 					}
 					if (authorGroup is null && authorFilter is null)
 					{
-						var ownersForLocationsNotInGroup = locations.Where(l => !effectiveLocationFilter.Any(li => l.ID.ToString().StartsWith(li.ToString()))).Select(l => l.Owner).ToList();
+						var ownersForLocationsNotInGroup = locations.Where(l => !effectiveLocationFilter.Any(li => li.IsParentOrEqualTo(l.ID))).Select(l => l.Owner).ToList();
 						if (ownersForLocationsNotInGroup.Any(lo => lo != authorOID))
 						{
 							await RespondAsync("you cannot filter by locations that either you do not own or are not in the given locationgroup unless you provide an authorgroup or authorfilter", ephemeral: true);

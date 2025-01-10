@@ -287,10 +287,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						// Update category only where we need to
 						var newAuthorPermissions = oldAuthorPermissions.Select(authorPermission => new AuthorPermission(
 							authorPermission.Author,
-							authorPermission.QueryScope?.ToString().StartsWith(oldLocation.ToString()) ?? false
+							authorPermission.QueryScope?.IsChildOrEqualTo(oldLocation) ?? false
 								? ((DiscordObjectOID)authorPermission.QueryScope!).UpdateCategory(newCategory)
 								: authorPermission.QueryScope,
-							authorPermission.AllowedScope?.ToString().StartsWith(oldLocation.ToString()) ?? false
+							authorPermission.AllowedScope?.IsChildOrEqualTo(oldLocation) ?? false
 								? ((DiscordObjectOID)authorPermission.AllowedScope!).UpdateCategory(newCategory)
 								: authorPermission.AllowedScope));
 						await authorPermissionAccess.WriteAuthorPermissionRange(newAuthorPermissions);

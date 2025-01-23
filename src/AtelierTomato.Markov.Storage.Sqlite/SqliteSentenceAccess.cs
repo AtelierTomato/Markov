@@ -191,7 +191,7 @@ LIMIT 1
 			return result?.ToSentence(objectOIDParser);
 		}
 
-		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
+		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null, int? count = null)
 		{
 			IEnumerable<string>? authors = null;
 			if (filter.Authors is not [])
@@ -212,11 +212,13 @@ SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {na
 ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
+LIMIT CASE WHEN @count IS NULL THEN -1 ELSE @count END
 ",
 				new
 				{
 					authors,
-					searchString
+					searchString,
+					count
 				});
 			}
 			else
@@ -225,11 +227,13 @@ ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilt
 SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
 ( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
+LIMIT CASE WHEN @count IS NULL THEN -1 ELSE @count END
 ",
 				new
 				{
 					authors,
-					searchString
+					searchString,
+					count
 				});
 			}
 

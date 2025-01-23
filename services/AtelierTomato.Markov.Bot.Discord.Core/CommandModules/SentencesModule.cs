@@ -1,7 +1,9 @@
-﻿using AtelierTomato.Markov.Model;
+﻿using System.Text;
+using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Service.Discord;
 using AtelierTomato.Markov.Storage;
+using ConsoleTableExt;
 using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.Options;
@@ -42,7 +44,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var locationOID = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-			var isDev = !options.DeveloperIDs.Contains(Context.User.Id);    // Some guards only need to be checked if not a developer.
+			var isDev = options.DeveloperIDs.Contains(Context.User.Id);    // Some guards only need to be checked if not a developer.
 			if (!isDev && authorFilter is null && authorGroup is null && locationFilter is null && locationGroup is null)
 			{
 				await RespondAsync("only devs can query from all locations and all authors!", ephemeral: true);
@@ -222,6 +224,15 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				}
 				effectiveLocationFilter = effectiveLocationFilter.Concat(newLocationsForFilter).ToList();
 			}
+
+			var sentences = await sentenceAccess.ReadSentenceRange(new SentenceFilter(effectiveLocationFilter, effectiveAuthorFilter), searchString, count);
+			var listBuilder = ConsoleTableBuilder
+				.From(sentences.ToList())
+				.WithFormat(ConsoleTableBuilderFormat.Minimal)
+				.Export();
+			using var stream = new MemoryStream(Encoding.UTF8.GetBytes(listBuilder.ToString()));
+			await ReplyAsync("sending you the output in DMs!");
+			await Context.User.SendFileAsync(stream, "query results.txt");
 		}
 	}
 }

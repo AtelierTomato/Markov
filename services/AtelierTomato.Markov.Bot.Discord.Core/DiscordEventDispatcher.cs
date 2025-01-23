@@ -9,7 +9,9 @@ using AtelierTomato.Markov.Service.Discord;
 using AtelierTomato.Markov.Storage;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -38,7 +40,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly LocationGroupManager locationGroupManager;
 		private readonly AuthorGroupManager authorGroupManager;
 		private readonly IServiceProvider serviceProvider;
-		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider)
+		private readonly InteractionService interactionService;
+		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider, InteractionService interactionService)
 		{
 			this.logger = logger;
 			this.client = client;
@@ -61,6 +64,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.authorGroupManager = authorGroupManager;
 			this.commandService = commandService;
 			this.serviceProvider = serviceProvider;
+			this.interactionService = interactionService;
 
 			this.client.Log += msg => Task.Run(() => this.Client_Log(msg));
 			this.client.Ready += this.Client_Ready;
@@ -75,14 +79,14 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.client.ThreadCreated += this.Client_ThreadCreated;
 			this.client.ThreadUpdated += this.Client_ThreadUpdated;
 
-			commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
+			// commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
 			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
 		}
 
-		private void LogCommandServiceCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
-		{
-			// todo do more detailed logging here if necessary.
-		}
+		//private void LogCommandServiceCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
+		//{
+		//	// todo do more detailed logging here if necessary.
+		//}
 
 		private static LogLevel MapSeverity(LogSeverity logSeverity) => logSeverity switch
 		{
@@ -138,7 +142,14 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			]);
 
 			// Register slash commands
+			await interactionService.AddModulesAsync(Assembly.GetExecutingAssembly(), serviceProvider);
 			await RegisterCommandsAsync();
+			client.InteractionCreated += async interaction =>
+			{
+				var scope = serviceProvider.CreateScope();
+				var ctx = new SocketInteractionContext(client, interaction);
+				await interactionService.ExecuteCommandAsync(ctx, scope.ServiceProvider);
+			};
 		}
 
 		private async Task Client_MessageReceived(SocketMessage messageParam)
@@ -402,7 +413,6 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				logger.LogInformation("The bot's roles were updated in server with ID '{Server}', just in case we have access to additional channels, we updated {Count} Locations.", newUser.Guild.Id, guildChannels.Count);
 			}
 		}
-
 		private async Task UpdateChannel(SocketGuildChannel guildChannel) => await UpdateChannels([guildChannel]);
 		private async Task UpdateChannels(IList<SocketGuildChannel> guildChannels)
 		{
@@ -513,34 +523,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 		private async Task RegisterCommandsAsync()
 		{
-			List<SlashCommandBuilder> commandBuilders = [
-				new SlashCommandBuilder()
-					.WithName("querysentences")
-					.WithDescription("Query sentences based on various parameters.")
-					.AddOption("authorgroup", ApplicationCommandOptionType.String, "GUID for the author group", isRequired: false)
-					.AddOption("locationgroup", ApplicationCommandOptionType.String, "GUID for the location group", isRequired: false)
-					.AddOption("authorfilter", ApplicationCommandOptionType.String, "Double colon (::) separated list of authors", isRequired: false)
-					.AddOption("locationfilter", ApplicationCommandOptionType.String, "Double colon (::) separated list of locations", isRequired: false)
-					.AddOption("searchstring", ApplicationCommandOptionType.String, "Text to search for", isRequired: false)
-					.AddOption("count", ApplicationCommandOptionType.Integer, "Number of sentences to return", isRequired: false),
-			];
 
-			foreach (var commandBuilder in commandBuilders)
+			foreach (var guild in client.Guilds)
 			{
-				var command = commandBuilder.Build();
-				try
-				{
-					foreach (var guild in client.Guilds)
-					{
-						await client.Rest.CreateGuildCommand(command, guild.Id);
-					}
-
-					logger.LogInformation("Slash command '{Command}' registered for all connected guilds.", command.Name);
-				}
-				catch (Exception ex)
-				{
-					logger.LogError(ex, "Failed to register slash command '{Command}'.", command.Name);
-				}
+				await interactionService.RegisterCommandsToGuildAsync(guild.Id);
 			}
 		}
 	}

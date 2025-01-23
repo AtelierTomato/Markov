@@ -12,6 +12,7 @@ using AtelierTomato.Markov.Storage;
 using AtelierTomato.Markov.Storage.Sqlite;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -74,7 +75,9 @@ builder.Services
 	.AddSingleton<Cooldown>()
 	.AddSingleton<AuthorPermissionTableFormatter>()
 	.AddSingleton(_ => new MultiParser<IObjectOID>([new BookObjectOIDParser(), new SpecialObjectOIDParser(), new DiscordObjectOIDParser()]))
-	.AddSingleton(_ => new CommandService(new CommandServiceConfig { DefaultRunMode = RunMode.Async }));
+	.AddSingleton(_ => new CommandService(new CommandServiceConfig { DefaultRunMode = Discord.Commands.RunMode.Async }))
+	.AddSingleton(_ => new InteractionService(client.Rest, new InteractionServiceConfig { DefaultRunMode = Discord.Interactions.RunMode.Async }));
+
 
 var host = builder.Build();
 

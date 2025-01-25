@@ -287,6 +287,8 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 
 		[Theory]
 		[InlineData("lol this is my server discord.gg/horseradish", "lol this is my server")]
+		[InlineData("lol this is my server discord.gg/hor3534tji3ogvjio5seradish applesauce", "lol this is my server applesauce")]
+		[InlineData("discord.gg/horsera431dish lol this is my server", "lol this is my server")]
 		public void RemoveDiscordServersTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -317,7 +319,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData("1 2 3 4 5 <t:1396027640:R>", "1 2 3 4 5 10 years ago")]
 		[InlineData("1 2 3 4 5 <t:1731191051:R>", "1 2 3 4 5 in 1 month")]
 		[InlineData("1 2 3 4 5 <t:2396027640:D>", "1 2 3 4 5 December 4 , 2045")]
-		[InlineData("1 2 3 4 5 <t:2396027640:d>", "1 2 3 4 5 12/04/2045")]
+		[InlineData("1 2 3 4 5 <t:2396027640:d>", "1 2 3 4 5 12 / 04 / 2045")]
 		[InlineData("1 2 3 4 5 <t:2396027640:T>", "1 2 3 4 5 7:14:00 PM")]
 		[InlineData("1 2 3 4 5 <t:2396027640:t>", "1 2 3 4 5 7:14 PM")]
 		[InlineData("1 2 3 4 5 <t:2396027640:F>", "1 2 3 4 5 Monday , December 4 , 2045 7:14 PM")]
@@ -443,7 +445,9 @@ Life in the Vault is about to change.";
 				["lisp is “fun”, unless you “defun x”.", new string[] { "lisp is “ fun ” , unless you “ defun x ” ." }],
 				[">implying that i'm implying", new string[] { "> implying that i 'm implying" }],
 				[">implying that i am implying", new string[] { "> implying that i am implying" }],
-				["i want to eat—drink water", new string[] { "i want to eat — drink water" }]
+				["i want to eat—drink water", new string[] { "i want to eat — drink water" }],
+				["i want to eat/drink water", new string[] { "i want to eat / drink water" }],
+				["i want to eat\\drink water", new string[] { "i want to eat \\ drink water" }]
 			];
 		}
 

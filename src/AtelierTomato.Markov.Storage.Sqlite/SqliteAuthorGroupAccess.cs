@@ -28,23 +28,24 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			connection.Close();
 		}
 
-		public async Task<AuthorGroup?> ReadAuthorGroup(Guid ID)
+		public async Task<AuthorGroup?> ReadAuthorGroup(Guid ID) => (await ReadAuthorGroups([ID])).FirstOrDefault();
+		public async Task<IEnumerable<AuthorGroup>> ReadAuthorGroups(IEnumerable<Guid> IDs)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<AuthorGroupRow>($@"
+			var result = await connection.QueryAsync<AuthorGroupRow>($@"
 SELECT {nameof(AuthorGroup.ID)}, {nameof(AuthorGroup.Name)} FROM {nameof(AuthorGroup)}
-WHERE {nameof(AuthorGroup.ID)} IS @id
+WHERE {nameof(AuthorGroup.ID)} IN @ids
 ",
 			new
 			{
-				id = ID.ToString()
+				ids = IDs.Select(i => i.ToString())
 			});
 
 			connection.Close();
 
-			return result?.ToAuthorGroup();
+			return result.Select(r => r.ToAuthorGroup());
 		}
 
 		public async Task WriteAuthorGroup(AuthorGroup authorGroup)

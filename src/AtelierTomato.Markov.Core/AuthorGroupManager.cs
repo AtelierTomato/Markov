@@ -20,7 +20,7 @@ namespace AtelierTomato.Markov.Core
 			this.logger = logger;
 		}
 
-		public async Task CreateGroup(AuthorOID sender, string name)
+		public async Task<Guid> CreateGroup(AuthorOID sender, string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
@@ -38,6 +38,7 @@ namespace AtelierTomato.Markov.Core
 				AuthorGroupPermissionType.RenameGroup |
 				AuthorGroupPermissionType.DeleteGroup
 			));
+			return ID;
 		}
 
 		public async Task RenameGroup(AuthorOID sender, Guid ID, string name)
@@ -195,5 +196,26 @@ namespace AtelierTomato.Markov.Core
 			return authors;
 		}
 
+		public async Task<AuthorGroup?> GetValidGroupFromNameAndPermission(AuthorOID author, string groupName, AuthorGroupPermissionType permission)
+		{
+			var authorGroupPermissions = (await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByAuthor(author)).Where(a => a.Permissions.HasFlag(permission));
+			if (!authorGroupPermissions.Any())
+			{
+				return null;
+			}
+			var authorGroups = await authorGroupAccess.ReadAuthorGroups(authorGroupPermissions.Select(a => a.ID));
+			if (!authorGroups.Any())
+			{
+				_logNamelessAuthorGroupWarning(logger, authorGroupPermissions.Select(a => a.ID), null);
+				return null;
+			}
+			return authorGroups.Where(a => a.Name == groupName).FirstOrDefault();
+		}
+
+		private static readonly Action<ILogger, IEnumerable<Guid>, Exception?> _logNamelessAuthorGroupWarning =
+			LoggerMessage.Define<IEnumerable<Guid>>(
+				LogLevel.Warning,
+				new EventId(4, nameof(GetValidGroupFromNameAndPermission)),
+				"""The AuthorGroups with IDs "{IDs}" has no entry in the AuthorGroup table and is thus nameless, this is unexpected.""");
 	}
 }

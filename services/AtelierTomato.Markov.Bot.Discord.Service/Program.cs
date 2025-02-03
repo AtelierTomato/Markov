@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using AtelierTomato.Markov.Bot.Discord.Core;
 using AtelierTomato.Markov.Bot.Discord.Service;
+using AtelierTomato.Markov.Bot.Discord.Service.TypeReaders;
 using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Core.Cooldown;
 using AtelierTomato.Markov.Core.Generation;
@@ -75,7 +76,17 @@ builder.Services
 	.AddSingleton<Cooldown>()
 	.AddSingleton<AuthorPermissionTableFormatter>()
 	.AddSingleton(_ => new MultiParser<IObjectOID>([new BookObjectOIDParser(), new SpecialObjectOIDParser(), new DiscordObjectOIDParser()]))
-	.AddSingleton(_ => new CommandService(new CommandServiceConfig { DefaultRunMode = Discord.Commands.RunMode.Async }))
+	.AddSingleton(provider =>
+	{
+		var commandService = new CommandService(new CommandServiceConfig
+		{
+			DefaultRunMode = Discord.Commands.RunMode.Async
+		});
+
+		commandService.AddTypeReader<Guid>(new GuidTypeReader());
+
+		return commandService;
+	})
 	.AddSingleton(_ => new InteractionService(client.Rest, new InteractionServiceConfig { DefaultRunMode = Discord.Interactions.RunMode.Async }));
 
 

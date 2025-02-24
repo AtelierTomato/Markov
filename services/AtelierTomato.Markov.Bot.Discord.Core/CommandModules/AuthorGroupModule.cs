@@ -363,63 +363,63 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		//[Command("leaveauthorgroup")]
-		//[Alias("lag")]
-		//[Summary("Leaves an AuthorGroup")]
-		//public async Task LeaveAuthorGroup(Guid id)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		await authorGroupManager.LeaveGroup(authorOID, id);
-		//		await ReplyAsync($"left group with ID \"{id}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("leaveauthorgroup")]
+		[Alias("lag")]
+		[Summary("Leaves an AuthorGroup")]
+		public async Task LeaveAuthorGroup(Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				await authorGroupManager.LeaveGroup(authorOID, id);
+				await ReplyAsync($"left group with ID \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
-		//[Command("leaveauthorgroup")]
-		//[Alias("lag")]
-		//[Summary("Leaves an AuthorGroup")]
-		//public async Task LeaveAuthorGroup([Remainder] string name)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	var permissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByAuthor(authorOID);
-		//	if (!permissions.Any())
-		//	{
-		//		await ReplyAsync("you're not in any groups!");
-		//		return;
-		//	}
-		//	var group = (await authorGroupAccess.ReadAuthorGroups(permissions.Select(p => p.ID))).Where(g => g.Name == name).FirstOrDefault();
-		//	if (group is null)
-		//	{
-		//		await ReplyAsync($"you're not in any group with the name \"{name}\"");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		await authorGroupManager.LeaveGroup(authorOID, group.ID);
-		//		await ReplyAsync($"left group with ID \"{group.ID}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("leaveauthorgroup")]
+		[Alias("lag")]
+		[Summary("Leaves an AuthorGroup")]
+		public async Task LeaveAuthorGroup([Remainder] string name)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var permissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByAuthor(authorOID);
+			if (!permissions.Any())
+			{
+				await ReplyAsync("you're not in any groups!");
+				return;
+			}
+			var group = (await authorGroupAccess.ReadAuthorGroups(permissions.Select(p => p.ID))).Where(g => g.Name == name).FirstOrDefault();
+			if (group is null)
+			{
+				await ReplyAsync($"you're not in any group with the name \"{name}\"");
+				return;
+			}
+			try
+			{
+				await authorGroupManager.LeaveGroup(authorOID, group.ID);
+				await ReplyAsync($"left group with ID \"{group.ID}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
 		private AuthorGroupPermission? ParseAuthorGroupPermission(string[] parameters)
 		{

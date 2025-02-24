@@ -148,7 +148,7 @@ namespace AtelierTomato.Markov.Core
 				_logOrphanedAuthorGroupWarning(logger, ID, null);
 				throw new InvalidOperationException($"""The {nameof(AuthorGroup)} with ID "{ID}" has no members with permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. This is unexpected.""");
 			}
-			if (authorGroupPerissionsWithDeleteGroup.Count() is 1)
+			if (authorGroupPerissionsWithDeleteGroup.Count() is 1 && authorGroupPerissionsWithDeleteGroup.FirstOrDefault()!.Author == sender)
 				throw new ArgumentException($"""Author "{sender}" cannot leave group with ID "{ID}" as they are the only member of it that has the permission {nameof(AuthorGroupPermissionType.DeleteGroup)}. Please use "{nameof(DeleteGroup)}" function instead.""", nameof(sender));
 
 			// All guards passed, allow leave.

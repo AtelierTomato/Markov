@@ -131,50 +131,16 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				await ReplyAsync(message: "slow down!!");
 				return;
 			}
-			Guid? id = null;
-			AuthorOID? otherAuthorOID = null;
-			AuthorGroupPermissionType permissions = new();
-			foreach (var parameter in parameters)
-			{
-				if (id is null)
-				{
-					if (Guid.TryParse(parameter, out var tempId))
-					{
-						id = tempId;
-						continue;
-					}
-				}
-				if (otherAuthorOID is null)
-				{
-					try
-					{
-						otherAuthorOID = AuthorOID.Parse(parameter);
-						continue;
-					}
-					catch
-					{
-						if (ulong.TryParse(parameter, out ulong discordID))
-						{
-							otherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, discordID.ToString());
-							continue;
-						}
-					}
-				}
-				if (Enum.TryParse<AuthorGroupPermissionType>(parameter, true, out var perm))
-				{
-					permissions |= perm;
-				}
-			}
-			if (id is null || otherAuthorOID is null || permissions == 0)
+			var authorGroupPermission = ParseAuthorGroupPermission(parameters);
+			if (authorGroupPermission is null)
 			{
 				await ReplyAsync(message: "you did not include all the necessary parameters, please provider a group ID, an author to invite, and one or more permission");
 				return;
 			}
 			try
 			{
-				var authorGroupPermission = new AuthorGroupPermission(id.Value, otherAuthorOID, permissions);
 				await authorGroupManager.SendOrUpdateAuthorGroupRequest(authorOID, authorGroupPermission);
-				await ReplyAsync($"invited author with id \"{otherAuthorOID}\" to group with id \"{id}\" with permissions: {permissions}");
+				await ReplyAsync($"invited author with id \"{authorGroupPermission.Author}\" to group with id \"{authorGroupPermission.ID}\" with permissions: {authorGroupPermission.Permissions}");
 			}
 			catch (Exception ex)
 			{
@@ -182,257 +148,150 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		//[Command("acceptauthorinvitation")]
-		//[Alias("aai", "acceptauthorgroupinvitation", "aagi")]
-		//[Summary("Accepts an AuthorGroup invitation")]
-		//public async Task AcceptAuthorInvitation(Guid id)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		await authorGroupManager.AcceptInvitation(authorOID, id);
-		//		await ReplyAsync($"accepted invitation to group with id \"{id}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("acceptauthorinvitation")]
+		[Alias("aai", "acceptauthorgroupinvitation", "aagi")]
+		[Summary("Accepts an AuthorGroup invitation")]
+		public async Task AcceptAuthorInvitation(Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				await authorGroupManager.AcceptInvitation(authorOID, id);
+				await ReplyAsync($"accepted invitation to group with id \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
-		//[Command("acceptauthorinvitation")]
-		//[Alias("aai", "acceptauthorgroupinvitation", "aagi")]
-		//[Summary("Accepts an AuthorGroup invitation")]
-		//public async Task AcceptAuthorInvitation([Remainder] string name)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	var invitations = await authorGroupRequestAccess.ReadAuthorGroupRequestRangeByAuthor(authorOID);
-		//	if (!invitations.Any())
-		//	{
-		//		await ReplyAsync("you don't have any invitations!");
-		//		return;
-		//	}
-		//	var group = (await authorGroupAccess.ReadAuthorGroups(invitations.Select(i => i.ID))).Where(i => i.Name == name).FirstOrDefault();
-		//	if (group is null)
-		//	{
-		//		await ReplyAsync($"no invitation to group with name \"{name}\" found");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		await authorGroupManager.AcceptInvitation(authorOID, group.ID);
-		//		await ReplyAsync($"accepted invitation to group with id \"{group.ID}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("acceptauthorinvitation")]
+		[Alias("aai", "acceptauthorgroupinvitation", "aagi")]
+		[Summary("Accepts an AuthorGroup invitation")]
+		public async Task AcceptAuthorInvitation([Remainder] string name)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var invitations = await authorGroupRequestAccess.ReadAuthorGroupRequestRangeByAuthor(authorOID);
+			if (!invitations.Any())
+			{
+				await ReplyAsync("you don't have any invitations!");
+				return;
+			}
+			var group = (await authorGroupAccess.ReadAuthorGroups(invitations.Select(i => i.ID))).Where(i => i.Name == name).FirstOrDefault();
+			if (group is null)
+			{
+				await ReplyAsync($"no invitation to group with name \"{name}\" found");
+				return;
+			}
+			try
+			{
+				await authorGroupManager.AcceptInvitation(authorOID, group.ID);
+				await ReplyAsync($"accepted invitation to group with id \"{group.ID}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
-		//[Command("denyauthorinvitation")]
-		//[Alias("dai", "denyauthorgroupinvitation", "dagi")]
-		//[Summary("Denies an AuthorGroup invitation")]
-		//public async Task DenyAuthorInvitation(Guid id)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		await authorGroupManager.DenyInvitation(authorOID, id);
-		//		await ReplyAsync($"denied invitation to group with id \"{id}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("denyauthorinvitation")]
+		[Alias("dai", "denyauthorgroupinvitation", "dagi")]
+		[Summary("Denies an AuthorGroup invitation")]
+		public async Task DenyAuthorInvitation(Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				await authorGroupManager.DenyInvitation(authorOID, id);
+				await ReplyAsync($"denied invitation to group with id \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
-		//[Command("denyauthorinvitation")]
-		//[Alias("dai", "denyauthorgroupinvitation", "dagi")]
-		//[Summary("Denies an AuthorGroup invitation")]
-		//public async Task DenyAuthorInvitation([Remainder] string name)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	var invitations = await authorGroupRequestAccess.ReadAuthorGroupRequestRangeByAuthor(authorOID);
-		//	if (!invitations.Any())
-		//	{
-		//		await ReplyAsync("you don't have any invitations!");
-		//		return;
-		//	}
-		//	var group = (await authorGroupAccess.ReadAuthorGroups(invitations.Select(i => i.ID))).Where(i => i.Name == name).FirstOrDefault();
-		//	if (group is null)
-		//	{
-		//		await ReplyAsync($"no invitation to group with name \"{name}\" found");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		await authorGroupManager.DenyInvitation(authorOID, group.ID);
-		//		await ReplyAsync($"denied invitation to group with id \"{group.ID}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("denyauthorinvitation")]
+		[Alias("dai", "denyauthorgroupinvitation", "dagi")]
+		[Summary("Denies an AuthorGroup invitation")]
+		public async Task DenyAuthorInvitation([Remainder] string name)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var invitations = await authorGroupRequestAccess.ReadAuthorGroupRequestRangeByAuthor(authorOID);
+			if (!invitations.Any())
+			{
+				await ReplyAsync("you don't have any invitations!");
+				return;
+			}
+			var group = (await authorGroupAccess.ReadAuthorGroups(invitations.Select(i => i.ID))).Where(i => i.Name == name).FirstOrDefault();
+			if (group is null)
+			{
+				await ReplyAsync($"no invitation to group with name \"{name}\" found");
+				return;
+			}
+			try
+			{
+				await authorGroupManager.DenyInvitation(authorOID, group.ID);
+				await ReplyAsync($"denied invitation to group with id \"{group.ID}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
-		//[Command("updateauthor")]
-		//[Alias("ua")]
-		//[Summary("Updates an author in an AuthorGroup")]
-		//public async Task UpdateAuthor(IUser user, Guid id, [Remainder] string[] permissionsParam)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		var permissions = permissionsParam
-		//			.Select(Enum.Parse<AuthorGroupPermissionType>)
-		//			.Aggregate((current, perm) => current | perm);
-		//		var otherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, user.Id.ToString());
-		//		var authorGroupPermission = new AuthorGroupPermission(id, otherAuthorOID, permissions);
-		//		await authorGroupManager.UpdateAuthor(authorOID, authorGroupPermission);
-		//		await ReplyAsync($"updated author with ID \"{user.Id}\" in group with ID \"{id}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
-
-		//[Command("updateauthor")]
-		//[Alias("ua")]
-		//[Summary("Updates an author in an AuthorGroup")]
-		//public async Task UpdateAuthor(string otherAuthorID, Guid id, [Remainder] string[] permissionsParam)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		AuthorOID effectiveOtherAuthorOID;
-		//		if (ulong.TryParse(otherAuthorID, out ulong result))
-		//		{
-		//			effectiveOtherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, result.ToString());
-		//		}
-		//		else
-		//		{
-		//			effectiveOtherAuthorOID = AuthorOID.Parse(otherAuthorID);
-		//		}
-		//		var permissions = permissionsParam
-		//			.Select(Enum.Parse<AuthorGroupPermissionType>)
-		//			.Aggregate((current, perm) => current | perm);
-		//		var authorGroupPermission = new AuthorGroupPermission(id, effectiveOtherAuthorOID, permissions);
-		//		await authorGroupManager.UpdateAuthor(authorOID, authorGroupPermission);
-		//		await ReplyAsync($"updated author with ID \"{effectiveOtherAuthorOID}\" in group with ID \"{id}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
-
-		//[Command("updateauthor")]
-		//[Alias("ua")]
-		//[Summary("Updates an author in an AuthorGroup")]
-		//public async Task UpdateAuthor(IUser user, [Remainder] string[] param)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		(string groupName, AuthorGroupPermissionType permissions) = ParseGroupAndPermissions(param);
-		//		var group = await authorGroupManager.GetValidGroupFromNameAndPermission(authorOID, groupName, AuthorGroupPermissionType.AddAuthor);
-		//		if (group is null)
-		//		{
-		//			await ReplyAsync($"could not find a group named \"{groupName}\" where author with ID \"{authorOID}\" has permission \"{AuthorGroupPermissionType.AddAuthor}\"");
-		//			return;
-		//		}
-		//		var otherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, user.Id.ToString());
-		//		var authorGroupPermission = new AuthorGroupPermission(group.ID, otherAuthorOID, permissions);
-		//		await authorGroupManager.UpdateAuthor(authorOID, authorGroupPermission);
-		//		await ReplyAsync($"updated author with ID \"{user.Id}\" in group with ID \"{group.ID}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
-
-		//[Command("updateauthor")]
-		//[Alias("ua")]
-		//[Summary("Updates an author in an AuthorGroup")]
-		//public async Task UpdateAuthor(string otherAuthorID, [Remainder] string[] param)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		AuthorOID effectiveOtherAuthorOID;
-		//		if (ulong.TryParse(otherAuthorID, out ulong result))
-		//		{
-		//			effectiveOtherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, result.ToString());
-		//		}
-		//		else
-		//		{
-		//			effectiveOtherAuthorOID = AuthorOID.Parse(otherAuthorID);
-		//		}
-		//		(string groupName, AuthorGroupPermissionType permissions) = ParseGroupAndPermissions(param);
-		//		var group = await authorGroupManager.GetValidGroupFromNameAndPermission(authorOID, groupName, AuthorGroupPermissionType.AddAuthor);
-		//		if (group is null)
-		//		{
-		//			await ReplyAsync($"could not find a group named \"{groupName}\" where author with ID \"{authorOID}\" has permission \"{AuthorGroupPermissionType.AddAuthor}\"");
-		//			return;
-		//		}
-		//		var authorGroupPermission = new AuthorGroupPermission(group.ID, effectiveOtherAuthorOID, permissions);
-		//		await authorGroupManager.UpdateAuthor(authorOID, authorGroupPermission);
-		//		await ReplyAsync($"updated author with ID \"{effectiveOtherAuthorOID}\" in group with ID \"{group.ID}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("updateauthor")]
+		[Alias("ua")]
+		[Summary("Updates an author in an AuthorGroup")]
+		public async Task UpdateAuthor(params string[] parameters)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var authorGroupPermission = ParseAuthorGroupPermission(parameters);
+			if (authorGroupPermission is null)
+			{
+				await ReplyAsync(message: "you did not include all the necessary parameters, please provider a group ID, an author to invite, and one or more permission");
+				return;
+			}
+			try
+			{
+				await authorGroupManager.UpdateAuthor(authorOID, authorGroupPermission);
+				await ReplyAsync($"updated author with id \"{authorGroupPermission.Author}\" in group with id \"{authorGroupPermission.ID}\" to have permissions: {authorGroupPermission.Permissions}");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
 		//[Command("removeauthor")]
 		//[Alias("ra")]
@@ -615,5 +474,48 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		//		await ReplyAsync(ex.Message);
 		//	}
 		//}
+
+		private AuthorGroupPermission? ParseAuthorGroupPermission(string[] parameters)
+		{
+			Guid? id = null;
+			AuthorOID? otherAuthorOID = null;
+			AuthorGroupPermissionType permissions = new();
+			foreach (var parameter in parameters)
+			{
+				if (id is null)
+				{
+					if (Guid.TryParse(parameter, out var tempId))
+					{
+						id = tempId;
+						continue;
+					}
+				}
+				if (otherAuthorOID is null)
+				{
+					try
+					{
+						otherAuthorOID = AuthorOID.Parse(parameter);
+						continue;
+					}
+					catch
+					{
+						if (ulong.TryParse(parameter, out ulong discordID))
+						{
+							otherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, discordID.ToString());
+							continue;
+						}
+					}
+				}
+				if (Enum.TryParse<AuthorGroupPermissionType>(parameter, true, out var perm))
+				{
+					permissions |= perm;
+				}
+			}
+			if (id is null || otherAuthorOID is null || permissions == 0)
+			{
+				return null;
+			}
+			return new AuthorGroupPermission(id.Value, otherAuthorOID, permissions);
+		}
 	}
 }

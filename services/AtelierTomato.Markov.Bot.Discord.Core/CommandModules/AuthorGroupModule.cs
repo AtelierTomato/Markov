@@ -293,129 +293,75 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		//[Command("removeauthor")]
-		//[Alias("ra")]
-		//[Summary("Removes an author from an AuthorGroup")]
-		//public async Task RemoveAuthor(IUser user, Guid id)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		var otherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, user.Id.ToString());
-		//		await authorGroupManager.RemoveAuthor(authorOID, id, otherAuthorOID);
-		//		await ReplyAsync($"removed author with ID \"{otherAuthorOID}\" from group with ID \"{id}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("removeauthor")]
+		[Alias("ra")]
+		[Summary("Removes an author from an AuthorGroup")]
+		public async Task RemoveAuthor(string otherAuthorID, Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				AuthorOID effectiveOtherAuthorOID;
+				if (ulong.TryParse(otherAuthorID, out ulong result))
+				{
+					effectiveOtherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, result.ToString());
+				}
+				else
+				{
+					effectiveOtherAuthorOID = AuthorOID.Parse(otherAuthorID);
+				}
+				await authorGroupManager.RemoveAuthor(authorOID, id, effectiveOtherAuthorOID);
+				await ReplyAsync($"removed author with ID \"{effectiveOtherAuthorOID}\" from group with ID \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
-		//[Command("removeauthor")]
-		//[Alias("ra")]
-		//[Summary("Removes an author from an AuthorGroup")]
-		//public async Task RemoveAuthor(string otherAuthorID, Guid id)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		AuthorOID effectiveOtherAuthorOID;
-		//		if (ulong.TryParse(otherAuthorID, out ulong result))
-		//		{
-		//			effectiveOtherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, result.ToString());
-		//		}
-		//		else
-		//		{
-		//			effectiveOtherAuthorOID = AuthorOID.Parse(otherAuthorID);
-		//		}
-		//		await authorGroupManager.RemoveAuthor(authorOID, id, effectiveOtherAuthorOID);
-		//		await ReplyAsync($"removed author with ID \"{effectiveOtherAuthorOID}\" from group with ID \"{id}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
-
-		//[Command("removeauthor")]
-		//[Alias("ra")]
-		//[Summary("Removes an author from an AuthorGroup")]
-		//public async Task RemoveAuthor(IUser user, [Remainder] string name)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	var group = await authorGroupManager.GetValidGroupFromNameAndPermission(authorOID, name, AuthorGroupPermissionType.RemoveAuthor);
-		//	if (group is null)
-		//	{
-		//		await ReplyAsync($"could not find a group named \"{name}\" where author with ID \"{authorOID}\" has permission \"{AuthorGroupPermissionType.RemoveAuthor}\"");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		var otherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, user.Id.ToString());
-		//		await authorGroupManager.RemoveAuthor(authorOID, group.ID, otherAuthorOID);
-		//		await ReplyAsync($"removed author with ID \"{otherAuthorOID}\" from group with ID \"{group.ID}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
-
-		//[Command("removeauthor")]
-		//[Alias("ra")]
-		//[Summary("Removes an author from an AuthorGroup")]
-		//public async Task RemoveAuthor(string otherAuthorID, [Remainder] string name)
-		//{
-		//	var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
-		//	var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
-		//	if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
-		//	{
-		//		await ReplyAsync(message: "slow down!!");
-		//		return;
-		//	}
-		//	var group = await authorGroupManager.GetValidGroupFromNameAndPermission(authorOID, name, AuthorGroupPermissionType.RemoveAuthor);
-		//	if (group is null)
-		//	{
-		//		await ReplyAsync($"could not find a group named \"{name}\" where author with ID \"{authorOID}\" has permission \"{AuthorGroupPermissionType.RemoveAuthor}\"");
-		//		return;
-		//	}
-		//	try
-		//	{
-		//		AuthorOID effectiveOtherAuthorOID;
-		//		if (ulong.TryParse(otherAuthorID, out ulong result))
-		//		{
-		//			effectiveOtherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, result.ToString());
-		//		}
-		//		else
-		//		{
-		//			effectiveOtherAuthorOID = AuthorOID.Parse(otherAuthorID);
-		//		}
-		//		await authorGroupManager.RemoveAuthor(authorOID, group.ID, effectiveOtherAuthorOID);
-		//		await ReplyAsync($"removed author with ID \"{effectiveOtherAuthorOID}\" from group with ID \"{group.ID}\"");
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		await ReplyAsync(ex.Message);
-		//	}
-		//}
+		[Command("removeauthor")]
+		[Alias("ra")]
+		[Summary("Removes an author from an AuthorGroup")]
+		public async Task RemoveAuthor(string otherAuthorID, [Remainder] string name)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var group = await authorGroupManager.GetValidGroupFromNameAndPermission(authorOID, name, AuthorGroupPermissionType.RemoveAuthor);
+			if (group is null)
+			{
+				await ReplyAsync($"could not find a group named \"{name}\" where author with ID \"{authorOID}\" has permission \"{AuthorGroupPermissionType.RemoveAuthor}\"");
+				return;
+			}
+			try
+			{
+				AuthorOID effectiveOtherAuthorOID;
+				if (ulong.TryParse(otherAuthorID, out ulong result))
+				{
+					effectiveOtherAuthorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, result.ToString());
+				}
+				else
+				{
+					effectiveOtherAuthorOID = AuthorOID.Parse(otherAuthorID);
+				}
+				await authorGroupManager.RemoveAuthor(authorOID, group.ID, effectiveOtherAuthorOID);
+				await ReplyAsync($"removed author with ID \"{effectiveOtherAuthorOID}\" from group with ID \"{group.ID}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 
 		//[Command("leaveauthorgroup")]
 		//[Alias("lag")]

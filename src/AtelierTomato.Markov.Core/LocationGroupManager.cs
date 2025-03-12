@@ -24,7 +24,7 @@ namespace AtelierTomato.Markov.Core
 			this.logger = logger;
 		}
 
-		public async Task CreateGroup(AuthorOID sender, IObjectOID senderLocation, string name)
+		public async Task<Guid> CreateGroup(AuthorOID sender, IObjectOID senderLocation, string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
@@ -46,6 +46,7 @@ namespace AtelierTomato.Markov.Core
 				LocationGroupPermissionType.RenameGroup |
 				LocationGroupPermissionType.DeleteGroup
 			));
+			return ID;
 		}
 
 		public async Task RenameGroup(AuthorOID sender, Guid ID, string name)

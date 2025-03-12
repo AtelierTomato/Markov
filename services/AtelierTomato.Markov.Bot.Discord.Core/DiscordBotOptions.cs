@@ -16,6 +16,6 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		public string ActivityString { get; set; } = "Placeholder!";
 		public ActivityType ActivityType { get; set; } = ActivityType.Playing;
 		public string EmptyMarkovReturn { get; set; } = "The Markov chain failed to generate anything. This is likely because either the database or the specific query handed to it resulted in 0 Sentences.";
-		public List<ulong> DeveloperIDs { get; set; } = [142781100152848384, 1050384196100706304];
+		public List<ulong> DeveloperIDs { get; set; } = [1050384196100706304, 142781100152848384];
 	}
 }

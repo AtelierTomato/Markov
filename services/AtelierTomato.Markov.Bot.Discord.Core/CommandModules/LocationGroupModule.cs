@@ -67,5 +67,80 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				return;
 			}
 		}
+
+		[Command("renamelocationgroup")]
+		[Alias("rlg")]
+		[Summary("Renames a LocationGroup")]
+		public async Task RenameAuthorGroup(Guid id, [Remainder] string newName)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				await locationGroupManager.RenameGroup(authorOID, id, newName);
+				await ReplyAsync($"renamed {nameof(LocationGroup)} with ID \"{id}\" to \"{newName}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
+		[Command("deletelocationgroup")]
+		[Alias("dlg")]
+		[Summary("Deletes a LocationGroup")]
+		public async Task DeleteLocationGroup([Remainder] string name)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var group = await locationGroupManager.GetValidGroupFromNameAndPermission(authorOID, name, LocationGroupPermissionType.DeleteGroup);
+			if (group is null)
+			{
+				await ReplyAsync($"could not find a group named \"{name}\" where author with ID \"{authorOID}\" has permission \"{AuthorGroupPermissionType.DeleteGroup}\"");
+				return;
+			}
+			try
+			{
+				await locationGroupManager.DeleteGroup(authorOID, group.ID);
+				await ReplyAsync($"deleted group with ID \"{group.ID}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
+		[Command("deletelocationgroup")]
+		[Alias("dlg")]
+		[Summary("Deletes a LocationGroup")]
+		public async Task DeleteLocationGroup(Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				await locationGroupManager.DeleteGroup(authorOID, id);
+				await ReplyAsync($"deleted group with ID \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
 	}
 }

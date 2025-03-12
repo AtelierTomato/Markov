@@ -216,6 +216,6 @@ namespace AtelierTomato.Markov.Core
 			LoggerMessage.Define<IEnumerable<Guid>>(
 				LogLevel.Warning,
 				new EventId(4, nameof(GetValidGroupFromNameAndPermission)),
-				"""The AuthorGroups with IDs "{IDs}" has no entry in the AuthorGroup table and is thus nameless, this is unexpected.""");
+				"""The AuthorGroups with IDs "{IDs}" have no entry in the AuthorGroup table and are thus nameless, this is unexpected.""");
 	}
 }

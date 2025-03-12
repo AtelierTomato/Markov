@@ -229,5 +229,28 @@ namespace AtelierTomato.Markov.Core
 			}
 			return authorRetortConfig?.Filter.OIDs.Where(f => usableLocations.Any(u => u.IsParentOrEqualTo(f))).ToList() ?? usableLocations;
 		}
+
+		public async Task<LocationGroup?> GetValidGroupFromNameAndPermission(AuthorOID author, string groupName, LocationGroupPermissionType permission)
+		{
+			var locationGroupPermissions = (await locationGroupPermissionAccess.ReadLocationGroupRequestRangeByOwner(author)).Where(l => l.Permissions.HasFlag(permission));
+			if (!locationGroupPermissions.Any())
+			{
+				return null;
+			}
+			var locationGroups = await locationGroupAccess.ReadLocationGroups(locationGroupPermissions.Select(l => l.ID));
+			if (!locationGroups.Any())
+			{
+				_logNamelessLocationGroupWarning(logger, locationGroupPermissions.Select(l => l.ID).Distinct(), null);
+				return null;
+			}
+			return locationGroups.Where(l => l.Name == groupName).FirstOrDefault();
+		}
+
+		private static readonly Action<ILogger, IEnumerable<Guid>, Exception?> _logNamelessLocationGroupWarning =
+			LoggerMessage.Define<IEnumerable<Guid>>(
+				LogLevel.Warning,
+				new EventId(5, nameof(GetValidGroupFromNameAndPermission)),
+				"""The LocationGroups with IDs "{IDs}" have no entry in the LocationGroup table and are thus nameless, this is unexpected.""");
+
 	}
 }

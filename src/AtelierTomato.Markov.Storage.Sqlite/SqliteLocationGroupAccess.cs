@@ -28,23 +28,24 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			connection.Close();
 		}
 
-		public async Task<LocationGroup?> ReadLocationGroup(Guid ID)
+		public async Task<LocationGroup?> ReadLocationGroup(Guid ID) => (await ReadLocationGroups([ID])).FirstOrDefault();
+		public async Task<IEnumerable<LocationGroup>> ReadLocationGroups(IEnumerable<Guid> IDs)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QuerySingleOrDefaultAsync<LocationGroupRow>($@"
+			var result = await connection.QueryAsync<LocationGroupRow>($@"
 SELECT {nameof(LocationGroup.ID)}, {nameof(LocationGroup.Name)} FROM {nameof(LocationGroup)}
-WHERE {nameof(LocationGroup.ID)} IS @id
+WHERE {nameof(LocationGroup.ID)} IN @ids
 ",
 			new
 			{
-				id = ID.ToString()
+				ids = IDs.Select(i => i.ToString())
 			});
 
 			connection.Close();
 
-			return result?.ToLocationGroup();
+			return result.Select(r => r.ToLocationGroup());
 		}
 
 		public async Task WriteLocationGroup(LocationGroup locationGroup)

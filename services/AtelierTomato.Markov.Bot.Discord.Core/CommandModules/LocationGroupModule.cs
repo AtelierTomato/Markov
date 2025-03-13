@@ -5,6 +5,7 @@ using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Model.ObjectOID.LocationTypes;
 using AtelierTomato.Markov.Service.Discord;
 using AtelierTomato.Markov.Storage;
+using ConsoleTableExt;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 
@@ -158,6 +159,33 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			catch (Exception ex)
 			{
 				await ReplyAsync(ex.Message);
+			}
+		}
+
+		[Command("listlocationgrouprequests")]
+		[Alias("llgr", "llr", "listlocationrequests", "listlocationgrouprequest", "listlocationrequest")]
+		[Summary("Lists LocationGroupRequests for an author")]
+		public async Task ListLocationGroupRequests()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var requests = (await locationGroupRequestAccess.ReadLocationGroupRequestRangeByOwner(authorOID)).ToList();
+			if (requests.Count is 0)
+			{
+				await ReplyAsync($"you have no {nameof(LocationGroup)}Requests.");
+			}
+			else
+			{
+				var listBuilder = ConsoleTableBuilder
+					.From(requests)
+					.WithFormat(ConsoleTableBuilderFormat.Minimal)
+					.Export();
+				await ReplyAsync(listBuilder.Insert(0, "```").Append("```").ToString().TrimEnd());
 			}
 		}
 

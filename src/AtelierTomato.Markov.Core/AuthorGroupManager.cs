@@ -116,6 +116,10 @@ namespace AtelierTomato.Markov.Core
 			if ((authorGroupPermission.Permissions & ~senderAuthorGroupPermission.Permissions) != 0)
 				throw new ArgumentException($"""Author "{sender}" does not have some of the permissions they are trying to assign.""", nameof(authorGroupPermission));
 
+			// Check if Author is already in group
+			_ = await authorGroupPermissionAccess.ReadAuthorGroupPermission(authorGroupPermission.ID, authorGroupPermission.Author) ??
+				throw new ArgumentException($"""Author "{authorGroupPermission.Author}" is not a member of group with ID "{authorGroupPermission.ID}".""");
+
 			// All guards passed, allow write.
 			await authorGroupPermissionAccess.WriteAuthorGroupPermission(authorGroupPermission);
 		}

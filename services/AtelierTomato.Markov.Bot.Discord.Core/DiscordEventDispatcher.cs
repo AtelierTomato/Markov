@@ -78,6 +78,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.client.GuildMemberUpdated += this.Client_GuildMemberUpdated;
 			this.client.ThreadCreated += this.Client_ThreadCreated;
 			this.client.ThreadUpdated += this.Client_ThreadUpdated;
+			this.client.JoinedGuild += this.Client_JoinedGuild;
 
 			// commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
 			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
@@ -392,6 +393,15 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			{
 				logger.LogInformation("Thread with ID '{ID}' updated in database", newThreadChannel.Id);
 			}
+		}
+		private async Task Client_JoinedGuild(SocketGuild guild)
+		{
+			var owner = new AuthorOID(ServiceType.Discord, options.DiscordInstance, guild.OwnerId.ToString());
+			IEnumerable<Location> locations = [new(DiscordObjectOID.ForServer(options.DiscordInstance, guild.Id), guild.Name, owner)];
+			locations = locations.Concat(await Task.WhenAll(guild.Channels.Select(async c => new Location(await objectOIDBuilder.Build(guild, c, options.DiscordInstance), c.Name, owner))));
+
+			await locationAccess.WriteLocationRange(locations);
+			logger.LogInformation("Wrote {Number} locations to the database from newly joined group \"{Group}\".", locations.Count(), guild.Name);
 		}
 
 		public async Task Client_RoleUpdated(SocketRole oldRole, SocketRole newRole)

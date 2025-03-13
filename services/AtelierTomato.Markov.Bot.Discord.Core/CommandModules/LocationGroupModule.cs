@@ -205,6 +205,78 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("denylocationinvitation")]
+		[Alias("dli", "denylocationgroupinvitation", "dlgi")]
+		[Summary("Denies a LocationGroup invitation")]
+		public async Task DenyLocationInvitation(string inviteLocationParam, Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				IObjectOID inviteLocation = new SpecialObjectOID(Model.ObjectOID.Types.SpecialObjectOIDType.Invalid);
+				try
+				{
+					inviteLocation = objectOIDParser.Parse(inviteLocationParam);
+				}
+				catch
+				{
+					if (Enum.TryParse<DiscordLocationType>(inviteLocationParam, true, out var locationDepth))
+					{
+						inviteLocation = GetGroupLocation(locationDepth, location);
+					}
+					else
+					{
+						await ReplyAsync(message: $"invite location was not a valid {nameof(IObjectOID)} or {nameof(DiscordLocationType)}");
+					}
+				}
+				if (inviteLocation == new SpecialObjectOID(Model.ObjectOID.Types.SpecialObjectOIDType.Invalid))
+				{
+					await ReplyAsync("invite location was not set");
+				}
+				await locationGroupManager.DenyInvitation(authorOID, inviteLocation, id);
+				await ReplyAsync($"denied invitation for location with id \"{inviteLocation}\" to group with id \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
+		[Command("updatelocation")]
+		[Alias("ul")]
+		[Summary("Updates a location in a LocationGroup")]
+		public async Task UpdateLocation(params string[] parameters)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var locationGroupPermission = ParseLocationGroupPermission(parameters, location);
+			if (locationGroupPermission is null)
+			{
+				await ReplyAsync(message: $"you did not include all the necessary parameters, please provide a group ID, a location to invite (either as a scope relative to the current channel, or the raw {nameof(IObjectOID)}), and one or more permissions");
+				return;
+			}
+			try
+			{
+				await locationGroupManager.UpdateLocation(authorOID, locationGroupPermission);
+				await ReplyAsync($"updated location with id \"{locationGroupPermission.Location}\" in group with id \"{locationGroupPermission.ID}\" to have permissions: {locationGroupPermission.Permissions}");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
 		[Command("listlocationgrouprequests")]
 		[Alias("llgr", "llr", "listlocationrequests", "listlocationgrouprequest", "listlocationrequest")]
 		[Summary("Lists LocationGroupRequests for an author")]

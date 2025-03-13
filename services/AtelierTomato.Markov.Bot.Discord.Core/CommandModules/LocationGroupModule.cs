@@ -277,6 +277,76 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("removelocation")]
+		[Alias("rl")]
+		[Summary("Removes a location from a LocationGroup")]
+		public async Task RemoveLocation(string otherLocation, Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				IObjectOID effectiveOtherLocation;
+				if (Enum.TryParse<DiscordLocationType>(otherLocation, true, out var locationDepth))
+				{
+					effectiveOtherLocation = GetGroupLocation(locationDepth, location);
+				}
+				else
+				{
+					effectiveOtherLocation = objectOIDParser.Parse(otherLocation);
+				}
+				await locationGroupManager.RemoveLocation(authorOID, id, effectiveOtherLocation);
+				await ReplyAsync($"removed location with ID \"{effectiveOtherLocation}\" from group with ID \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
+		[Command("removelocation")]
+		[Alias("rl")]
+		[Summary("Removes a location from a LocationGroup")]
+		public async Task RemoveLocation(string otherLocation, [Remainder] string name)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var group = await locationGroupManager.GetValidGroupFromNameAndPermission(authorOID, name, LocationGroupPermissionType.RemoveLocation);
+			if (group is null)
+			{
+				await ReplyAsync($"could not find a group named \"{name}\" where author with ID \"{authorOID}\" has permission \"{LocationGroupPermissionType.RemoveLocation}\"");
+				return;
+			}
+			try
+			{
+				IObjectOID effectiveOtherLocation;
+				if (Enum.TryParse<DiscordLocationType>(otherLocation, true, out var locationDepth))
+				{
+					effectiveOtherLocation = GetGroupLocation(locationDepth, location);
+				}
+				else
+				{
+					effectiveOtherLocation = objectOIDParser.Parse(otherLocation);
+				}
+				await locationGroupManager.RemoveLocation(authorOID, group.ID, effectiveOtherLocation);
+				await ReplyAsync($"removed location with ID \"{effectiveOtherLocation}\" from group with ID \"{group.ID}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
 		[Command("listlocationgrouprequests")]
 		[Alias("llgr", "llr", "listlocationrequests", "listlocationgrouprequest", "listlocationrequest")]
 		[Summary("Lists LocationGroupRequests for an author")]

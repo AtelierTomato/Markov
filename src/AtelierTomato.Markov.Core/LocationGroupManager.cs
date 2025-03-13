@@ -141,13 +141,13 @@ namespace AtelierTomato.Markov.Core
 			var locationGroupPermissions = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID(ID);
 			if (!locationGroupPermissions.Select(p => p.Location).Contains(location))
 				throw new ArgumentException($"""Location "{location}" is not registered to group with ID "{ID}".""", nameof(location));
-			var locationGroupPerissionsWithDeleteGroup = locationGroupPermissions.Where(p => p.Permissions.HasFlag(LocationGroupPermissionType.DeleteGroup));
-			if (!locationGroupPerissionsWithDeleteGroup.Any())
+			var locationGroupPermissionsWithDeleteGroup = locationGroupPermissions.Where(p => p.Permissions.HasFlag(LocationGroupPermissionType.DeleteGroup));
+			if (!locationGroupPermissionsWithDeleteGroup.Any())
 			{
 				_logOrphanedLocationGroupWarning(logger, ID, null);
 				throw new InvalidOperationException($"""The {nameof(LocationGroup)} with ID "{ID}" has no members with permission {nameof(LocationGroupPermissionType.DeleteGroup)}. This is unexpected.""");
 			}
-			if (locationGroupPerissionsWithDeleteGroup.Count() is 1)
+			if (locationGroupPermissionsWithDeleteGroup.Count() is 1 && locationGroupPermissionsWithDeleteGroup.FirstOrDefault()!.Location == location)
 				throw new ArgumentException($"""Location "{location}" cannot be removed from group with ID "{ID}" as it is the only member of it that has the permission {nameof(LocationGroupPermissionType.DeleteGroup)}. Please use "{nameof(DeleteGroup)}" function instead.""", nameof(location));
 
 			if ((locationGroupPermissions.Where(p => p.Location == location).First().Permissions & ~senderGroupPermission) != 0)

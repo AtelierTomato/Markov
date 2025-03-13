@@ -162,6 +162,49 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("acceptlocationinvitation")]
+		[Alias("ali", "acceptlocationgroupinvitation", "algi")]
+		[Summary("Accepts a LocationGroup invitation")]
+		public async Task AcceptLocationInvitation(string inviteLocationParam, Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				IObjectOID inviteLocation = new SpecialObjectOID(Model.ObjectOID.Types.SpecialObjectOIDType.Invalid);
+				try
+				{
+					inviteLocation = objectOIDParser.Parse(inviteLocationParam);
+				}
+				catch
+				{
+					if (Enum.TryParse<DiscordLocationType>(inviteLocationParam, true, out var locationDepth))
+					{
+						inviteLocation = GetGroupLocation(locationDepth, location);
+					}
+					else
+					{
+						await ReplyAsync(message: $"invite location was not a valid {nameof(IObjectOID)} or {nameof(DiscordLocationType)}");
+					}
+				}
+				if (inviteLocation == new SpecialObjectOID(Model.ObjectOID.Types.SpecialObjectOIDType.Invalid))
+				{
+					await ReplyAsync("invite location was not set");
+				}
+				await locationGroupManager.AcceptInvitation(authorOID, inviteLocation, id);
+				await ReplyAsync($"accepted invitation for location with id \"{inviteLocation}\" to group with id \"{id}\"");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
 		[Command("listlocationgrouprequests")]
 		[Alias("llgr", "llr", "listlocationrequests", "listlocationgrouprequest", "listlocationrequest")]
 		[Summary("Lists LocationGroupRequests for an author")]

@@ -134,7 +134,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			var authorGroupPermission = ParseAuthorGroupPermission(parameters);
 			if (authorGroupPermission is null)
 			{
-				await ReplyAsync(message: "you did not include all the necessary parameters, please provider a group ID, an author to invite, and one or more permission");
+				await ReplyAsync(message: "you did not include all the necessary parameters, please provider a group ID, an author to invite, and one or more permissions");
 				return;
 			}
 			try

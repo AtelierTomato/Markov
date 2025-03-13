@@ -19,8 +19,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly Cooldown cooldown;
 		private readonly DiscordObjectOIDBuilder objectOIDBuilder;
 		private readonly LocationGroupManager locationGroupManager;
-
-		public LocationGroupModule(ILocationGroupAccess locationGroupAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager)
+		private readonly MultiParser<IObjectOID> objectOIDParser;
+		public LocationGroupModule(ILocationGroupAccess locationGroupAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, MultiParser<IObjectOID> objectOIDParser)
 		{
 			this.locationGroupAccess = locationGroupAccess;
 			this.locationGroupPermissionAccess = locationGroupPermissionAccess;
@@ -29,6 +29,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.cooldown = cooldown;
 			this.objectOIDBuilder = objectOIDBuilder;
 			this.locationGroupManager = locationGroupManager;
+			this.objectOIDParser = objectOIDParser;
 		}
 
 		[Command("createlocationgroup")]
@@ -45,19 +46,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			try
 			{
-				DiscordObjectOID groupLocation = locationDepth switch
-				{
-					DiscordLocationType.Global => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Global}!", nameof(locationDepth)),
-					DiscordLocationType.Discord => DiscordObjectOID.ForService(),
-					DiscordLocationType.Instance => DiscordObjectOID.ForInstance(location.Instance!),
-					DiscordLocationType.Server => DiscordObjectOID.ForServer(location.Instance!, location.Server!.Value),
-					DiscordLocationType.Category => DiscordObjectOID.ForCategory(location.Instance!, location.Server!.Value, location.Category!.Value),
-					DiscordLocationType.Channel => DiscordObjectOID.ForChannel(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value),
-					DiscordLocationType.Thread => DiscordObjectOID.ForThread(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value, location.Thread ?? 0),
-					DiscordLocationType.Message => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Message}!", nameof(locationDepth)),
-					DiscordLocationType.Sentence => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Sentence}!", nameof(locationDepth)),
-					_ => throw new NotImplementedException($"this {nameof(DiscordLocationType)} is not implemented!")
-				};
+				var groupLocation = GetGroupLocation(locationDepth, location);
 				var id = await locationGroupManager.CreateGroup(authorOID, groupLocation, name);
 				await ReplyAsync($"created new {nameof(LocationGroup)} with ID \"{id}\" and name \"{name}\"!");
 			}
@@ -142,5 +131,91 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				await ReplyAsync(ex.Message);
 			}
 		}
+
+		[Command("invitelocation")]
+		[Alias("il")]
+		[Summary("Invites a Location to a LocationGroup")]
+		public async Task InviteLocation(params string[] parameters)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			try
+			{
+				var locationGroupPermission = ParseLocationGroupPermission(parameters, location);
+				if (locationGroupPermission is null)
+				{
+					await ReplyAsync(message: $"you did not include all the necessary parameters, please provide a group ID, a location to invite (either as a scope relative to the current channel, or the raw {nameof(IObjectOID)}), and one or more permissions");
+					return;
+				}
+				await locationGroupManager.SendOrUpdateLocationGroupRequest(authorOID, locationGroupPermission);
+				await ReplyAsync($"invited location with id \"{locationGroupPermission.Location}\" to group with id \"{locationGroupPermission.ID}\" with permissions: {locationGroupPermission.Permissions}");
+			}
+			catch (Exception ex)
+			{
+				await ReplyAsync(ex.Message);
+			}
+		}
+
+		private LocationGroupPermission? ParseLocationGroupPermission(string[] parameters, DiscordObjectOID location)
+		{
+			Guid? id = null;
+			IObjectOID? otherLocationOID = null;
+			LocationGroupPermissionType permissions = new();
+			foreach (var parameter in parameters)
+			{
+				if (id is null)
+				{
+					if (Guid.TryParse(parameter, out var tempId))
+					{
+						id = tempId;
+						continue;
+					}
+				}
+				if (otherLocationOID is null)
+				{
+					try
+					{
+						otherLocationOID = objectOIDParser.Parse(parameter);
+						continue;
+					}
+					catch
+					{
+						if (Enum.TryParse<DiscordLocationType>(parameter, true, out var locationDepth))
+						{
+							otherLocationOID = GetGroupLocation(locationDepth, location);
+							continue;
+						}
+					}
+				}
+				if (Enum.TryParse<LocationGroupPermissionType>(parameter, true, out var perm))
+				{
+					permissions |= perm;
+				}
+			}
+			if (id is null || otherLocationOID is null || permissions == 0)
+			{
+				return null;
+			}
+			return new LocationGroupPermission(id.Value, otherLocationOID, permissions);
+		}
+
+		private static DiscordObjectOID GetGroupLocation(DiscordLocationType locationDepth, DiscordObjectOID location) => locationDepth switch
+		{
+			DiscordLocationType.Global => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Global}!", nameof(locationDepth)),
+			DiscordLocationType.Discord => DiscordObjectOID.ForService(),
+			DiscordLocationType.Instance => DiscordObjectOID.ForInstance(location.Instance!),
+			DiscordLocationType.Server => DiscordObjectOID.ForServer(location.Instance!, location.Server!.Value),
+			DiscordLocationType.Category => DiscordObjectOID.ForCategory(location.Instance!, location.Server!.Value, location.Category!.Value),
+			DiscordLocationType.Channel => DiscordObjectOID.ForChannel(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value),
+			DiscordLocationType.Thread => DiscordObjectOID.ForThread(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value, location.Thread ?? 0),
+			DiscordLocationType.Message => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Message}!", nameof(locationDepth)),
+			DiscordLocationType.Sentence => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Sentence}!", nameof(locationDepth)),
+			_ => throw new NotImplementedException($"this {nameof(DiscordLocationType)} is not implemented!")
+		};
 	}
 }

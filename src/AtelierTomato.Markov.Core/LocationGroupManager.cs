@@ -134,8 +134,9 @@ namespace AtelierTomato.Markov.Core
 
 		public async Task RemoveLocation(AuthorOID sender, Guid ID, IObjectOID location)
 		{
+			var locationOwner = await locationAccess.ReadLocationOwner(location);
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
-			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.RemoveLocation))
+			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.RemoveLocation) && locationOwner != sender)
 				throw new ArgumentException($"""Author "{sender}" does not have permission to remove locations from group with ID "{ID}".""", nameof(sender));
 
 			var locationGroupPermissions = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID(ID);

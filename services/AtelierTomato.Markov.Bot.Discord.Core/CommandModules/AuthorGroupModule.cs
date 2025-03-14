@@ -476,6 +476,44 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("authorgroupinfo")]
+		[Alias("agi")]
+		[Summary("Lists the name, permissions, and requests for an AuthorGroup")]
+		public async Task AuthorGroupInfo(Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var group = await authorGroupAccess.ReadAuthorGroup(id);
+			if (group is null)
+			{
+				await ReplyAsync($"no {nameof(AuthorGroup)} with ID \"{id}\" was found");
+				return;
+			}
+			var permissions = (await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID(id)).ToList();
+			if (!permissions.Any(p => p.Author == authorOID))
+			{
+				await ReplyAsync("you do not have any permissions in this group!");
+				return;
+			}
+			var requests = (await authorGroupRequestAccess.ReadAuthorGroupRequestRangeByID(id)).ToList();
+			var listBuilderPerms = ConsoleTableBuilder
+				.From(permissions)
+				.WithFormat(ConsoleTableBuilderFormat.Minimal)
+				.WithTitle("Permissions")
+				.Export();
+			var listBuilderRequests = ConsoleTableBuilder
+				.From(requests)
+				.WithFormat(ConsoleTableBuilderFormat.Minimal)
+				.WithTitle("Requests")
+				.Export();
+			await ReplyAsync($"Info for {nameof(AuthorGroup)} with ID \"{group.ID}\" and Name \"{group.Name}\":" + Environment.NewLine + "```" + listBuilderPerms + Environment.NewLine + listBuilderRequests + "```");
+		}
+
 		private AuthorGroupPermission? ParseAuthorGroupPermission(string[] parameters)
 		{
 			Guid? id = null;

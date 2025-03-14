@@ -401,6 +401,44 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("locationgroupinfo")]
+		[Alias("lgi")]
+		[Summary("Lists the name, permissions, and requests for a LocationGroup")]
+		public async Task LocationGroupInfo(Guid id)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var group = await locationGroupAccess.ReadLocationGroup(id);
+			if (group is null)
+			{
+				await ReplyAsync($"no {nameof(LocationGroup)} with ID \"{id}\" was found");
+				return;
+			}
+			if ((await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(id, authorOID)) is LocationGroupPermissionType.None)
+			{
+				await ReplyAsync("you do not have any permissions in this group!");
+				return;
+			}
+			var permissions = (await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID(id)).ToList();
+			var requests = (await locationGroupRequestAccess.ReadLocationGroupRequestRangeByID(id)).ToList();
+			var listBuilderPerms = ConsoleTableBuilder
+				.From(permissions)
+				.WithFormat(ConsoleTableBuilderFormat.Minimal)
+				.WithTitle("Permissions")
+				.Export();
+			var listBuilderRequests = ConsoleTableBuilder
+				.From(requests)
+				.WithFormat(ConsoleTableBuilderFormat.Minimal)
+				.WithTitle("Requests")
+				.Export();
+			await ReplyAsync($"Info for {nameof(LocationGroup)} with ID \"{group.ID}\" and Name \"{group.Name}\":" + Environment.NewLine + "```" + listBuilderPerms + Environment.NewLine + listBuilderRequests + "```");
+		}
+
 		private LocationGroupPermission? ParseLocationGroupPermission(string[] parameters, DiscordObjectOID location)
 		{
 			Guid? id = null;

@@ -76,7 +76,8 @@ namespace AtelierTomato.Markov.Core
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(locationGroupPermission.ID, sender);
 			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.AddLocation))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to add locations to group with ID "{locationGroupPermission.ID}".""", nameof(sender));
-			if ((await locationGroupPermissionAccess.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location)) is not null)
+			var existingPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location);
+			if (existingPermission is not null && existingPermission.Location == locationGroupPermission.Location)
 				throw new ArgumentException($"""Location "{locationGroupPermission.Location}" is already registered to group with ID "{locationGroupPermission.ID}".""", nameof(locationGroupPermission));
 
 			// Check if any permissions to assign are not held by the sender
@@ -125,7 +126,8 @@ namespace AtelierTomato.Markov.Core
 				throw new ArgumentException($"""Author "{sender}" does not have some of the permissions they are trying to assign.""", nameof(locationGroupPermission));
 
 			// Check if Location is already in group
-			_ = await locationGroupPermissionAccess.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location) ??
+			var existingPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location);
+			if (existingPermission is null || existingPermission.Location != locationGroupPermission.Location)
 				throw new ArgumentException($"""Location "{locationGroupPermission.Location}" is not a member of group with ID "{locationGroupPermission.ID}".""");
 
 			// All guards passed, allow write.

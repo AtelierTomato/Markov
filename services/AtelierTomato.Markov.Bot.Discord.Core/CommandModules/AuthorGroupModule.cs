@@ -422,10 +422,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("listauthorgrouprequests")]
-		[Alias("lagr", "lar", "listauthorrequests", "listauthorgrouprequest", "listauthorrequest")]
+		[Command("authorgrouprequestslist")]
+		[Alias("agrl", "arl", "authorrequestslist", "authorgrouprequestlist", "listauthorrequest")]
 		[Summary("Lists AuthorGroupRequests for an author")]
-		public async Task ListAuthorGroupRequests()
+		public async Task AuthorGroupRequestsList()
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -443,6 +443,33 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				var listBuilder = ConsoleTableBuilder
 					.From(requests)
+					.WithFormat(ConsoleTableBuilderFormat.Minimal)
+					.Export();
+				await ReplyAsync(listBuilder.Insert(0, "```").Append("```").ToString().TrimEnd());
+			}
+		}
+
+		[Command("authorgrouplist")]
+		[Alias("agl", "authorgroupslist")]
+		[Summary("Lists AuthorGroupRequests for an author")]
+		public async Task AuthorGroupList()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var groups = (await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByAuthor(authorOID)).ToList();
+			if (groups.Count is 0)
+			{
+				await ReplyAsync($"you are in no {nameof(AuthorGroup)}s.");
+			}
+			else
+			{
+				var listBuilder = ConsoleTableBuilder
+					.From(groups)
 					.WithFormat(ConsoleTableBuilderFormat.Minimal)
 					.Export();
 				await ReplyAsync(listBuilder.Insert(0, "```").Append("```").ToString().TrimEnd());

@@ -347,10 +347,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("listlocationgrouprequests")]
-		[Alias("llgr", "llr", "listlocationrequests", "listlocationgrouprequest", "listlocationrequest")]
+		[Command("locationgrouprequestslist")]
+		[Alias("lgrl", "lrl", "locationrequestslist", "locationgrouprequestlist", "locationrequestlist")]
 		[Summary("Lists LocationGroupRequests for an author")]
-		public async Task ListLocationGroupRequests()
+		public async Task LocationGroupRequestsList()
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -368,6 +368,33 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				var listBuilder = ConsoleTableBuilder
 					.From(requests)
+					.WithFormat(ConsoleTableBuilderFormat.Minimal)
+					.Export();
+				await ReplyAsync(listBuilder.Insert(0, "```").Append("```").ToString().TrimEnd());
+			}
+		}
+
+		[Command("locationgrouplist")]
+		[Alias("lgl", "locationgroupslist")]
+		[Summary("Lists LocationGroupRequests for an author")]
+		public async Task LocationGroupList()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			var groups = (await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByOwner(authorOID)).ToList();
+			if (groups.Count is 0)
+			{
+				await ReplyAsync($"you are in no {nameof(LocationGroup)}s.");
+			}
+			else
+			{
+				var listBuilder = ConsoleTableBuilder
+					.From(groups)
 					.WithFormat(ConsoleTableBuilderFormat.Minimal)
 					.Export();
 				await ReplyAsync(listBuilder.Insert(0, "```").Append("```").ToString().TrimEnd());

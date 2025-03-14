@@ -9,7 +9,7 @@ namespace AtelierTomato.Markov.Storage
 		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByID(Guid ID);
 		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionHierarchy(IObjectOID location);
 		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByBaseLocation(IObjectOID location);
-		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByOwner(AuthorOID author);
+		Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByOwner(AuthorOID author);
 		Task<LocationGroupPermissionType> ReadLocationGroupPermissionsForOwner(Guid ID, AuthorOID author);
 		Task WriteLocationGroupPermission(LocationGroupPermission locationGroupPermission);
 		Task WriteLocationGroupPermissionRange(IEnumerable<LocationGroupPermission> locationGroupPermissions);

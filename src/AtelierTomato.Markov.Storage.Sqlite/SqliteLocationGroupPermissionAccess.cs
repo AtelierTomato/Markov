@@ -113,7 +113,7 @@ WHERE {nameof(LocationGroupPermission.ID)} IS @id
 
 			return result.Select(p => p.ToLocationGroupPermission(objectOIDParser));
 		}
-		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupRequestRangeByOwner(AuthorOID author)
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByOwner(AuthorOID author)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();

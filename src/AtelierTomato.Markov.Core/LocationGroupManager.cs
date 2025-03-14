@@ -237,7 +237,7 @@ namespace AtelierTomato.Markov.Core
 
 		public async Task<LocationGroup?> GetValidGroupFromNameAndPermission(AuthorOID author, string groupName, LocationGroupPermissionType permission)
 		{
-			var locationGroupPermissions = (await locationGroupPermissionAccess.ReadLocationGroupRequestRangeByOwner(author)).Where(l => l.Permissions.HasFlag(permission));
+			var locationGroupPermissions = (await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByOwner(author)).Where(l => l.Permissions.HasFlag(permission));
 			if (!locationGroupPermissions.Any())
 			{
 				return null;

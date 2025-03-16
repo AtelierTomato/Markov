@@ -36,8 +36,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		public async Task QuerySentencesCommand(
 			[Summary("authorgroup", "GUID for the author group")] string? authorGroup = null,
 			[Summary("locationgroup", "GUID for the location group")] string? locationGroup = null,
-			[Summary("authorfilter", "Comma-separated list of authors")] string? authorFilter = null,
-			[Summary("locationfilter", "Comma-separated list of locations")] string? locationFilter = null,
+			[Summary("authorfilter", "Double colon (::) separated list of authors")] string? authorFilter = null,
+			[Summary("locationfilter", "Double colon (::) separated list of locations")] string? locationFilter = null,
 			[Summary("searchstring", "Text to search for")] string? searchString = null,
 			[Summary("count", "Number of sentences to return")] int count = 100
 		)

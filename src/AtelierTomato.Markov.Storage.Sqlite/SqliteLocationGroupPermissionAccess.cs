@@ -16,7 +16,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			this.objectOIDParser = objectOIDParser;
 		}
 
-		public async Task DeleteLocationFromLocationGroup(Guid ID, IObjectOID location)
+		public async Task DeleteLocationFromLocationGroup(ulong ID, IObjectOID location)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -24,15 +24,15 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await connection.ExecuteAsync($@"DELETE FROM {nameof(LocationGroupPermission)} WHERE {nameof(LocationGroupPermission.ID)} IS @id AND {nameof(LocationGroupPermission.Location)} IS @location",
 				new
 				{
-					id = ID.ToString(),
+					id = ID,
 					location = location.ToString()
 				});
 
 			connection.Close();
 		}
 
-		public async Task<LocationGroupPermission?> ReadLocationGroupPermission(Guid ID, IObjectOID location) => (await ReadLocationGroupPermissionHierarchyForGroup(ID, location)).FirstOrDefault();
-		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionHierarchyForGroup(Guid ID, IObjectOID location)
+		public async Task<LocationGroupPermission?> ReadLocationGroupPermission(ulong ID, IObjectOID location) => (await ReadLocationGroupPermissionHierarchyForGroup(ID, location)).FirstOrDefault();
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionHierarchyForGroup(ulong ID, IObjectOID location)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -45,7 +45,7 @@ ORDER BY LENGTH({nameof(LocationGroupPermission.Location)}) DESC
 ",
 			new
 			{
-				id = ID.ToString(),
+				id = ID,
 				location = location.ToString()
 			});
 
@@ -95,7 +95,7 @@ ORDER BY LENGTH({nameof(LocationGroupPermission.Location)}) DESC
 		}
 
 
-		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByID(Guid ID)
+		public async Task<IEnumerable<LocationGroupPermission>> ReadLocationGroupPermissionRangeByID(ulong ID)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -106,7 +106,7 @@ WHERE {nameof(LocationGroupPermission.ID)} IS @id
 ",
 			new
 			{
-				id = ID.ToString()
+				id = ID
 			});
 
 			connection.Close();
@@ -133,7 +133,7 @@ WHERE {nameof(Location)}.{nameof(Location.Owner)} IS @author
 			return result.Select(p => p.ToLocationGroupPermission(objectOIDParser));
 		}
 
-		public async Task<LocationGroupPermissionType> ReadLocationGroupPermissionsForOwner(Guid ID, AuthorOID author)
+		public async Task<LocationGroupPermissionType> ReadLocationGroupPermissionsForOwner(ulong ID, AuthorOID author)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -148,7 +148,7 @@ WHERE
 			new
 			{
 				author = author.ToString(),
-				id = ID.ToString()
+				id = ID
 			});
 
 			connection.Close();

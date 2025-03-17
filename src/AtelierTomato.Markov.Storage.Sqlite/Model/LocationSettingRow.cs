@@ -9,9 +9,9 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		public string DeleteReactions { get; set; } = string.Empty;
 		public string FailReactions { get; set; } = string.Empty;
 		public int? GlobalAllowed { get; set; }
-		public string? LocationGroup { get; set; }
+		public ulong? LocationGroup { get; set; }
 		public LocationSettingRow() { }
-		public LocationSettingRow(string ID, string writeReactions, string deleteReactions, string failReactions, int? globalAllowed, string? locationGroup)
+		public LocationSettingRow(string ID, string writeReactions, string deleteReactions, string failReactions, int? globalAllowed, ulong? locationGroup)
 		{
 			this.ID = ID;
 			WriteReactions = writeReactions;
@@ -29,7 +29,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			if (locationSetting.GlobalAllowed is not null)
 				GlobalAllowed = Convert.ToInt32((bool)locationSetting.GlobalAllowed);
 			else GlobalAllowed = null;
-			LocationGroup = locationSetting.LocationGroup.ToString();
+			LocationGroup = locationSetting.LocationGroup;
 		}
 		public LocationSetting ToLocationSetting(MultiParser<IObjectOID> objectOIDParser)
 		{
@@ -41,11 +41,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			if (GlobalAllowed is not null)
 				globalAllowed = Convert.ToBoolean((int)GlobalAllowed);
 			else globalAllowed = null;
-			Guid? locationGroup;
-			if (LocationGroup is not null)
-				locationGroup = new Guid(LocationGroup);
-			else locationGroup = null;
-			return new(id, writeReactions, deleteReactions, failReactions, globalAllowed, locationGroup);
+			return new(id, writeReactions, deleteReactions, failReactions, globalAllowed, LocationGroup);
 		}
 	}
 }

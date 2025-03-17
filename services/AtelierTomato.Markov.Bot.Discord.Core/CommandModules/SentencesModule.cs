@@ -36,8 +36,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		public async Task QuerySentencesCommand(
 			[Summary("authorgroup", "GUID for the author group")] string? authorGroup = null,
 			[Summary("locationgroup", "GUID for the location group")] string? locationGroup = null,
-			[Summary("authorfilter", "Double colon (::) separated list of authors")] string? authorFilter = null,
-			[Summary("locationfilter", "Double colon (::) separated list of locations")] string? locationFilter = null,
+			[Summary("authorfilter", "Triple colon (:::) separated list of authors")] string? authorFilter = null,
+			[Summary("locationfilter", "Triple colon (:::) separated list of locations")] string? locationFilter = null,
 			[Summary("searchstring", "Text to search for")] string? searchString = null,
 			[Summary("count", "Number of sentences to return")] int count = 100
 		)
@@ -54,7 +54,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			List<IObjectOID> effectiveLocationFilter = [];
 			if (authorGroup is not null)
 			{
-				if (!Guid.TryParse(authorGroup, out var authorGroupID))
+				if (!ulong.TryParse(authorGroup, out var authorGroupID))
 				{
 					await RespondAsync("authorgroup was not a valid guid!", ephemeral: true);
 					return;
@@ -86,7 +86,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			bool authorDoesNotHaveUsePermissionForLocationGroup = false;
 			if (locationGroup is not null)
 			{
-				if (!Guid.TryParse(locationGroup, out var locationGroupID))
+				if (!ulong.TryParse(locationGroup, out var locationGroupID))
 				{
 					await RespondAsync("locationgroup was not a valid guid!", ephemeral: true);
 					return;
@@ -128,7 +128,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				try
 				{
 					newAuthorsForFilter = authorFilter
-						.Split("::")
+						.Split(":::")
 						.Select(entry => ulong.TryParse(entry, out _)
 							? new AuthorOID(ServiceType.Discord, options.DiscordInstance, entry)
 							: AuthorOID.Parse(entry))
@@ -161,7 +161,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				try
 				{
 					newLocationsForFilter = locationFilter
-						.Split("::")
+						.Split(":::")
 						.Select(async entry =>
 						{
 							if (ulong.TryParse(entry, out var id))

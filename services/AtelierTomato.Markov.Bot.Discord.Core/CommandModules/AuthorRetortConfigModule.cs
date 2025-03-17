@@ -28,10 +28,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[SlashCommand("retort", "Adjust settings for retorts.")]
 		public async Task RetortCommand(
-			[Summary("location", "Location that the setting will be used for, can be relative (such as \"channel\" or \"server\") or an exact OID")] string locationParam,
+			[Summary("location", "Location that the setting will be used for, can be relative or an exact OID")] string locationParam,
 			[Summary("displayoption", "Display option (mimic or normal")] string displayOptionParam = "Normal",
-			[Summary("authorfilter", "Double colon (::) separated list of authors")] string? authorFilterParam = null,
-			[Summary("locationfilter", "Double colon (::) separated list of locations")] string? locationFilterParam = null,
+			[Summary("authorfilter", "Triple colon (:::) separated list of authors")] string? authorFilterParam = null,
+			[Summary("locationfilter", "Triple colon (:::) separated list of locations")] string? locationFilterParam = null,
 			[Summary("authorgroup", "GUID for the author group")] string? authorGroupParam = null,
 			[Summary("locationgroup", "GUID for the location group")] string? locationGroupParam = null,
 			[Summary("keyword", "Keyword to use when generating")] string? keyword = null,
@@ -73,7 +73,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			List<IObjectOID> locationsForFilter = [];
 			if (locationFilterParam is not null)
 			{
-				var locationList = locationFilterParam.Split("::");
+				var locationList = locationFilterParam.Split(":::");
 				foreach (var l in locationList)
 				{
 					try
@@ -105,7 +105,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			List<AuthorOID> authorsForFilter = [];
 			if (authorFilterParam is not null)
 			{
-				var authorList = authorFilterParam.Split("::");
+				var authorList = authorFilterParam.Split(":::");
 				foreach (var a in authorList)
 				{
 					try
@@ -126,29 +126,29 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 					}
 				}
 			}
-			Guid? authorGroup = null;
+			ulong? authorGroup = null;
 			if (authorGroupParam is not null)
 			{
-				if (Guid.TryParse(authorGroupParam, out var temp))
+				if (ulong.TryParse(authorGroupParam, out var temp))
 				{
 					authorGroup = temp;
 				}
 				else
 				{
-					await RespondAsync("authorgroup was not a valid guid", ephemeral: true);
+					await RespondAsync("authorgroup was not a valid integer", ephemeral: true);
 					return;
 				}
 			}
-			Guid? locationGroup = null;
+			ulong? locationGroup = null;
 			if (locationGroupParam is not null)
 			{
-				if (Guid.TryParse(locationGroupParam, out var temp))
+				if (ulong.TryParse(locationGroupParam, out var temp))
 				{
 					locationGroup = temp;
 				}
 				else
 				{
-					await RespondAsync("authorgroup was not a valid guid", ephemeral: true);
+					await RespondAsync("authorgroup was not a valid integer", ephemeral: true);
 					return;
 				}
 			}

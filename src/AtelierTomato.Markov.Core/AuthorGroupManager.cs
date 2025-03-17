@@ -20,14 +20,13 @@ namespace AtelierTomato.Markov.Core
 			this.logger = logger;
 		}
 
-		public async Task<Guid> CreateGroup(AuthorOID sender, string name)
+		public async Task<ulong> CreateGroup(AuthorOID sender, string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
 
 			// All guards passed, allow create.
-			var ID = Guid.NewGuid();
-			await authorGroupAccess.WriteAuthorGroup(new(ID, name));
+			var ID = await authorGroupAccess.WriteNewAuthorGroup(name);
 			await authorGroupPermissionAccess.WriteAuthorGroupPermission(new(
 				ID,
 				sender,
@@ -41,7 +40,7 @@ namespace AtelierTomato.Markov.Core
 			return ID;
 		}
 
-		public async Task RenameGroup(AuthorOID sender, Guid ID, string name)
+		public async Task RenameGroup(AuthorOID sender, ulong ID, string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
@@ -54,7 +53,7 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupAccess.WriteAuthorGroup(new AuthorGroup(ID, name));
 		}
 
-		public async Task DeleteGroup(AuthorOID sender, Guid ID)
+		public async Task DeleteGroup(AuthorOID sender, ulong ID)
 		{
 			var senderAuthorGroupPermission = await authorGroupPermissionAccess.ReadAuthorGroupPermission(ID, sender)
 			 ?? throw new ArgumentException($"""Author "{sender}" is not registered to group with ID "{ID}".""", nameof(sender));
@@ -84,7 +83,7 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupRequestAccess.WriteAuthorGroupRequest(authorGroupPermission);
 		}
 
-		public async Task AcceptInvitation(AuthorOID sender, Guid ID)
+		public async Task AcceptInvitation(AuthorOID sender, ulong ID)
 		{
 			var senderAuthorGroupRequest = await authorGroupRequestAccess.ReadAuthorGroupRequest(ID, sender)
 			 ?? throw new ArgumentException($"""Author "{sender}" has not been sent an invitation to group with ID "{ID}".""", nameof(ID));
@@ -94,7 +93,7 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupRequestAccess.DeleteAuthorGroupRequest(ID, sender);
 		}
 
-		public async Task DenyInvitation(AuthorOID sender, Guid ID)
+		public async Task DenyInvitation(AuthorOID sender, ulong ID)
 		{
 			_ = await authorGroupRequestAccess.ReadAuthorGroupRequest(ID, sender)
 			 ?? throw new ArgumentException($"""Author "{sender}" has not been sent an invitation to group with ID "{ID}".""", nameof(ID));
@@ -124,7 +123,7 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupPermissionAccess.WriteAuthorGroupPermission(authorGroupPermission);
 		}
 
-		public async Task RemoveAuthor(AuthorOID sender, Guid ID, AuthorOID user)
+		public async Task RemoveAuthor(AuthorOID sender, ulong ID, AuthorOID user)
 		{
 			if (sender == user)
 				throw new ArgumentException($"""You cannot remove yourself from a group. Please use the "{nameof(LeaveGroup)}" function instead.""", nameof(user));
@@ -141,7 +140,7 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(ID, user);
 		}
 
-		public async Task LeaveGroup(AuthorOID sender, Guid ID)
+		public async Task LeaveGroup(AuthorOID sender, ulong ID)
 		{
 			var authorGroupPermissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID(ID);
 			if (!authorGroupPermissions.Select(p => p.Author).Contains(sender))
@@ -159,8 +158,8 @@ namespace AtelierTomato.Markov.Core
 			await authorGroupPermissionAccess.DeleteAuthorFromAuthorGroup(ID, sender);
 		}
 
-		private static readonly Action<ILogger, Guid, Exception?> _logOrphanedAuthorGroupWarning =
-			LoggerMessage.Define<Guid>(
+		private static readonly Action<ILogger, ulong, Exception?> _logOrphanedAuthorGroupWarning =
+			LoggerMessage.Define<ulong>(
 				LogLevel.Warning,
 				new EventId(2, nameof(LeaveGroup)),
 				"""The AuthorGroup with ID "{ID}" has no members with permission DeleteGroup. This is unexpected.""");
@@ -175,7 +174,7 @@ namespace AtelierTomato.Markov.Core
 			}
 			if (retortSetting.AuthorGroup is not null)
 			{
-				var authorGroupPermissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID((Guid)retortSetting.AuthorGroup);
+				var authorGroupPermissions = await authorGroupPermissionAccess.ReadAuthorGroupPermissionRangeByID((ulong)retortSetting.AuthorGroup);
 				if (authorGroupPermissions.Where(a => a.Author == author).Any(a => a.Permissions.HasFlag(AuthorGroupPermissionType.UseGroup)))
 				{
 					authors = authorGroupPermissions.Where(a => a.Permissions.HasFlag(AuthorGroupPermissionType.SentencesInGroup)).Select(p => p.Author).Concat([author]).Distinct();
@@ -216,8 +215,8 @@ namespace AtelierTomato.Markov.Core
 			return authorGroups.Where(a => a.Name == groupName).FirstOrDefault();
 		}
 
-		private static readonly Action<ILogger, IEnumerable<Guid>, Exception?> _logNamelessAuthorGroupWarning =
-			LoggerMessage.Define<IEnumerable<Guid>>(
+		private static readonly Action<ILogger, IEnumerable<ulong>, Exception?> _logNamelessAuthorGroupWarning =
+			LoggerMessage.Define<IEnumerable<ulong>>(
 				LogLevel.Warning,
 				new EventId(4, nameof(GetValidGroupFromNameAndPermission)),
 				"""The AuthorGroups with IDs "{IDs}" have no entry in the AuthorGroup table and are thus nameless, this is unexpected.""");

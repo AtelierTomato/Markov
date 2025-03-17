@@ -2,6 +2,6 @@
 {
 	public record LocationGroup
 	(
-		Guid ID, string Name
+		ulong ID, string Name
 	);
 }

@@ -61,7 +61,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("renamelocationgroup")]
 		[Alias("rlg")]
 		[Summary("Renames a LocationGroup")]
-		public async Task RenameAuthorGroup(Guid id, [Remainder] string newName)
+		public async Task RenameAuthorGroup(ulong id, [Remainder] string newName)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -113,7 +113,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("deletelocationgroup")]
 		[Alias("dlg")]
 		[Summary("Deletes a LocationGroup")]
-		public async Task DeleteLocationGroup(Guid id)
+		public async Task DeleteLocationGroup(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -165,7 +165,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("acceptlocationinvitation")]
 		[Alias("ali", "acceptlocationgroupinvitation", "algi")]
 		[Summary("Accepts a LocationGroup invitation")]
-		public async Task AcceptLocationInvitation(string inviteLocationParam, Guid id)
+		public async Task AcceptLocationInvitation(string inviteLocationParam, ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -208,7 +208,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("denylocationinvitation")]
 		[Alias("dli", "denylocationgroupinvitation", "dlgi")]
 		[Summary("Denies a LocationGroup invitation")]
-		public async Task DenyLocationInvitation(string inviteLocationParam, Guid id)
+		public async Task DenyLocationInvitation(string inviteLocationParam, ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -280,7 +280,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("removelocation")]
 		[Alias("rl")]
 		[Summary("Removes a location from a LocationGroup")]
-		public async Task RemoveLocation(string otherLocation, Guid id)
+		public async Task RemoveLocation(string otherLocation, ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -404,7 +404,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("locationgroupinfo")]
 		[Alias("lgi")]
 		[Summary("Lists the name, permissions, and requests for a LocationGroup")]
-		public async Task LocationGroupInfo(Guid id)
+		public async Task LocationGroupInfo(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -441,14 +441,14 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		private LocationGroupPermission? ParseLocationGroupPermission(string[] parameters, DiscordObjectOID location)
 		{
-			Guid? id = null;
+			ulong? id = null;
 			IObjectOID? otherLocationOID = null;
 			LocationGroupPermissionType permissions = new();
 			foreach (var parameter in parameters)
 			{
 				if (id is null)
 				{
-					if (Guid.TryParse(parameter, out var tempId))
+					if (ulong.TryParse(parameter, out var tempId))
 					{
 						id = tempId;
 						continue;

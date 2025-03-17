@@ -4,9 +4,10 @@ namespace AtelierTomato.Markov.Storage
 {
 	public interface IAuthorGroupAccess
 	{
-		Task<AuthorGroup?> ReadAuthorGroup(Guid ID);
-		Task<IEnumerable<AuthorGroup>> ReadAuthorGroups(IEnumerable<Guid> IDs);
+		Task<AuthorGroup?> ReadAuthorGroup(ulong ID);
+		Task<IEnumerable<AuthorGroup>> ReadAuthorGroups(IEnumerable<ulong> IDs);
+		Task<ulong> WriteNewAuthorGroup(string name);
 		Task WriteAuthorGroup(AuthorGroup authorGroup);
-		Task DeleteAuthorGroup(Guid ID);
+		Task DeleteAuthorGroup(ulong ID);
 	}
 }

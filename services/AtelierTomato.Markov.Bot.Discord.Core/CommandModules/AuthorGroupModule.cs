@@ -48,7 +48,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("renameauthorgroup")]
 		[Alias("rag")]
 		[Summary("Renames an AuthorGroup")]
-		public async Task RenameAuthorGroup(Guid id, [Remainder] string newName)
+		public async Task RenameAuthorGroup(ulong id, [Remainder] string newName)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -100,7 +100,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("deleteauthorgroup")]
 		[Alias("dag")]
 		[Summary("Deletes an AuthorGroup")]
-		public async Task DeleteAuthorGroup(Guid id)
+		public async Task DeleteAuthorGroup(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -152,7 +152,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("acceptauthorinvitation")]
 		[Alias("aai", "acceptauthorgroupinvitation", "aagi")]
 		[Summary("Accepts an AuthorGroup invitation")]
-		public async Task AcceptAuthorInvitation(Guid id)
+		public async Task AcceptAuthorInvitation(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -210,7 +210,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("denyauthorinvitation")]
 		[Alias("dai", "denyauthorgroupinvitation", "dagi")]
 		[Summary("Denies an AuthorGroup invitation")]
-		public async Task DenyAuthorInvitation(Guid id)
+		public async Task DenyAuthorInvitation(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -297,7 +297,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("removeauthor")]
 		[Alias("ra")]
 		[Summary("Removes an author from an AuthorGroup")]
-		public async Task RemoveAuthor(string otherAuthorID, Guid id)
+		public async Task RemoveAuthor(string otherAuthorID, ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -367,7 +367,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("leaveauthorgroup")]
 		[Alias("lag")]
 		[Summary("Leaves an AuthorGroup")]
-		public async Task LeaveAuthorGroup(Guid id)
+		public async Task LeaveAuthorGroup(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -479,7 +479,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("authorgroupinfo")]
 		[Alias("agi")]
 		[Summary("Lists the name, permissions, and requests for an AuthorGroup")]
-		public async Task AuthorGroupInfo(Guid id)
+		public async Task AuthorGroupInfo(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -516,14 +516,14 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		private AuthorGroupPermission? ParseAuthorGroupPermission(string[] parameters)
 		{
-			Guid? id = null;
+			ulong? id = null;
 			AuthorOID? otherAuthorOID = null;
 			AuthorGroupPermissionType permissions = new();
 			foreach (var parameter in parameters)
 			{
 				if (id is null)
 				{
-					if (Guid.TryParse(parameter, out var tempId))
+					if (ulong.TryParse(parameter, out var tempId))
 					{
 						id = tempId;
 						continue;

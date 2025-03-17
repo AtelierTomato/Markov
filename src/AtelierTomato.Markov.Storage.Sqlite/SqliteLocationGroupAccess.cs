@@ -1,5 +1,4 @@
 ﻿using AtelierTomato.Markov.Model;
-using AtelierTomato.Markov.Storage.Sqlite.Model;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
@@ -14,7 +13,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			this.options = options.Value;
 		}
 
-		public async Task DeleteLocationGroup(Guid ID)
+		public async Task DeleteLocationGroup(ulong ID)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -22,35 +21,34 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await connection.ExecuteAsync($@"DELETE FROM {nameof(LocationGroup)} WHERE {nameof(LocationGroup.ID)} IS @id",
 				new
 				{
-					id = ID.ToString()
+					id = ID
 				});
 
 			connection.Close();
 		}
 
-		public async Task<LocationGroup?> ReadLocationGroup(Guid ID) => (await ReadLocationGroups([ID])).FirstOrDefault();
-		public async Task<IEnumerable<LocationGroup>> ReadLocationGroups(IEnumerable<Guid> IDs)
+		public async Task<LocationGroup?> ReadLocationGroup(ulong ID) => (await ReadLocationGroups([ID])).FirstOrDefault();
+		public async Task<IEnumerable<LocationGroup>> ReadLocationGroups(IEnumerable<ulong> IDs)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
-			var result = await connection.QueryAsync<LocationGroupRow>($@"
+			var result = await connection.QueryAsync<LocationGroup>($@"
 SELECT {nameof(LocationGroup.ID)}, {nameof(LocationGroup.Name)} FROM {nameof(LocationGroup)}
 WHERE {nameof(LocationGroup.ID)} IN @ids
 ",
 			new
 			{
-				ids = IDs.Select(i => i.ToString())
+				ids = IDs
 			});
 
 			connection.Close();
 
-			return result.Select(r => r.ToLocationGroup());
+			return result;
 		}
 
 		public async Task WriteLocationGroup(LocationGroup locationGroup)
 		{
-			var locationGroupRow = new LocationGroupRow(locationGroup);
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 
@@ -62,11 +60,29 @@ ON CONFLICT ({nameof(LocationGroup.ID)}) DO UPDATE SET
 ",
 			new
 			{
-				id = locationGroupRow.ID,
-				name = locationGroupRow.Name
+				id = locationGroup.ID,
+				name = locationGroup.Name
 			});
 
 			connection.Close();
+		}
+
+		public async Task<ulong> WriteNewLocationGroup(string name)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var ID = await connection.ExecuteScalarAsync<ulong>($@"
+INSERT INTO {nameof(LocationGroup)} ( {nameof(AuthorGroup.Name)} )
+VALUES ( @name );
+SELECT last_insert_rowid();
+",
+			new
+			{
+				name
+			});
+
+			return ID;
 		}
 	}
 }

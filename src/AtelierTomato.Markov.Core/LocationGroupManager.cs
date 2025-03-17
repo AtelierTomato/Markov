@@ -24,7 +24,7 @@ namespace AtelierTomato.Markov.Core
 			this.logger = logger;
 		}
 
-		public async Task<Guid> CreateGroup(AuthorOID sender, IObjectOID senderLocation, string name)
+		public async Task<ulong> CreateGroup(AuthorOID sender, IObjectOID senderLocation, string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
@@ -34,8 +34,7 @@ namespace AtelierTomato.Markov.Core
 				throw new ArgumentException($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{senderLocation}".""", nameof(senderLocation));
 
 			// All guards passed, allow create.
-			var ID = Guid.NewGuid();
-			await locationGroupAccess.WriteLocationGroup(new(ID, name));
+			var ID = await locationGroupAccess.WriteNewLocationGroup(name);
 			await locationGroupPermissionAccess.WriteLocationGroupPermission(new(
 				ID,
 				senderLocation,
@@ -49,7 +48,7 @@ namespace AtelierTomato.Markov.Core
 			return ID;
 		}
 
-		public async Task RenameGroup(AuthorOID sender, Guid ID, string name)
+		public async Task RenameGroup(AuthorOID sender, ulong ID, string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
@@ -61,7 +60,7 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupAccess.WriteLocationGroup(new LocationGroup(ID, name));
 		}
 
-		public async Task DeleteGroup(AuthorOID sender, Guid ID)
+		public async Task DeleteGroup(AuthorOID sender, ulong ID)
 		{
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
 			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.DeleteGroup))
@@ -88,7 +87,7 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupRequestAccess.WriteLocationGroupRequest(locationGroupPermission);
 		}
 
-		public async Task AcceptInvitation(AuthorOID sender, IObjectOID locationID, Guid ID)
+		public async Task AcceptInvitation(AuthorOID sender, IObjectOID locationID, ulong ID)
 		{
 			var locationOwner = await locationAccess.ReadLocationOwner(locationID)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)}Request accepting as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
@@ -102,7 +101,7 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupRequestAccess.DeleteLocationGroupRequest(ID, locationID);
 		}
 
-		public async Task DenyInvitation(AuthorOID sender, IObjectOID locationID, Guid ID)
+		public async Task DenyInvitation(AuthorOID sender, IObjectOID locationID, ulong ID)
 		{
 			var locationOwner = await locationAccess.ReadLocationOwner(locationID)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)}Request denying as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
@@ -134,7 +133,7 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupPermissionAccess.WriteLocationGroupPermission(locationGroupPermission);
 		}
 
-		public async Task RemoveLocation(AuthorOID sender, Guid ID, IObjectOID location)
+		public async Task RemoveLocation(AuthorOID sender, ulong ID, IObjectOID location)
 		{
 			var locationOwner = await locationAccess.ReadLocationOwner(location);
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
@@ -160,8 +159,8 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupPermissionAccess.DeleteLocationFromLocationGroup(ID, location);
 		}
 
-		private static readonly Action<ILogger, Guid, Exception?> _logOrphanedLocationGroupWarning =
-			LoggerMessage.Define<Guid>(
+		private static readonly Action<ILogger, ulong, Exception?> _logOrphanedLocationGroupWarning =
+			LoggerMessage.Define<ulong>(
 				LogLevel.Warning,
 				new EventId(3, nameof(RemoveLocation)),
 				"""The LocationGroup with ID "{ID}" has no members with permission DeleteGroup. This is unexpected.""");
@@ -177,7 +176,7 @@ namespace AtelierTomato.Markov.Core
 		{
 			IEnumerable<IObjectOID> usableLocations = [location.Base()];
 			var locationSettingHierarchy = await locationSettingAccess.ReadLocationSettingHierarchy(location);
-			Guid? locationPreferredLocationGroupID = null;
+			ulong? locationPreferredLocationGroupID = null;
 			bool globalAllowed = false;
 
 			// Determine which locations are usable from the location
@@ -190,7 +189,7 @@ namespace AtelierTomato.Markov.Core
 				}
 				if (locationSetting.LocationGroup is not null)
 				{
-					var permission = await locationGroupPermissionAccess.ReadLocationGroupPermission((Guid)locationSetting.LocationGroup, location);
+					var permission = await locationGroupPermissionAccess.ReadLocationGroupPermission((ulong)locationSetting.LocationGroup, location);
 					if (permission is not null && permission.Permissions.HasFlag(LocationGroupPermissionType.UseGroup))
 					{
 						locationPreferredLocationGroupID = permission.ID;
@@ -203,7 +202,7 @@ namespace AtelierTomato.Markov.Core
 			if (!globalAllowed && locationPreferredLocationGroupID is not null)
 			{
 				usableLocations = usableLocations.Concat(
-					(await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID((Guid)locationPreferredLocationGroupID))
+					(await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID((ulong)locationPreferredLocationGroupID))
 						.Where(l => l.Permissions.HasFlag(LocationGroupPermissionType.SentencesInGroup))
 						.Select(l => l.Location)
 				).Distinct();
@@ -215,11 +214,11 @@ namespace AtelierTomato.Markov.Core
 			{
 				if (authorRetortConfig.LocationGroup is not null)
 				{
-					var authorPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner((Guid)authorRetortConfig.LocationGroup, author);
-					var locationPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission((Guid)authorRetortConfig.LocationGroup, location);
+					var authorPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner((ulong)authorRetortConfig.LocationGroup, author);
+					var locationPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission((ulong)authorRetortConfig.LocationGroup, location);
 					if (authorPermission.HasFlag(LocationGroupPermissionType.UseGroup) || locationPermission is not null && locationPermission.Permissions.HasFlag(LocationGroupPermissionType.UseGroup))
 					{
-						var authorUsableLocations = (await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID((Guid)authorRetortConfig.LocationGroup))
+						var authorUsableLocations = (await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID((ulong)authorRetortConfig.LocationGroup))
 							.Where(l => l.Permissions.HasFlag(LocationGroupPermissionType.SentencesInGroup))
 							.Select(l => l.Location)
 							.Distinct();
@@ -253,8 +252,8 @@ namespace AtelierTomato.Markov.Core
 			return locationGroups.Where(l => l.Name == groupName).FirstOrDefault();
 		}
 
-		private static readonly Action<ILogger, IEnumerable<Guid>, Exception?> _logNamelessLocationGroupWarning =
-			LoggerMessage.Define<IEnumerable<Guid>>(
+		private static readonly Action<ILogger, IEnumerable<ulong>, Exception?> _logNamelessLocationGroupWarning =
+			LoggerMessage.Define<IEnumerable<ulong>>(
 				LogLevel.Warning,
 				new EventId(5, nameof(GetValidGroupFromNameAndPermission)),
 				"""The LocationGroups with IDs "{IDs}" have no entry in the LocationGroup table and are thus nameless, this is unexpected.""");

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS "LocationSetting" (
 	"DeleteReactions"	TEXT NOT NULL,
 	"FailReactions"	TEXT NOT NULL,
 	"GlobalAllowed"	INTEGER,
-	"LocationGroup"	TEXT,
+	"LocationGroup"	INTEGER,
 	PRIMARY KEY("ID")
 );
 CREATE TABLE IF NOT EXISTS "AuthorPermission" (
@@ -56,19 +56,20 @@ CREATE VIEW IF NOT EXISTS SentenceAfterLinkWithPermission As
 		)
 	);
 CREATE TABLE IF NOT EXISTS "AuthorGroup" (
-	"ID"	TEXT NOT NULL UNIQUE,
+	"ID"	INTEGER NOT NULL UNIQUE,
 	"Name"	TEXT NOT NULL,
-	PRIMARY KEY("ID")
+	PRIMARY KEY("ID" AUTOINCREMENT)
+	CHECK("ID" > 0)
 );
 CREATE TABLE IF NOT EXISTS "AuthorGroupPermission" (
-	"ID"	TEXT NOT NULL,
+	"ID"	INTEGER NOT NULL,
 	"Author"	TEXT NOT NULL,
 	"Permissions"	TEXT,
 	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
 	PRIMARY KEY("ID","Author")
 );
 CREATE TABLE IF NOT EXISTS "AuthorGroupRequest" (
-	"ID"	TEXT NOT NULL,
+	"ID"	INTEGER NOT NULL,
 	"Author"	TEXT NOT NULL,
 	"Permissions"	TEXT,
 	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
@@ -80,26 +81,27 @@ CREATE TABLE IF NOT EXISTS "AuthorRetortConfig" (
 	"DisplayOption" TEXT NOT NULL,
 	"FilterOIDs" TEXT NOT NULL,
 	"FilterAuthors" TEXT NOT NULL,
-	"AuthorGroup" TEXT,
-	"LocationGroup" TEXT,
+	"AuthorGroup" INTEGER,
+	"LocationGroup" INTEGER,
 	"Keyword" TEXT,
 	"FirstWord" TEXT,
 	PRIMARY KEY("Author","Location")
 );
 CREATE TABLE IF NOT EXISTS "LocationGroup" (
-	"ID"	TEXT NOT NULL UNIQUE,
+	"ID"	INTEGER NOT NULL UNIQUE,
 	"Name"	TEXT NOT NULL,
-	PRIMARY KEY("ID")
+	PRIMARY KEY("ID" AUTOINCREMENT),
+	CHECK("ID" > 0)
 );
 CREATE TABLE IF NOT EXISTS "LocationGroupPermission" (
-	"ID"	TEXT NOT NULL,
+	"ID"	INTEGER NOT NULL,
 	"Location"	TEXT NOT NULL,
 	"Permissions"	TEXT,
 	FOREIGN KEY("ID") REFERENCES "LocationGroup"("ID") ON DELETE CASCADE,
 	PRIMARY KEY("ID","Location")
 );
 CREATE TABLE IF NOT EXISTS "LocationGroupRequest" (
-	"ID"	TEXT NOT NULL,
+	"ID"	INTEGER NOT NULL,
 	"Location"	TEXT NOT NULL,
 	"Permissions"	TEXT,
 	FOREIGN KEY("ID") REFERENCES "LocationGroup"("ID") ON DELETE CASCADE,

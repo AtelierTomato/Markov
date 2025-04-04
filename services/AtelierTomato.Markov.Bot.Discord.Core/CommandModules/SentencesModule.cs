@@ -34,8 +34,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[SlashCommand("querysentences", "Query sentences based on various parameters.")]
 		public async Task QuerySentencesCommand(
-			[Summary("authorgroup", "GUID for the author group")] string? authorGroup = null,
-			[Summary("locationgroup", "GUID for the location group")] string? locationGroup = null,
+			[Summary("authorgroup", "ID for the author group")] string? authorGroup = null,
+			[Summary("locationgroup", "ID for the location group")] string? locationGroup = null,
 			[Summary("authorfilter", "Triple colon (:::) separated list of authors")] string? authorFilter = null,
 			[Summary("locationfilter", "Triple colon (:::) separated list of locations")] string? locationFilter = null,
 			[Summary("searchstring", "Text to search for")] string? searchString = null,
@@ -56,7 +56,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				if (!ulong.TryParse(authorGroup, out var authorGroupID))
 				{
-					await RespondAsync("authorgroup was not a valid guid!", ephemeral: true);
+					await RespondAsync("authorgroup was not a valid ulong!", ephemeral: true);
 					return;
 				}
 
@@ -88,7 +88,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				if (!ulong.TryParse(locationGroup, out var locationGroupID))
 				{
-					await RespondAsync("locationgroup was not a valid guid!", ephemeral: true);
+					await RespondAsync("locationgroup was not a valid ulong!", ephemeral: true);
 					return;
 				}
 

@@ -32,8 +32,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			[Summary("displayoption", "Display option (mimic or normal")] string displayOptionParam = "Normal",
 			[Summary("authorfilter", "Triple colon (:::) separated list of authors")] string? authorFilterParam = null,
 			[Summary("locationfilter", "Triple colon (:::) separated list of locations")] string? locationFilterParam = null,
-			[Summary("authorgroup", "GUID for the author group")] string? authorGroupParam = null,
-			[Summary("locationgroup", "GUID for the location group")] string? locationGroupParam = null,
+			[Summary("authorgroup", "ID for the author group")] string? authorGroupParam = null,
+			[Summary("locationgroup", "ID for the location group")] string? locationGroupParam = null,
 			[Summary("keyword", "Keyword to use when generating")] string? keyword = null,
 			[Summary("firstword", "First word to use when generating")] string? firstWord = null
 		)

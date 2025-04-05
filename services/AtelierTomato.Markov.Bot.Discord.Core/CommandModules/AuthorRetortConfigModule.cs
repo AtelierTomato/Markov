@@ -47,7 +47,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			catch
 			{
-				if (Enum.TryParse<DiscordLocationType>(locationParam, out var locationDepth))
+				if (Enum.TryParse<DiscordLocationType>(locationParam, true, out var locationDepth))
 				{
 					try
 					{
@@ -65,7 +65,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				await RespondAsync("a valid location was not provided.", ephemeral: true);
 				return;
 			}
-			if (!Enum.TryParse<DisplayOptionType>(displayOptionParam, out var displayOption))
+			if (!Enum.TryParse<DisplayOptionType>(displayOptionParam, true, out var displayOption))
 			{
 				await RespondAsync("the display option was not valid", ephemeral: true);
 				return;
@@ -82,7 +82,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 					}
 					catch
 					{
-						if (Enum.TryParse<DiscordLocationType>(l, out var locationDepth))
+						if (Enum.TryParse<DiscordLocationType>(l, true, out var locationDepth))
 						{
 							if (locationDepth is DiscordLocationType.Global)
 							{

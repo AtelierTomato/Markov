@@ -185,6 +185,7 @@ namespace AtelierTomato.Markov.Core
 				if (locationSetting.GlobalAllowed is not null && (bool)locationSetting.GlobalAllowed)
 				{
 					globalAllowed = true;
+					usableLocations = [];
 					break;
 				}
 				if (locationSetting.LocationGroup is not null)
@@ -233,7 +234,16 @@ namespace AtelierTomato.Markov.Core
 					}
 				}
 			}
-			return authorRetortConfig?.Filter.OIDs.Where(f => usableLocations.Any(u => u.IsParentOrEqualTo(f))).ToList() ?? usableLocations;
+
+			if (authorRetortConfig is not null && authorRetortConfig.Filter.OIDs.Any())
+			{
+				var effectiveFilter = authorRetortConfig.Filter.OIDs.Where(f => usableLocations.Any(u => u.IsParentOrEqualTo(f))).ToList();
+				if (effectiveFilter.Count is not 0)
+				{
+					return effectiveFilter;
+				}
+			}
+			return usableLocations;
 		}
 
 		public async Task<LocationGroup?> GetValidGroupFromNameAndPermission(AuthorOID author, string groupName, LocationGroupPermissionType permission)

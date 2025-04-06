@@ -41,7 +41,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly AuthorGroupManager authorGroupManager;
 		private readonly IServiceProvider serviceProvider;
 		private readonly InteractionService interactionService;
-		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider, InteractionService interactionService)
+		private readonly WebhookHandler webhookHandler;
+		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider, InteractionService interactionService, WebhookHandler webhookHandler)
 		{
 			this.logger = logger;
 			this.client = client;
@@ -82,6 +83,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 			// commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
 			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
+			this.webhookHandler = webhookHandler;
 		}
 
 		//private void LogCommandServiceCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
@@ -510,8 +512,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				{
 					if (retortSetting is not null && retortSetting.DisplayOption is DisplayOptionType.Mimic)
 					{
-						// TODO: mimic stuff, do later, hate mimic stuff so bad
-						await context.Channel.SendMessageAsync(responseSentence);
+						var messageID = await webhookHandler.SendWebhookMessageAsync(responseSentence, context, context.User);
+						if (messageID is null)
+						{
+							await context.Channel.SendMessageAsync(responseSentence);
+						}
 					}
 					else
 					{

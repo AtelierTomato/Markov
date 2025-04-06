@@ -36,6 +36,7 @@ namespace AtelierTomato.Markov.Core.Cooldown
 					CooldownType.PermissionsCheck => options.PermissionsCheckCooldown,
 					CooldownType.MessagesCheck => options.MessagesCheckCooldown,
 					CooldownType.ImageDownload => options.ImageDownloadCooldown,
+					CooldownType.ImageUpload => options.ImageUploadCooldown,
 					CooldownType.WebhookFail => options.WebhookFailCooldown,
 					_ => options.GeneralCooldown
 				};

@@ -7,6 +7,7 @@
 		PermissionsCheck = 2,
 		MessagesCheck = 3,
 		ImageDownload = 4,
-		WebhookFail = 5,
+		ImageUpload = 5,
+		WebhookFail = 6,
 	}
 }

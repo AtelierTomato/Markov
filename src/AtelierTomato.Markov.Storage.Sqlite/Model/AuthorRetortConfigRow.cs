@@ -52,8 +52,8 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 				objectOIDParser.Parse(Location),
 				displayOption,
 				new SentenceFilter(
-					FilterOIDs.Split(":::").Select(objectOIDParser.Parse).ToList(),
-					FilterAuthors.Split(":::").Select(AuthorOID.Parse).ToList()
+					FilterOIDs.Split(":::").Where(s => !string.IsNullOrEmpty(s)).Select(objectOIDParser.Parse).ToList(),
+					FilterAuthors.Split(":::").Where(s => !string.IsNullOrEmpty(s)).Select(AuthorOID.Parse).ToList()
 				),
 				AuthorGroup,
 				LocationGroup,

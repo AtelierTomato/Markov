@@ -49,9 +49,11 @@ var client = new DiscordSocketClient(config: discordSocketConfig);
 
 builder.Services.AddSingleton(client);
 
+builder.Services.AddHttpClient();
 builder.Services
 	.AddSingleton<DiscordEventDispatcher>()
 	.AddSingleton<DiscordSentenceParser>()
+	.AddSingleton<IDiscordClient>(client)
 	.AddSingleton<IAuthorAccess, SqliteAuthorAccess>()
 	.AddSingleton<IAuthorGroupAccess, SqliteAuthorGroupAccess>()
 	.AddSingleton<IAuthorGroupPermissionAccess, SqliteAuthorGroupPermissionAccess>()
@@ -74,6 +76,7 @@ builder.Services
 	.AddSingleton<LocationGroupManager>()
 	.AddSingleton<Cooldown>()
 	.AddSingleton<AuthorPermissionTableFormatter>()
+	.AddSingleton<WebhookHandler>()
 	.AddSingleton(_ => new MultiParser<IObjectOID>([new BookObjectOIDParser(), new SpecialObjectOIDParser(), new DiscordObjectOIDParser()]))
 	.AddSingleton(new CommandService(new CommandServiceConfig { DefaultRunMode = Discord.Commands.RunMode.Async }))
 	.AddSingleton(_ => new InteractionService(client.Rest, new InteractionServiceConfig { DefaultRunMode = Discord.Interactions.RunMode.Async }));

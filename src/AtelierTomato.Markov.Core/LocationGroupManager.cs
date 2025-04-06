@@ -24,13 +24,13 @@ namespace AtelierTomato.Markov.Core
 			this.logger = logger;
 		}
 
-		public async Task<ulong> CreateGroup(AuthorOID sender, IObjectOID senderLocation, string name)
+		public async Task<ulong> CreateGroup(AuthorOID sender, IObjectOID senderLocation, string name, bool elevatedPrivilege = false)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
 			var locationOwner = await locationAccess.ReadLocationOwner(senderLocation)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)} creation as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
-			if (sender != locationOwner)
+			if (!elevatedPrivilege && sender != locationOwner)
 				throw new ArgumentException($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{senderLocation}".""", nameof(senderLocation));
 
 			// All guards passed, allow create.
@@ -48,50 +48,50 @@ namespace AtelierTomato.Markov.Core
 			return ID;
 		}
 
-		public async Task RenameGroup(AuthorOID sender, ulong ID, string name)
+		public async Task RenameGroup(AuthorOID sender, ulong ID, string name, bool elevatedPrivilege = false)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
-			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.RenameGroup))
+			if (!elevatedPrivilege && !senderGroupPermission.HasFlag(LocationGroupPermissionType.RenameGroup))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to rename group with ID "{ID}".""", nameof(sender));
 
 			// All guards passed, allow rename.
 			await locationGroupAccess.WriteLocationGroup(new LocationGroup(ID, name));
 		}
 
-		public async Task DeleteGroup(AuthorOID sender, ulong ID)
+		public async Task DeleteGroup(AuthorOID sender, ulong ID, bool elevatedPrivilege = false)
 		{
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
-			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.DeleteGroup))
+			if (!elevatedPrivilege && !senderGroupPermission.HasFlag(LocationGroupPermissionType.DeleteGroup))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to delete group with ID "{ID}".""", nameof(sender));
 
 			// All guards passed, allow delete.
 			await locationGroupAccess.DeleteLocationGroup(ID);
 		}
 
-		public async Task SendOrUpdateLocationGroupRequest(AuthorOID sender, LocationGroupPermission locationGroupPermission)
+		public async Task SendOrUpdateLocationGroupRequest(AuthorOID sender, LocationGroupPermission locationGroupPermission, bool elevatedPrivilege = false)
 		{
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(locationGroupPermission.ID, sender);
-			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.AddLocation))
+			if (!elevatedPrivilege && !senderGroupPermission.HasFlag(LocationGroupPermissionType.AddLocation))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to add locations to group with ID "{locationGroupPermission.ID}".""", nameof(sender));
 			var existingPermission = await locationGroupPermissionAccess.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location);
 			if (existingPermission is not null && existingPermission.Location == locationGroupPermission.Location)
 				throw new ArgumentException($"""Location "{locationGroupPermission.Location}" is already registered to group with ID "{locationGroupPermission.ID}".""", nameof(locationGroupPermission));
 
 			// Check if any permissions to assign are not held by the sender
-			if ((locationGroupPermission.Permissions & ~senderGroupPermission) != 0)
+			if (!elevatedPrivilege && (locationGroupPermission.Permissions & ~senderGroupPermission) != 0)
 				throw new ArgumentException($"""Author "{sender}" does not have some of the permissions they are trying to assign.""", nameof(locationGroupPermission));
 
 			// All guards passed, allow request.
 			await locationGroupRequestAccess.WriteLocationGroupRequest(locationGroupPermission);
 		}
 
-		public async Task AcceptInvitation(AuthorOID sender, IObjectOID locationID, ulong ID)
+		public async Task AcceptInvitation(AuthorOID sender, IObjectOID locationID, ulong ID, bool elevatedPrivilege = false)
 		{
 			var locationOwner = await locationAccess.ReadLocationOwner(locationID)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)}Request accepting as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
-			if (sender != locationOwner)
+			if (!elevatedPrivilege && sender != locationOwner)
 				throw new ArgumentException($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{locationID}".""", nameof(locationID));
 			var senderLocationGroupRequest = await locationGroupRequestAccess.ReadLocationGroupRequest(ID, locationID)
 			 ?? throw new ArgumentException($"""Location "{locationID}" has not been sent an invitation to group with ID "{ID}".""", nameof(ID));
@@ -101,11 +101,11 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupRequestAccess.DeleteLocationGroupRequest(ID, locationID);
 		}
 
-		public async Task DenyInvitation(AuthorOID sender, IObjectOID locationID, ulong ID)
+		public async Task DenyInvitation(AuthorOID sender, IObjectOID locationID, ulong ID, bool elevatedPrivilege = false)
 		{
 			var locationOwner = await locationAccess.ReadLocationOwner(locationID)
 			 ?? throw new InvalidOperationException($"Cannot process {nameof(LocationGroup)}Request denying as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
-			if (sender != locationOwner)
+			if (!elevatedPrivilege && sender != locationOwner)
 				throw new ArgumentException($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{locationOwner}" of {nameof(Location)} "{locationID}".""", nameof(locationID));
 			_ = await locationGroupRequestAccess.ReadLocationGroupRequest(ID, locationID)
 			 ?? throw new ArgumentException($"""Location "{locationID}" has not been sent an invitation to group with ID "{ID}".""", nameof(ID));
@@ -114,14 +114,14 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupRequestAccess.DeleteLocationGroupRequest(ID, locationID);
 		}
 
-		public async Task UpdateLocation(AuthorOID sender, LocationGroupPermission locationGroupPermission)
+		public async Task UpdateLocation(AuthorOID sender, LocationGroupPermission locationGroupPermission, bool elevatedPrivilege = false)
 		{
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(locationGroupPermission.ID, sender);
-			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.AddLocation))
+			if (!elevatedPrivilege && !senderGroupPermission.HasFlag(LocationGroupPermissionType.AddLocation))
 				throw new ArgumentException($"""Author "{sender}" does not have permission to add locations to group with ID "{locationGroupPermission.ID}".""", nameof(sender));
 
 			// Check if any permissions to assign are not held by the sender
-			if ((locationGroupPermission.Permissions & ~senderGroupPermission) != 0)
+			if (!elevatedPrivilege && (locationGroupPermission.Permissions & ~senderGroupPermission) != 0)
 				throw new ArgumentException($"""Author "{sender}" does not have some of the permissions they are trying to assign.""", nameof(locationGroupPermission));
 
 			// Check if Location is already in group
@@ -133,11 +133,11 @@ namespace AtelierTomato.Markov.Core
 			await locationGroupPermissionAccess.WriteLocationGroupPermission(locationGroupPermission);
 		}
 
-		public async Task RemoveLocation(AuthorOID sender, ulong ID, IObjectOID location)
+		public async Task RemoveLocation(AuthorOID sender, ulong ID, IObjectOID location, bool elevatedPrivilege = false)
 		{
 			var locationOwner = await locationAccess.ReadLocationOwner(location);
 			var senderGroupPermission = await locationGroupPermissionAccess.ReadLocationGroupPermissionsForOwner(ID, sender);
-			if (!senderGroupPermission.HasFlag(LocationGroupPermissionType.RemoveLocation) && locationOwner != sender)
+			if (!elevatedPrivilege && !senderGroupPermission.HasFlag(LocationGroupPermissionType.RemoveLocation) && locationOwner != sender)
 				throw new ArgumentException($"""Author "{sender}" does not have permission to remove locations from group with ID "{ID}".""", nameof(sender));
 
 			var locationGroupPermissions = await locationGroupPermissionAccess.ReadLocationGroupPermissionRangeByID(ID);
@@ -152,7 +152,7 @@ namespace AtelierTomato.Markov.Core
 			if (locationGroupPermissionsWithDeleteGroup.Count() is 1 && locationGroupPermissionsWithDeleteGroup.FirstOrDefault()!.Location == location)
 				throw new ArgumentException($"""Location "{location}" cannot be removed from group with ID "{ID}" as it is the only member of it that has the permission {nameof(LocationGroupPermissionType.DeleteGroup)}. Please use "{nameof(DeleteGroup)}" function instead.""", nameof(location));
 
-			if ((locationGroupPermissions.Where(p => p.Location == location).First().Permissions & ~senderGroupPermission) != 0)
+			if (!elevatedPrivilege && (locationGroupPermissions.Where(p => p.Location == location).First().Permissions & ~senderGroupPermission) != 0)
 				throw new ArgumentException($"""Author "{sender}" does not have some of the permissions that the location they are trying to remove has.""", nameof(location));
 
 			// All guards passed, allow remove.

@@ -53,7 +53,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 					return;
 				}
 				var groupLocation = location.ForLocationType(locationDepth)!;
-				var id = await locationGroupManager.CreateGroup(authorOID, groupLocation, name);
+				var id = await locationGroupManager.CreateGroup(authorOID, groupLocation, name, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"created new {nameof(LocationGroup)} with ID \"{id}\" and name \"{name}\"!");
 			}
 			catch (Exception ex)
@@ -77,7 +77,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			try
 			{
-				await locationGroupManager.RenameGroup(authorOID, id, newName);
+				await locationGroupManager.RenameGroup(authorOID, id, newName, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"renamed {nameof(LocationGroup)} with ID \"{id}\" to \"{newName}\"");
 			}
 			catch (Exception ex)
@@ -129,7 +129,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			try
 			{
-				await locationGroupManager.DeleteGroup(authorOID, id);
+				await locationGroupManager.DeleteGroup(authorOID, id, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"deleted group with ID \"{id}\"");
 			}
 			catch (Exception ex)
@@ -158,7 +158,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 					await ReplyAsync(message: $"you did not include all the necessary parameters, please provide a group ID, a location to invite (either as a scope relative to the current channel, or the raw {nameof(IObjectOID)}), and one or more permissions");
 					return;
 				}
-				await locationGroupManager.SendOrUpdateLocationGroupRequest(authorOID, locationGroupPermission);
+				await locationGroupManager.SendOrUpdateLocationGroupRequest(authorOID, locationGroupPermission, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"invited location with id \"{locationGroupPermission.Location}\" to group with id \"{locationGroupPermission.ID}\" with permissions: {locationGroupPermission.Permissions}");
 			}
 			catch (Exception ex)
@@ -207,7 +207,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					await ReplyAsync("invite location was not set");
 				}
-				await locationGroupManager.AcceptInvitation(authorOID, inviteLocation, id);
+				await locationGroupManager.AcceptInvitation(authorOID, inviteLocation, id, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"accepted invitation for location with id \"{inviteLocation}\" to group with id \"{id}\"");
 			}
 			catch (Exception ex)
@@ -255,7 +255,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					await ReplyAsync("invite location was not set");
 				}
-				await locationGroupManager.DenyInvitation(authorOID, inviteLocation, id);
+				await locationGroupManager.DenyInvitation(authorOID, inviteLocation, id, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"denied invitation for location with id \"{inviteLocation}\" to group with id \"{id}\"");
 			}
 			catch (Exception ex)
@@ -284,7 +284,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			try
 			{
-				await locationGroupManager.UpdateLocation(authorOID, locationGroupPermission);
+				await locationGroupManager.UpdateLocation(authorOID, locationGroupPermission, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"updated location with id \"{locationGroupPermission.Location}\" in group with id \"{locationGroupPermission.ID}\" to have permissions: {locationGroupPermission.Permissions}");
 			}
 			catch (Exception ex)
@@ -321,7 +321,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					effectiveOtherLocation = objectOIDParser.Parse(otherLocation);
 				}
-				await locationGroupManager.RemoveLocation(authorOID, id, effectiveOtherLocation);
+				await locationGroupManager.RemoveLocation(authorOID, id, effectiveOtherLocation, options.DeveloperIDs.Contains(Context.User.Id));
 				await ReplyAsync($"removed location with ID \"{effectiveOtherLocation}\" from group with ID \"{id}\"");
 			}
 			catch (Exception ex)

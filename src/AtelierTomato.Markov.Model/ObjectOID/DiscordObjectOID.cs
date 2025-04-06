@@ -205,7 +205,7 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 				DiscordLocationType.Thread => Thread is not null ? ForThread(Instance!, (ulong)Server!, (ulong)Category!, (ulong)Channel!, (ulong)Thread) : ThrowForLocationTypeError(type),
 				DiscordLocationType.Message => Message is not null ? ForMessage(Instance!, (ulong)Server!, (ulong)Category!, (ulong)Channel!, (ulong)Thread!, (ulong)Message) : ThrowForLocationTypeError(type),
 				DiscordLocationType.Sentence => Sentence is not null ? ForSentence(Instance!, (ulong)Server!, (ulong)Category!, (ulong)Channel!, (ulong)Thread!, (ulong)Message!, (int)Sentence) : ThrowForLocationTypeError(type),
-				_ => throw new ArgumentNullException(nameof(type))
+				_ => throw new NotImplementedException()
 			};
 		}
 

@@ -47,7 +47,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			try
 			{
-				var groupLocation = GetGroupLocation(locationDepth, location);
+				if (locationDepth is DiscordLocationType.Global or DiscordLocationType.Message or DiscordLocationType.Sentence)
+				{
+					await ReplyAsync($"{nameof(LocationGroup)}s cannot include {locationDepth}!");
+					return;
+				}
+				var groupLocation = location.ForLocationType(locationDepth)!;
 				var id = await locationGroupManager.CreateGroup(authorOID, groupLocation, name);
 				await ReplyAsync($"created new {nameof(LocationGroup)} with ID \"{id}\" and name \"{name}\"!");
 			}
@@ -185,7 +190,13 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					if (Enum.TryParse<DiscordLocationType>(inviteLocationParam, true, out var locationDepth))
 					{
-						inviteLocation = GetGroupLocation(locationDepth, location);
+						if (locationDepth is DiscordLocationType.Global or DiscordLocationType.Message or DiscordLocationType.Sentence)
+						{
+							await ReplyAsync($"{nameof(LocationGroup)}s cannot include {locationDepth}!");
+							return;
+						}
+						inviteLocation = location.ForLocationType(locationDepth)!;
+
 					}
 					else
 					{
@@ -228,7 +239,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					if (Enum.TryParse<DiscordLocationType>(inviteLocationParam, true, out var locationDepth))
 					{
-						inviteLocation = GetGroupLocation(locationDepth, location);
+						if (locationDepth is DiscordLocationType.Global or DiscordLocationType.Message or DiscordLocationType.Sentence)
+						{
+							await ReplyAsync($"{nameof(LocationGroup)}s cannot include {locationDepth}!");
+							return;
+						}
+						inviteLocation = location.ForLocationType(locationDepth)!;
 					}
 					else
 					{
@@ -294,7 +310,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				IObjectOID effectiveOtherLocation;
 				if (Enum.TryParse<DiscordLocationType>(otherLocation, true, out var locationDepth))
 				{
-					effectiveOtherLocation = GetGroupLocation(locationDepth, location);
+					if (locationDepth is DiscordLocationType.Global or DiscordLocationType.Message or DiscordLocationType.Sentence)
+					{
+						await ReplyAsync($"{nameof(LocationGroup)}s cannot include {locationDepth}!");
+						return;
+					}
+					effectiveOtherLocation = location.ForLocationType(locationDepth)!;
 				}
 				else
 				{
@@ -332,7 +353,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				IObjectOID effectiveOtherLocation;
 				if (Enum.TryParse<DiscordLocationType>(otherLocation, true, out var locationDepth))
 				{
-					effectiveOtherLocation = GetGroupLocation(locationDepth, location);
+					if (locationDepth is DiscordLocationType.Global or DiscordLocationType.Message or DiscordLocationType.Sentence)
+					{
+						await ReplyAsync($"{nameof(LocationGroup)}s cannot include {locationDepth}!");
+						return;
+					}
+					effectiveOtherLocation = location.ForLocationType(locationDepth)!;
 				}
 				else
 				{
@@ -465,7 +491,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 					{
 						if (Enum.TryParse<DiscordLocationType>(parameter, true, out var locationDepth))
 						{
-							otherLocationOID = GetGroupLocation(locationDepth, location);
+							if (locationDepth is DiscordLocationType.Global or DiscordLocationType.Message or DiscordLocationType.Sentence)
+							{
+								return null;
+							}
+							otherLocationOID = location.ForLocationType(locationDepth)!;
+
 							continue;
 						}
 					}
@@ -481,19 +512,5 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			return new LocationGroupPermission(id.Value, otherLocationOID, permissions);
 		}
-
-		private static DiscordObjectOID GetGroupLocation(DiscordLocationType locationDepth, DiscordObjectOID location) => locationDepth switch
-		{
-			DiscordLocationType.Global => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Global}!", nameof(locationDepth)),
-			DiscordLocationType.Discord => DiscordObjectOID.ForService(),
-			DiscordLocationType.Instance => DiscordObjectOID.ForInstance(location.Instance!),
-			DiscordLocationType.Server => DiscordObjectOID.ForServer(location.Instance!, location.Server!.Value),
-			DiscordLocationType.Category => DiscordObjectOID.ForCategory(location.Instance!, location.Server!.Value, location.Category!.Value),
-			DiscordLocationType.Channel => DiscordObjectOID.ForChannel(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value),
-			DiscordLocationType.Thread => DiscordObjectOID.ForThread(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value, location.Thread ?? 0),
-			DiscordLocationType.Message => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Message}!", nameof(locationDepth)),
-			DiscordLocationType.Sentence => throw new ArgumentException($"{nameof(LocationGroup)}s cannot include {DiscordLocationType.Sentence}!", nameof(locationDepth)),
-			_ => throw new NotImplementedException($"this {nameof(DiscordLocationType)} is not implemented!")
-		};
 	}
 }

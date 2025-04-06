@@ -51,7 +51,16 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					try
 					{
-						location = GetGroupLocation(locationDepth, baseLocation);
+						if (locationDepth is DiscordLocationType.Message or DiscordLocationType.Sentence)
+						{
+							await RespondAsync($"the location for a retort setting cannot be {locationDepth}!", ephemeral: true);
+							return;
+						}
+						else if (locationDepth is DiscordLocationType.Global)
+						{
+							locationDepth = DiscordLocationType.Discord;    // They're functionally the same and we didn't implement making Location null
+						}
+						location = baseLocation.ForLocationType(locationDepth)!;
 					}
 					catch (Exception ex)
 					{
@@ -91,7 +100,16 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 							}
 							try
 							{
-								locationsForFilter = locationsForFilter.Append(GetGroupLocation(locationDepth, baseLocation)).ToList();
+								if (locationDepth is DiscordLocationType.Message or DiscordLocationType.Sentence)
+								{
+									await RespondAsync($"the location for a retort setting cannot be {locationDepth}!", ephemeral: true);
+									return;
+								}
+								else if (locationDepth is DiscordLocationType.Global)
+								{
+									locationDepth = DiscordLocationType.Discord;    // They're functionally the same and we didn't implement making Location null
+								}
+								locationsForFilter = locationsForFilter.Append(baseLocation.ForLocationType(locationDepth)!).ToList();
 							}
 							catch
 							{
@@ -157,19 +175,5 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			await authorRetortConfigAccess.WriteAuthorRetortConfig(authorRetortConfig);
 			await RespondAsync("set your author retort config!", ephemeral: true);
 		}
-
-		private static DiscordObjectOID GetGroupLocation(DiscordLocationType locationDepth, DiscordObjectOID location) => locationDepth switch
-		{
-			DiscordLocationType.Global => DiscordObjectOID.ForService(), // They're functionally the same and we didn't implement making Location null
-			DiscordLocationType.Discord => DiscordObjectOID.ForService(),
-			DiscordLocationType.Instance => DiscordObjectOID.ForInstance(location.Instance!),
-			DiscordLocationType.Server => DiscordObjectOID.ForServer(location.Instance!, location.Server!.Value),
-			DiscordLocationType.Category => DiscordObjectOID.ForCategory(location.Instance!, location.Server!.Value, location.Category!.Value),
-			DiscordLocationType.Channel => DiscordObjectOID.ForChannel(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value),
-			DiscordLocationType.Thread => DiscordObjectOID.ForThread(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value, location.Thread ?? 0),
-			DiscordLocationType.Message => throw new ArgumentException($"the location for a retort setting cannot be {DiscordLocationType.Message}!", nameof(locationDepth)),
-			DiscordLocationType.Sentence => throw new ArgumentException($"the location for a retort setting cannot be {DiscordLocationType.Sentence}!", nameof(locationDepth)),
-			_ => throw new NotImplementedException($"this {nameof(DiscordLocationType)} is not implemented!")
-		};
 	}
 }

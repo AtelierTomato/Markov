@@ -46,15 +46,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					if (Enum.TryParse<DiscordLocationType>(locationParam, true, out var locationDepth))
 					{
-						try
+						if (locationDepth is DiscordLocationType.Global or DiscordLocationType.Message or DiscordLocationType.Sentence)
 						{
-							location = GetLocation(locationDepth, (DiscordObjectOID)location);
-						}
-						catch (Exception ex)
-						{
-							await ReplyAsync(ex.Message);
+							await ReplyAsync($"Global settings cannot be set for {locationDepth}!");
 							return;
 						}
+						location = ((DiscordObjectOID)location).ForLocationType(locationDepth)!;
 					}
 					else
 					{
@@ -87,19 +84,5 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			await locationSettingAccess.WriteLocationSetting(locationSetting);
 			await ReplyAsync($"updated global allowed permissions for {location} to {locationSetting.GlobalAllowed}!");
 		}
-
-		private static DiscordObjectOID GetLocation(DiscordLocationType locationDepth, DiscordObjectOID location) => locationDepth switch
-		{
-			DiscordLocationType.Global => throw new ArgumentException($"Global cannot be set for {DiscordLocationType.Global}!", nameof(locationDepth)),
-			DiscordLocationType.Discord => DiscordObjectOID.ForService(),
-			DiscordLocationType.Instance => DiscordObjectOID.ForInstance(location.Instance!),
-			DiscordLocationType.Server => DiscordObjectOID.ForServer(location.Instance!, location.Server!.Value),
-			DiscordLocationType.Category => DiscordObjectOID.ForCategory(location.Instance!, location.Server!.Value, location.Category!.Value),
-			DiscordLocationType.Channel => DiscordObjectOID.ForChannel(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value),
-			DiscordLocationType.Thread => DiscordObjectOID.ForThread(location.Instance!, location.Server!.Value, location.Category!.Value, location.Channel!.Value, location.Thread ?? 0),
-			DiscordLocationType.Message => throw new ArgumentException($"Global cannot be set for {DiscordLocationType.Message}!", nameof(locationDepth)),
-			DiscordLocationType.Sentence => throw new ArgumentException($"Global cannot be set for {DiscordLocationType.Sentence}!", nameof(locationDepth)),
-			_ => throw new NotImplementedException($"this {nameof(DiscordLocationType)} is not implemented!")
-		};
 	}
 }

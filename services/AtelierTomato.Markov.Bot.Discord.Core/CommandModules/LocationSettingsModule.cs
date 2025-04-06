@@ -30,7 +30,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("global")]
 		[Alias("g")]
 		[Summary("Allows or forbids access to other server's messages when using commands in this server.")]
-		public async Task Global(string? locationParam = null)
+		public async Task Global(string? locationParam = null, string inheritString = "")
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			IObjectOID location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -79,10 +79,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				}
 			}
 
+			bool inherit = string.Equals("inherit", inheritString, StringComparison.OrdinalIgnoreCase);
 			var locationSetting = await locationSettingAccess.ReadLocationSetting(location) ?? new(location, [], [], [], false, null);
-			locationSetting = new(locationSetting.ID, locationSetting.WriteReactions, locationSetting.DeleteReactions, locationSetting.FailReactions, !locationSetting.GlobalAllowed, locationSetting.LocationGroup);
+			locationSetting = new(locationSetting.ID, locationSetting.WriteReactions, locationSetting.DeleteReactions, locationSetting.FailReactions, !inherit ? !locationSetting.GlobalAllowed ?? true : null, locationSetting.LocationGroup);
 			await locationSettingAccess.WriteLocationSetting(locationSetting);
-			await ReplyAsync($"updated global allowed permissions for {location} to {locationSetting.GlobalAllowed}!");
+			await ReplyAsync($"updated global allowed permissions for {location} to {locationSetting.GlobalAllowed?.ToString() ?? "Inherit"}!");
 		}
 
 		[Command("setlocationgroup")]

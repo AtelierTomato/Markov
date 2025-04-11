@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using AtelierTomato.Markov.Core.Cooldown;
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Service.Discord;
@@ -20,7 +21,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly DiscordObjectOIDBuilder objectOIDBuilder;
 		private readonly MultiParser<IObjectOID> objectOIDParser;
 		private readonly DiscordBotOptions options;
-		public SentencesModule(ISentenceAccess sentenceAccess, IAuthorPermissionAccess authoerPermissionAccess, ILocationAccess locationAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser, IOptions<DiscordBotOptions> options)
+		private readonly Cooldown cooldown;
+		public SentencesModule(ISentenceAccess sentenceAccess, IAuthorPermissionAccess authoerPermissionAccess, ILocationAccess locationAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser, IOptions<DiscordBotOptions> options, Cooldown cooldown)
 		{
 			this.sentenceAccess = sentenceAccess;
 			this.authoerPermissionAccess = authoerPermissionAccess;
@@ -30,6 +32,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.objectOIDBuilder = objectOIDBuilder;
 			this.objectOIDParser = objectOIDParser;
 			this.options = options.Value;
+			this.cooldown = cooldown;
 		}
 
 		[SlashCommand("querysentences", "Query sentences based on various parameters.")]
@@ -44,6 +47,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var locationOID = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, locationOID, CooldownType.MessagesCheck))
+			{
+				await RespondAsync(text: "slow down!!", ephemeral: true);
+				return;
+			}
 			var isDev = options.DeveloperIDs.Contains(Context.User.Id);    // Some guards only need to be checked if not a developer.
 			if (!isDev && authorFilter is null && authorGroup is null && locationFilter is null && locationGroup is null)
 			{

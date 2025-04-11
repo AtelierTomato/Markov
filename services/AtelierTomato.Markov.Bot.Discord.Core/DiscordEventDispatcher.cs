@@ -183,11 +183,27 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			await ProcessForRetorting(message, context);
 		}
 
-		private async Task Client_MessageUpdated(Cacheable<IMessage, ulong> cacheable, SocketMessage message, ISocketMessageChannel channel)
+		private async Task Client_MessageUpdated(Cacheable<IMessage, ulong> cacheable, SocketMessage messageParam, ISocketMessageChannel channel)
 		{
-			if (message.Author.Id is not 0)
+			if (messageParam.Author.Id is not 0)
 			{
-				await Client_MessageReceived(message);
+				// Updates include pins and unpins, to protect against a server admin re-firing someone else's command, we do not process commands or retorts after 5 minutes.
+				if (DateTimeOffset.Now - messageParam.CreatedAt > TimeSpan.FromMinutes(5))
+				{
+					// Don't process the message if it was a system message
+					if (messageParam is not SocketUserMessage message)
+						return;
+					// Don't process the message if it was sent by a bot
+					if (message.Author.IsBot)
+						return;
+
+					var context = new SocketCommandContext(this.client, message);
+					_ = await ProcessForGathering(message, context);
+				}
+				else
+				{
+					await Client_MessageReceived(messageParam);
+				}
 			}
 		}
 

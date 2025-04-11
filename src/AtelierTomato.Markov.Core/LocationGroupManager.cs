@@ -182,7 +182,7 @@ namespace AtelierTomato.Markov.Core
 			// Determine which locations are usable from the location
 			foreach (var locationSetting in locationSettingHierarchy)
 			{
-				if (locationSetting.GlobalAllowed is not null && (bool)locationSetting.GlobalAllowed)
+				if (locationSetting.GlobalAllowed is true)
 				{
 					globalAllowed = true;
 					usableLocations = [];
@@ -196,6 +196,11 @@ namespace AtelierTomato.Markov.Core
 						locationPreferredLocationGroupID = permission.ID;
 						break;
 					}
+				}
+				if (locationSetting.GlobalAllowed is false)
+				{
+					usableLocations = [location.Base()];
+					break;
 				}
 			}
 

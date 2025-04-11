@@ -2,6 +2,7 @@
 using ConsoleTableExt;
 using Discord;
 using Discord.Commands;
+using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
 
@@ -24,6 +25,33 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			if (options.DeveloperIDs.Contains(Context.User.Id))
 			{
 				await ReplyAsync(input);
+			}
+			else
+			{
+				await ReplyAsync("no, i don't think i will");
+			}
+		}
+
+		[Command("announce")]
+		public async Task Announce([Remainder] string input)
+		{
+			if (options.DeveloperIDs.Contains(Context.User.Id))
+			{
+				foreach (var guild in client.Guilds)
+				{
+					foreach (var channel in guild.TextChannels.Where(tc => tc is not IThreadChannel and not IVoiceChannel).OrderBy(x => x.Position))
+					{
+						try
+						{
+							using (channel.EnterTypingState()) await channel.SendMessageAsync(text: input);
+							break;
+						}
+						catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.InsufficientPermissions || e.DiscordCode == DiscordErrorCode.MissingPermissions)
+						{
+							// This is fine, we're looking for the first channel we can actually post in
+						}
+					}
+				}
 			}
 			else
 			{

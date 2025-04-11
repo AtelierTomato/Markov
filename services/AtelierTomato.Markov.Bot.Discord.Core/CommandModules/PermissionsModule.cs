@@ -22,7 +22,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly DiscordObjectOIDBuilder objectOIDBuilder;
 		private readonly MultiParser<IObjectOID> objectOIDParser;
 		private readonly AuthorPermissionTableFormatter authorPermissionTableFormatter;
-		public PermissionsModule(IAuthorPermissionAccess authorPermissionAccess, IAuthorAccess authorAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser, AuthorPermissionTableFormatter authorPermissionTableFormatter)
+		private readonly HelpContentBuilder helpContentBuilder;
+		public PermissionsModule(IAuthorPermissionAccess authorPermissionAccess, IAuthorAccess authorAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser, AuthorPermissionTableFormatter authorPermissionTableFormatter, HelpContentBuilder helpContentBuilder)
 		{
 			this.authorPermissionAccess = authorPermissionAccess;
 			this.authorAccess = authorAccess;
@@ -31,6 +32,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.objectOIDBuilder = objectOIDBuilder;
 			this.objectOIDParser = objectOIDParser;
 			this.authorPermissionTableFormatter = authorPermissionTableFormatter;
+			this.helpContentBuilder = helpContentBuilder;
 		}
 
 		[Command("optin")]
@@ -66,9 +68,18 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("optin")]
 		[Alias("oi")]
 		[Summary("Lets the author opt in to having their messages gathered by the bot.")]
-		public async Task OptIn([Remainder] string _)
+		public async Task OptIn([Remainder] string? _ = null)
 		{
-			// TODO: help reply
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.OptIn).Build());
+			return;
 		}
 
 		[Command("optout")]

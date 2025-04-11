@@ -18,5 +18,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		public string EmptyMarkovReturn { get; set; } = "The Markov chain failed to generate anything. This is likely because either the database or the specific query handed to it resulted in 0 Sentences.";
 		public List<ulong> DeveloperIDs { get; set; } = [1050384196100706304, 142781100152848384];
 		public string BaseImageStorage { get; set; } = "./images";
+		public RgbColorValues EmbedColorRgb { get; set; } = new RgbColorValues { Red = 0, Green = 0, Blue = 0 };
+		public Color EmbedColor { get => (Color)EmbedColorRgb; }
 	}
 }

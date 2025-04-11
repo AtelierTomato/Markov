@@ -77,6 +77,7 @@ builder.Services
 	.AddSingleton<Cooldown>()
 	.AddSingleton<AuthorPermissionTableFormatter>()
 	.AddSingleton<WebhookHandler>()
+	.AddSingleton<HelpContentBuilder>()
 	.AddSingleton(_ => new MultiParser<IObjectOID>([new BookObjectOIDParser(), new SpecialObjectOIDParser(), new DiscordObjectOIDParser()]))
 	.AddSingleton(new CommandService(new CommandServiceConfig { DefaultRunMode = Discord.Commands.RunMode.Async }))
 	.AddSingleton(_ => new InteractionService(client.Rest, new InteractionServiceConfig { DefaultRunMode = Discord.Interactions.RunMode.Async }));

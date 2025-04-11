@@ -84,7 +84,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[Command("optout")]
 		[Alias("oo")]
-		[Summary("Allows the author to opt out of having their messages gather by the bot.")]
+		[Summary("Allows the author to opt out of having their messages gathered by the bot.")]
 		public async Task OptOut(DiscordLocationType from)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
@@ -113,7 +113,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[Command("optout")]
 		[Alias("oo")]
-		[Summary("Allows the author to opt out of having their messages gather by the bot.")]
+		[Summary("Allows the author to opt out of having their messages gathered by the bot.")]
 		public async Task OptOut([Remainder] string input)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
@@ -133,8 +133,23 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			catch
 			{
-				// TODO: help reply
+				await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.OptOut).Build());
 			}
+		}
+
+		[Command("optout")]
+		[Alias("oo")]
+		[Summary("Allows the author to opt out of having their messages gathered by the bot.")]
+		public async Task OptOut()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.OptOut).Build());
 		}
 
 		[Command("deletepermission")]
@@ -188,8 +203,23 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			catch
 			{
-				// TODO: help reply
+				await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.DeletePermission).Build());
 			}
+		}
+
+		[Command("deletepermission")]
+		[Alias("dp")]
+		[Summary("Allows the author to delete a permission for having their messages gather by the bot.")]
+		public async Task DeletePermission()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.DeletePermission).Build());
 		}
 
 		[Command("permsuser")]

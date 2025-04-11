@@ -7,6 +7,10 @@
 		Scope,
 		Location,
 		OptIn,
-		OptOut
+		OptOut,
+		DeletePermission,
+		PermissionsUser,
+		PermissionsServer,
+		PermissionsAll,
 	}
 }

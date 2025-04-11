@@ -35,6 +35,23 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("optout", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("oo", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.OptOut;
+				case string when input.Equals("permsuser", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("pu", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("permissionsuser", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.PermissionsUser;
+				case string when input.Equals("deletepermission", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dp", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.DeletePermission;
+				case string when input.Equals("permsserver", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ps", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("permserver", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("permissionsserver", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("permissionserver", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.PermissionsServer;
+				case string when input.Equals("permsall", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("pa", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("permissionsall", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.PermissionsAll;
 				default: return HelpSubject.Unknown;
 			}
 		}
@@ -114,6 +131,38 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						$"This means if you opted in to a {DiscordLocationType.Server}, and then to a {DiscordLocationType.Channel}, and you opt out of the {DiscordLocationType.Server} later, then you will still be opted into the {DiscordLocationType.Channel}."}
 					},
 					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}optout {DiscordLocationType.Server}" }
+				},
+				HelpSubject.DeletePermission => new EmbedBuilder
+				{
+					Title = "Delete Permission Help",
+					Description = $"This command completely deletes a permission from {options.BotName} for a Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Location}`). " +
+					$"This is different than opting out, as it acts as if the permission never existed at all. " +
+					$"This command is mostly used in cases where you want to simplify the permissions that you have given to the bot, for example, if you opted in to both a Server and a Channel with the same permissions, if you delete the permission for the Channel, instead the bot will use the permissions for the Server for that channel. " +
+					$"If you are instead want to explicitly deny permissions for a Location, instead, use `{options.BotPrefix}optout`. " +
+					Environment.NewLine + Environment.NewLine +
+					$"To delete a permission, use `{options.BotPrefix}deletepermission` or `{options.BotPrefix}dp` and then any of the below Scopes, or a Location ID.",
+					Fields =
+					{
+						new EmbedFieldBuilder{ IsInline = false, Name = "**Valid Scopes:**", Value = $"`{DiscordLocationType.Global}`, `{DiscordLocationType.Discord}`, `{DiscordLocationType.Instance}`, `{DiscordLocationType.Server}`, `{DiscordLocationType.Category}`, `{DiscordLocationType.Channel}`, `{DiscordLocationType.Thread}`" },
+					},
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}dp {DiscordLocationType.Channel}" }
+				},
+				HelpSubject.PermissionsUser => new EmbedBuilder
+				{
+					Title = "Permissions User Help",
+					Description = "Sends you a message in DMs listing all the locations that you are opted into and to what locations.",
+				},
+				HelpSubject.PermissionsServer => new EmbedBuilder
+				{
+					Title = "Permissions Server Help",
+					Description = "Only usable by server admins and bot developers. " +
+					"Sends you a message in DMs that lists the permissions for all users that are opted into the server that you used the command in.",
+				},
+				HelpSubject.PermissionsAll => new EmbedBuilder
+				{
+					Title = "Permissions All Help",
+					Description = "Only usable by bot developers. " +
+					"Sends you a message in DMs that lists all of the permissions for all users and locations.",
 				},
 				_ => throw new NotImplementedException()
 			};

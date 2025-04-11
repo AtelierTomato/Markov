@@ -12,5 +12,9 @@
 		PermissionsUser,
 		PermissionsServer,
 		PermissionsAll,
+		Speak,
+		Mimic,
+		SpeakStartsWith,
+		SpeakKeyword,
 	}
 }

@@ -52,6 +52,18 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("pa", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("permissionsall", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.PermissionsAll;
+				case string when input.Equals("speak", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("s", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Speak;
+				case string when input.Equals("mimic", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("m", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Mimic;
+				case string when input.Equals("speakstartswith", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ssw", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.SpeakStartsWith;
+				case string when input.Equals("speakkeyword", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("sk", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.SpeakKeyword;
 				default: return HelpSubject.Unknown;
 			}
 		}
@@ -163,6 +175,29 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					Title = "Permissions All Help",
 					Description = "Only usable by bot developers. " +
 					"Sends you a message in DMs that lists all of the permissions for all users and locations.",
+				},
+				HelpSubject.Speak => new EmbedBuilder
+				{
+					Title = "Speak Help",
+					Description = "This command will generate a sentence using all of the sentences allowed for a Location. " +
+					$"If you would like your sentences to be used in message generation, see `{options.BotPrefix}help {HelpSubject.OptIn}`."
+				},
+				HelpSubject.Mimic => new EmbedBuilder
+				{
+					Title = "Mimic Help",
+					Description = "This command will generate a sentence using only your sentences that are allowed in a Location. " +
+					$"If you are not opted in (see `{options.BotPrefix}help {HelpSubject.OptIn}` or do not have any sentences in the database, this command will fail to generate anything. " +
+					$"If the bot has webhook permissions, mimic replies will appear using the user's name and avatar."
+				},
+				HelpSubject.SpeakStartsWith => new EmbedBuilder
+				{
+					Title = "Speak Starts With Help",
+					Description = $"Similar to `{options.BotPrefix}speak`, but the parameter given will set the first word of the sentence."
+				},
+				HelpSubject.SpeakKeyword => new EmbedBuilder
+				{
+					Title = "Speak Keyword Help",
+					Description = $"Similar to `{options.BotPrefix}speak`, but the parameter given will set the keyword of the sentence."
 				},
 				_ => throw new NotImplementedException()
 			};

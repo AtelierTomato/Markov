@@ -71,6 +71,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.client.Ready += this.Client_Ready;
 
 			this.client.MessageReceived += this.Client_MessageReceived;
+			this.client.MessageUpdated += this.Client_MessageUpdated;
 			this.client.ReactionAdded += this.Client_ReactionAdded;
 			this.client.GuildUpdated += this.Client_GuildUpdated;
 			this.client.ChannelUpdated += this.Client_ChannelUpdated;
@@ -85,6 +86,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
 			this.webhookHandler = webhookHandler;
 		}
+
 
 		//private void LogCommandServiceCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
 		//{
@@ -179,6 +181,14 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			_ = await ProcessForGathering(message, context);
 
 			await ProcessForRetorting(message, context);
+		}
+
+		private async Task Client_MessageUpdated(Cacheable<IMessage, ulong> cacheable, SocketMessage message, ISocketMessageChannel channel)
+		{
+			if (message.Author.Id is not 0)
+			{
+				await Client_MessageReceived(message);
+			}
 		}
 
 		private async Task Client_ReactionAdded(Cacheable<IUserMessage, ulong> cachedMessage, Cacheable<IMessageChannel, ulong> originChannel, SocketReaction reaction)

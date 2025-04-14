@@ -149,10 +149,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("acceptauthorinvitation")]
-		[Alias("aai", "acceptauthorgroupinvitation", "aagi")]
+		[Command("acceptauthorinvite")]
+		[Alias("aai", "acceptauthorgroupinvite", "aagi")]
 		[Summary("Accepts an AuthorGroup invitation")]
-		public async Task AcceptAuthorInvitation(ulong id)
+		public async Task AcceptAuthorInvite(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -172,10 +172,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("acceptauthorinvitation")]
-		[Alias("aai", "acceptauthorgroupinvitation", "aagi")]
+		[Command("acceptauthorinvite")]
+		[Alias("aai", "acceptauthorgroupinvite", "aagi")]
 		[Summary("Accepts an AuthorGroup invitation")]
-		public async Task AcceptAuthorInvitation([Remainder] string name)
+		public async Task AcceptAuthorInvite([Remainder] string name)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -207,10 +207,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("denyauthorinvitation")]
-		[Alias("dai", "denyauthorgroupinvitation", "dagi")]
+		[Command("denyauthorinvite")]
+		[Alias("dai", "denyauthorgroupinvite", "dagi")]
 		[Summary("Denies an AuthorGroup invitation")]
-		public async Task DenyAuthorInvitation(ulong id)
+		public async Task DenyAuthorInvite(ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -230,10 +230,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("denyauthorinvitation")]
-		[Alias("dai", "denyauthorgroupinvitation", "dagi")]
+		[Command("denyauthorinvite")]
+		[Alias("dai", "denyauthorgroupinvite", "dagi")]
 		[Summary("Denies an AuthorGroup invitation")]
-		public async Task DenyAuthorInvitation([Remainder] string name)
+		public async Task DenyAuthorInvite([Remainder] string name)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -423,7 +423,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		}
 
 		[Command("authorgrouprequestslist")]
-		[Alias("agrl", "arl", "authorrequestslist", "authorgrouprequestlist", "listauthorrequest")]
+		[Alias("agrl", "arl", "authorrequestslist", "authorgrouprequestlist", "authorrequestlist")]
 		[Summary("Lists AuthorGroupRequests for an author")]
 		public async Task AuthorGroupRequestsList()
 		{

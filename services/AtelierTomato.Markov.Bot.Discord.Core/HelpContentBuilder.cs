@@ -29,6 +29,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("objectoid", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("discordobjectoid", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.Location;
+				case string when input.Equals("author", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("authoroid", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Author;
 				case string when input.Equals("optin", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("oi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.OptIn;
@@ -114,6 +117,53 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("locationgroupinfo", StringComparison.InvariantCulture):
 				case string when input.Equals("lgi", StringComparison.InvariantCulture):
 					return HelpSubject.LocationGroupInfo;
+				case string when input.Equals("authorgroup", StringComparison.InvariantCulture):
+					return HelpSubject.AuthorGroup;
+				case string when input.Equals("createauthorgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("cag", StringComparison.InvariantCulture):
+					return HelpSubject.CreateAuthorGroup;
+				case string when input.Equals("renameauthorgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("rag", StringComparison.InvariantCulture):
+					return HelpSubject.RenameAuthorGroup;
+				case string when input.Equals("deleteauthorgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("dag", StringComparison.InvariantCulture):
+					return HelpSubject.DeleteAuthorGroup;
+				case string when input.Equals("inviteauthor", StringComparison.InvariantCulture):
+				case string when input.Equals("ia", StringComparison.InvariantCulture):
+					return HelpSubject.InviteAuthor;
+				case string when input.Equals("acceptauthorinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("aai", StringComparison.InvariantCulture):
+				case string when input.Equals("acceptauthorgroupinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("aagi", StringComparison.InvariantCulture):
+					return HelpSubject.AcceptAuthorGroupInvite;
+				case string when input.Equals("denyauthorinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("dai", StringComparison.InvariantCulture):
+				case string when input.Equals("denyauthorgroupinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("dagi", StringComparison.InvariantCulture):
+					return HelpSubject.DenyAuthorGroupInvite;
+				case string when input.Equals("updateauthor", StringComparison.InvariantCulture):
+				case string when input.Equals("ua", StringComparison.InvariantCulture):
+					return HelpSubject.UpdateAuthor;
+				case string when input.Equals("removeauthor", StringComparison.InvariantCulture):
+				case string when input.Equals("ra", StringComparison.InvariantCulture):
+					return HelpSubject.RemoveAuthor;
+				case string when input.Equals("leaveauthorgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("lag", StringComparison.InvariantCulture):
+					return HelpSubject.LeaveAuthorGroup;
+				case string when input.Equals("authorgrouprequestslist", StringComparison.InvariantCulture):
+				case string when input.Equals("agrl", StringComparison.InvariantCulture):
+				case string when input.Equals("arl", StringComparison.InvariantCulture):
+				case string when input.Equals("authorrequestslist", StringComparison.InvariantCulture):
+				case string when input.Equals("authorgrouprequestlist", StringComparison.InvariantCulture):
+				case string when input.Equals("authorrequestlist", StringComparison.InvariantCulture):
+					return HelpSubject.AuthorGroupRequestList;
+				case string when input.Equals("authorgrouplist", StringComparison.InvariantCulture):
+				case string when input.Equals("agl", StringComparison.InvariantCulture):
+				case string when input.Equals("authorgroupslist", StringComparison.InvariantCulture):
+					return HelpSubject.AuthorGroupList;
+				case string when input.Equals("authorgroupinfo", StringComparison.InvariantCulture):
+				case string when input.Equals("agi", StringComparison.InvariantCulture):
+					return HelpSubject.AuthorGroupInfo;
 				case string when input.Equals("", StringComparison.InvariantCulture):
 				default: return HelpSubject.Unknown;
 			}
@@ -147,7 +197,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				HelpSubject.Location => new EmbedBuilder
 				{
 					Title = "Location Help",
-					Description = $"A Location, also known as an {nameof(IObjectOID)}, is how {options.BotName} internally stores locations from different platforms. " +
+					Description = $"A Location, also known as an {nameof(IObjectOID)}, is how {options.BotName} internally stores locations from differing platforms. " +
 					$"A Location is made up of pieces that represent increasingly specific places in a hierarchy, for example, a {nameof(DiscordObjectOID)} has a Service (Discord), Instance (discord.com), Server (some server ID), Category (some category ID), et cetera. " +
 					$"Some commands accept a Location instead of a Scope (see `{options.BotPrefix}help {HelpSubject.Scope}`) for a parameter. " +
 					$"An {nameof(IObjectOID)} can cut off at any section, so some may go as far as Sentence or as near as Server or even Service. " +
@@ -162,6 +212,15 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					Environment.NewLine + Environment.NewLine +
 					"Locations may refer to other platforms, and, in that case, they will not be formatted the same as the examples here.",
 					Fields = { new EmbedFieldBuilder { IsInline = false, Name = "**TL;DR**", Value = $"You don't need to know what this is or how it works, just copy and paste whatever {nameof(IObjectOID)}s the bot spits out in list commands." } }
+				},
+				HelpSubject.Author => new EmbedBuilder
+				{
+					Title = "Author Help",
+					Description = $"An Author, more formally known as an {nameof(AuthorOID)}, is how {options.BotName} internally stores users from differing platforms. " +
+					$"An Author is made up of a Service, such as \"Discord\", an Instance, such as \"{options.DiscordInstance}\", and an ID that is representative of however the base platform records users, such as \"1050384196100706304\"." + Environment.NewLine +
+					$"An example of a Discord {nameof(AuthorOID)} is `Discord:{options.DiscordInstance}:1050384196100706304`. " +
+					$"In most cases where an {nameof(AuthorOID)} is accepted in {options.BotName}, a Discord User ID will also suffice, so you do not need to type out an {nameof(AuthorOID)} unless you are explicitly referring to an off-platform user.",
+					Fields = { new EmbedFieldBuilder { IsInline = false, Name = "**TL;DR**", Value = $"You can usually just use a Discord user ID in place of an {nameof(AuthorOID)}" } },
 				},
 				HelpSubject.OptIn => new EmbedBuilder
 				{
@@ -271,21 +330,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				HelpSubject.LocationGroup => new EmbedBuilder
 				{
 					Title = "LocationGroup Help",
-					Description = $"A LocationGroup is a group of Locations (see `{options.BotPrefix}help {HelpSubject.Location}` with set permissions allowing for the pooling of usable messages across multiple locations. " +
+					Description = $"A LocationGroup is a group of Locations (see `{options.BotPrefix}help {HelpSubject.Location}`) with set permissions allowing for the pooling of usable messages across multiple locations. " +
 					$"If you set a Location to use a certain LocationGroup using `{options.BotPrefix}setlocationgroup`, then all Locations in that group will contribute to the database that {options.BotName} pulls from when generating a sentence. " +
-					$"Keep ind mind that this does not change the availability of messages in the database, if a message is only allowed to be used in a specific server, being in a LocationGroup with that server will not change this. " +
+					$"Keep in mind that this does not change the availability of messages in the database, if a message is only allowed to be used in a specific server, being in a LocationGroup with that server will not change this. " +
 					$"Instead, think of a LocationGroup as an alternative to Global being turned on, so your Location can use messages from any of the Location in the group. " +
 					$"Every LocationGroup is assigned a numeric ID and must be given a name," +
 					Environment.NewLine + Environment.NewLine +
 					"Locations registered to a LocationGroup may have the following permissions assigned to them:",
 					Fields =
 					{
-						new EmbedFieldBuilder { IsInline = false, Name = "**SentencesInGroup**", Value = "Locations with this permission will contribute their Sentences to the group." },
-						new EmbedFieldBuilder { IsInline = false, Name = "**UseGroup**", Value = $"Locations with this permission are allowed to have their LocationGroup set to this LocationGroup, their owners may also use the LocationGroup in their retort configs." },
-						new EmbedFieldBuilder { IsInline = false, Name = "**AddLocation**", Value = "The owner of this Location may invite other Locations to the group, or update the permissions of other Locations in the group." },
-						new EmbedFieldBuilder { IsInline = false, Name = "**RemoveLocation**", Value = "The owner of this Location may remove other Locations from the group." },
-						new EmbedFieldBuilder { IsInline = false, Name = "**RenameGroup**", Value = "The owner of this Location may rename the LocationGroup." },
-						new EmbedFieldBuilder { IsInline = false, Name = "**DeleteGroup**", Value = "The owner of this Location may delete the LocationGroup." }
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{LocationGroupPermissionType.SentencesInGroup}**", Value = "Locations with this permission will contribute their Sentences to the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{LocationGroupPermissionType.UseGroup}**", Value = $"Locations with this permission are allowed to have their LocationGroup set to this LocationGroup, their owners may also use the LocationGroup in their retort configs." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{LocationGroupPermissionType.AddLocation}**", Value = "The owner of this Location may invite other Locations to the group, or update the permissions of other Locations in the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{LocationGroupPermissionType.RemoveLocation}**", Value = "The owner of this Location may remove other Locations from the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{LocationGroupPermissionType.RenameGroup}**", Value = "The owner of this Location may rename the LocationGroup." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{LocationGroupPermissionType.DeleteGroup}**", Value = "The owner of this Location may delete the LocationGroup." }
 					}
 				},
 				HelpSubject.CreateLocationGroup => new EmbedBuilder
@@ -361,7 +420,102 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				HelpSubject.LocationGroupInfo => new EmbedBuilder
 				{
 					Title = "LocationGroup Info Help",
-					Description = $"Lists the name, permissions, and requests for a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`)."
+					Description = $"Lists the name, permissions, and requests for a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) with given ID."
+				},
+				HelpSubject.AuthorGroup => new EmbedBuilder
+				{
+					Title = "AuthorGroup Help",
+					Description = $"An AuthorGroup is a group of Authors (see `{options.BotPrefix}help {HelpSubject.Author}`) with set permissions allowing for the pooling of usable messages across multiple authors. " +
+					$"If you set your AuthorRetortConfig to use a certain AuthorGroup using `/retort` (see `{options.BotPrefix}help {HelpSubject.Retort}`), then all Authors in that group will contribute to the database that {options.BotName} pulls from when generating a sentence as a retort. " +
+					$"Every AuthorGroup is assigned a numeric ID and must be given a name," +
+					Environment.NewLine + Environment.NewLine +
+					"Authors registered to an AuthorGroup may have the following permissions assigned to them:",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{AuthorGroupPermissionType.SentencesInGroup}**", Value = "Authors with this permission will contribute their Sentences to the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{AuthorGroupPermissionType.UseGroup}**", Value = "Authors with this permission are allowed to set their retort config to use this AuthorGroup." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{AuthorGroupPermissionType.AddAuthor}**", Value = "This Author may invite other Authors to the group, or update the permissions of other Authors in the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{AuthorGroupPermissionType.RemoveAuthor}**", Value = "This Author may remove other Authors from the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{AuthorGroupPermissionType.RenameGroup}**", Value = "This Author may rename the AuthorGroup." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**{AuthorGroupPermissionType.DeleteGroup}**", Value = "This Author may delete the AuthorGroup." }
+					}
+				},
+				HelpSubject.CreateAuthorGroup => new EmbedBuilder
+				{
+					Title = "Create AuthorGroup Help",
+					Description = $"Creates a new AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with provided name.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}cag My New Group" }
+				},
+				HelpSubject.RenameAuthorGroup => new EmbedBuilder
+				{
+					Title = "Rename AuthorGroup Help",
+					Description = $"Renames an AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with given ID to given name.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}rag 21 My Updated Name" }
+				},
+				HelpSubject.DeleteAuthorGroup => new EmbedBuilder
+				{
+					Title = "Delete AuthorGroup Help",
+					Description = $"Deletes an AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with given ID or given name.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}dag My Old Group" }
+				},
+				HelpSubject.InviteAuthor => new EmbedBuilder
+				{
+					Title = "Invite Author Help",
+					Description = $"Invites an Author to an AuthorGroup." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter must be the ID of the AuthorGroup you'd like to invite the Author to." +
+					Environment.NewLine + $"The second parameter must either be an Author (see `{options.BotPrefix}help {HelpSubject.Author}`) or a Discord User ID." +
+					Environment.NewLine + $"Any further parameters must be any combination of permissions (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) for the invited Author to have.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}ia 23 1050384196100706304 SentencesInGroup UseGroup" }
+				},
+				HelpSubject.AcceptAuthorGroupInvite => new EmbedBuilder
+				{
+					Title = "Accept AuthorGroup Invite",
+					Description = $"Accepts an invite to the AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with given name or ID.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}aai 23" }
+				},
+				HelpSubject.DenyAuthorGroupInvite => new EmbedBuilder
+				{
+					Title = "Deny AuthorGroup Invite",
+					Description = $"Denies an invite to the AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with given name or ID.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}dai 23" }
+				},
+				HelpSubject.UpdateAuthor => new EmbedBuilder
+				{
+					Title = "Update Author Help",
+					Description = $"Updates the permissions of an Author in an AuthorGroup." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter must be the ID of the AuthorGroup you'd like to update the permissions of the Author in." +
+					Environment.NewLine + $"The second parameter must either be an Author (see `{options.BotPrefix}help {HelpSubject.Author}`) or a Discord User ID." +
+					Environment.NewLine + $"Any further parameters must be any combination of permissions (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) for the Author to have.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}ul 23 1050384196100706304 SentencesInGroup UseGroup RenameGroup" }
+				},
+				HelpSubject.RemoveAuthor => new EmbedBuilder
+				{
+					Title = "Remove Author Help",
+					Description = $"Removes an Author from an AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`), this can only be used to remove other Authors, to remove yourself, use `{options.BotPrefix}lag`." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter is an Author (see `{options.BotPrefix}help {HelpSubject.Author}`) or a Discord User ID that you would like to remove from the group." +
+					Environment.NewLine + $"The second parameter is the ID or name of the AuthorGroup.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}ra 1050384196100706304 23" }
+				},
+				HelpSubject.LeaveAuthorGroup => new EmbedBuilder
+				{
+					Title = "Leave AuthorGroup Help",
+					Description = $"Removes you from an AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with specified name or ID.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}lag My Out of Date Group" }
+				},
+				HelpSubject.AuthorGroupRequestList => new EmbedBuilder
+				{
+					Title = "AuthorGroup Request List Help",
+					Description = $"Lists all of the invitations for AuthorGroups (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) you have received."
+				},
+				HelpSubject.AuthorGroupList => new EmbedBuilder
+				{
+					Title = "AuthorGroup List Help",
+					Description = $"Lists all AuthorGroups (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) that you are registered to."
+				},
+				HelpSubject.AuthorGroupInfo => new EmbedBuilder
+				{
+					Title = "AuthorGroup Info Help",
+					Description = $"Lists the name, permissions, and requests for an AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with given ID."
 				},
 				_ => throw new NotImplementedException()
 			};

@@ -1,4 +1,6 @@
-﻿using AtelierTomato.Markov.Model;
+﻿using AtelierTomato.Markov.Core;
+using AtelierTomato.Markov.Core.Generation;
+using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Model.ObjectOID.LocationTypes;
 using Discord;
@@ -9,9 +11,13 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 	public class HelpContentBuilder
 	{
 		private readonly DiscordBotOptions options;
-		public HelpContentBuilder(IOptions<DiscordBotOptions> options)
+		private readonly MarkovChainOptions markovChainOptions;
+		private readonly SentenceParserOptions sentenceParserOptions;
+		public HelpContentBuilder(IOptions<DiscordBotOptions> options, IOptions<MarkovChainOptions> markovChainOptions, IOptions<SentenceParserOptions> sentenceParserOptions)
 		{
 			this.options = options.Value;
+			this.markovChainOptions = markovChainOptions.Value;
+			this.sentenceParserOptions = sentenceParserOptions.Value;
 		}
 
 		public HelpSubject ParseSubject(string input)
@@ -32,6 +38,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("author", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("authoroid", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.Author;
+				case string when input.Equals("gettingstarted", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("gs", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.GettingStarted;
+				case string when input.Equals("faq", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.FAQ;
 				case string when input.Equals("optin", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("oi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.OptIn;
@@ -197,7 +208,23 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			var helpEmbed = subject switch
 			{
 				HelpSubject.Unknown => throw new ArgumentNullException(nameof(subject)),
-				HelpSubject.General => throw new NotImplementedException(), // DON'T FORGET TO DO LATER
+				HelpSubject.General => new EmbedBuilder
+				{
+					Title = "Help",
+					Description = $"For explanations of each command, say `{options.BotPrefix}help` and then the command name. " +
+					$"Most commands have aliases that can be used instead of the command name that are the first letters of each word, such as `{options.BotPrefix}cag` or `{options.BotPrefix}oi`",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = true, Name = "**Permission Commands**", Value = "`optin` `optout` `deletepermission` `permsuser` `permsserver` `permsall`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Speak Comamnds**", Value = "`speak` `mimic` `speakstartswith` `speakkeyword`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Settings Commands**", Value = "`global` `setlocationgroup` `retort`" },
+						new EmbedFieldBuilder { IsInline = false, Name = "**LocationGroup Commands**", Value = "`createlocationgroup` `renamelocationgroup` `deletelocationgroup` `invitelocation` `acceptlocationinvite` `denylocationinvite` `updatelocation` `removelocation` `locationrequestlist` `locationgrouplist` `locationgroupinfo`" },
+						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorGroup Commands**", Value = "`createauthorgroup` `renameauthorgroup` `deleteauthorgroup` `inviteauthor` `acceptauthorinvite` `denyauthorinvite` `updateauthor` `removeauthor` `leaveauthorgroup` `authorrequestlist` `authorgrouplist` `authorgroupinfo`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Other Commands**", Value = "`ping` `querysentences` `gettingstarted` `faq`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Developer Commands**", Value = "`say` `announce` `leave` `serverlist` `channellist`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Other Help Topics**", Value = "`scope` `location` `author` `locationgroup` `authorgroup`"}
+					}
+				},
 				HelpSubject.Scope => new EmbedBuilder
 				{
 					Title = "Scope Help",
@@ -244,6 +271,52 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					$"An example of a Discord {nameof(AuthorOID)} is `Discord:{options.DiscordInstance}:1050384196100706304`. " +
 					$"In most cases where an {nameof(AuthorOID)} is accepted in {options.BotName}, a Discord User ID will also suffice, so you do not need to type out an {nameof(AuthorOID)} unless you are explicitly referring to an off-platform user.",
 					Fields = { new EmbedFieldBuilder { IsInline = false, Name = "**TL;DR**", Value = $"You can usually just use a Discord user ID in place of an {nameof(AuthorOID)}" } },
+				},
+				HelpSubject.GettingStarted => new EmbedBuilder
+				{
+					Title = $"Getting Started with {options.BotName}",
+					Description = $"{options.BotName} is a markov chain bot that uses *your* messages to generate funny sentences.",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = false, Name = "**Opting In**", Value =
+							$"For {options.BotName} to use your messages to generate sentences, you need to opt in. " +
+							$"The recommended opt in command with parameters is `{options.BotPrefix}oi Global Global` if you do not care too much where your messages come from or end up. " +
+							$"If you do care, you should read the information in `{options.BotPrefix}help oi`."
+						},
+						new EmbedFieldBuilder { IsInline = false, Name = "**Generating Sentences**", Value =
+							$"To generate a markov sentence with {options.BotName}, you can simply say the bot's name. " +
+							$"This will use your retort config, which can be further tweaked with `/retort` (see `{options.BotPrefix}help retort` for more info)."
+						},
+						new EmbedFieldBuilder { IsInline = false, Name = "**More Information**", Value =
+							$"If you need to know more about {options.BotName}, you can use `{options.BotPrefix}help` to see all commands. " +
+							$"You can also use `{options.BotPrefix}faq` to get the answers to some questions you may have."
+						},
+					}
+				},
+				HelpSubject.FAQ => new EmbedBuilder
+				{
+					Title = "Frequently Asked Questions",
+					Description = "[fʌk ju]",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = false, Name = $"**How can I make {options.BotName}'s outputs longer?**", Value = "Just keep talking." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**Why do only messages {sentenceParserOptions.MinimumInputLength} words or longer count?**", Value = $"This is a minimum set in the settings by the developer to prevent shorter / more mundane sentences." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**If I'm not opted in, will my messages be added to the database?**", Value = "No." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**Will the bot add messages to the database from before I was opted in?**", Value = $"No, but if you want, you can add them yourself. React to the message in question with the {options.WriteEmojis.First()} emoji." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**Is there a way to remove my messages from the database?**", Value = $"Yes, though it is rudimentary. If you would like to remove a message from the database, react to it with the {options.DeleteEmojis.First()} emoji." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**Can I look at the source code or host my own iteration of {options.BotName}?**", Value = $"You can, the source code can be found [here](https://github.com/AtelierTomato/Markov). However, if you just want the bot to only use your sentences, you can already configure that. See `{options.BotPrefix}help` for various settings and the like."},
+						new EmbedFieldBuilder { IsInline = false, Name = $"**Why is {options.BotName} so stupid?**", Value = "Probably because you're teaching it." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**Can {options.BotName} actually learn?**", Value = "Not really, but maybe it will be able to someday." },
+						new EmbedFieldBuilder { IsInline = false, Name = $"**How does {options.BotName} actually work?**", Value =
+							$"{options.BotName} gets the first word of a sentence in the database and adds it to a \"chain\" as well as an unfinished sentence. " +
+							$"Then, {options.BotName} will match the chain's content to other sentences in the database, if it finds a match, it will add the next word after the last instance of the chain in the sentence to the chain and the unfinished sentence. " +
+							$"If it does not find a match, it will prune the first word of the chain, and try again. " +
+							$"It will also prune the chain if it gets longer than {markovChainOptions.MaximumPrevListLength}, as set by the bot developer. " +
+							$"It will continue to do this until it fails to find anything and completely prunes the chain, or the sentence is {markovChainOptions.MaximumOutputLength} words long. " +
+							$"Then, it will consider the sentence finished, render it, and send it. " +
+							$"There's a bit more complexity to it than this, but that is the gist of it."
+						},
+					}
 				},
 				HelpSubject.OptIn => new EmbedBuilder
 				{
@@ -560,7 +633,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						new EmbedFieldBuilder { IsInline = false, Name = "**LocationGroup**", Value = $"This is the ID of the LocationGroup that will be used for generation, a LocationFilter will further filter the pool provided by the LocationGroup. Keep in mind the Location's settings still apply." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**Keyword**", Value = "This forces the keyword used when generating to be the given word, otherwise a keyword will be generated." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**FirstWord**", Value = "This forces the first word of the generated retort to be the given word." }
-					}
+					},
+					Footer = new EmbedFooterBuilder { Text = "Example: /retort location:server displayoption:mimic authorfilter:1289022865961648189" }
 				},
 				HelpSubject.Ping => new EmbedBuilder
 				{

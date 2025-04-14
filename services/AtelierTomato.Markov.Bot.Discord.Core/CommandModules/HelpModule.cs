@@ -44,5 +44,32 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				await ReplyAsync($"there is no command named \"{parameter}\"");
 			}
 		}
+
+		[Command("gettingstarted")]
+		[Alias("gs")]
+		public async Task GettingStarted()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.GettingStarted).Build());
+		}
+
+		[Command("faq")]
+		public async Task FAQ()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.FAQ).Build());
+		}
 	}
 }

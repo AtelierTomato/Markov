@@ -67,104 +67,108 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("speakkeyword", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("sk", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.SpeakKeyword;
-				case string when input.Equals("global", StringComparison.InvariantCulture):
-				case string when input.Equals("g", StringComparison.InvariantCulture):
+				case string when input.Equals("global", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("g", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.Global;
-				case string when input.Equals("setlocationgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("slg", StringComparison.InvariantCulture):
+				case string when input.Equals("setlocationgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("slg", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.SetLocationGroup;
-				case string when input.Equals("locationgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("locationgroup", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.LocationGroup;
-				case string when input.Equals("createlocationgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("clg", StringComparison.InvariantCulture):
+				case string when input.Equals("createlocationgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("clg", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.CreateLocationGroup;
-				case string when input.Equals("renamelocationgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("rlg", StringComparison.InvariantCulture):
+				case string when input.Equals("renamelocationgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("rlg", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.RenameLocationGroup;
-				case string when input.Equals("deletelocationgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("dlg", StringComparison.InvariantCulture):
+				case string when input.Equals("deletelocationgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dlg", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.DeleteLocationGroup;
-				case string when input.Equals("invitelocation", StringComparison.InvariantCulture):
-				case string when input.Equals("il", StringComparison.InvariantCulture):
+				case string when input.Equals("invitelocation", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("il", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.InviteLocation;
-				case string when input.Equals("acceptlocationinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("ali", StringComparison.InvariantCulture):
-				case string when input.Equals("acceptlocationgroupinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("algi", StringComparison.InvariantCulture):
+				case string when input.Equals("acceptlocationinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ali", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("acceptlocationgroupinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("algi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.AcceptLocationGroupInvite;
-				case string when input.Equals("denylocationinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("dli", StringComparison.InvariantCulture):
-				case string when input.Equals("denylocationgroupinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("dlgi", StringComparison.InvariantCulture):
+				case string when input.Equals("denylocationinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dli", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("denylocationgroupinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dlgi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.DenyLocationGroupInvite;
-				case string when input.Equals("updatelocation", StringComparison.InvariantCulture):
-				case string when input.Equals("ul", StringComparison.InvariantCulture):
+				case string when input.Equals("updatelocation", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ul", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.UpdateLocation;
-				case string when input.Equals("removelocation", StringComparison.InvariantCulture):
-				case string when input.Equals("rl", StringComparison.InvariantCulture):
+				case string when input.Equals("removelocation", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("rl", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.RemoveLocation;
-				case string when input.Equals("locationgrouprequestslist", StringComparison.InvariantCulture):
-				case string when input.Equals("lgrl", StringComparison.InvariantCulture):
-				case string when input.Equals("lrl", StringComparison.InvariantCulture):
-				case string when input.Equals("locationrequestslist", StringComparison.InvariantCulture):
-				case string when input.Equals("locationgrouprequestlist", StringComparison.InvariantCulture):
-				case string when input.Equals("locationrequestlist", StringComparison.InvariantCulture):
+				case string when input.Equals("locationgrouprequestslist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("lgrl", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("lrl", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("locationrequestslist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("locationgrouprequestlist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("locationrequestlist", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.LocationGroupRequestList;
-				case string when input.Equals("locationgrouplist", StringComparison.InvariantCulture):
-				case string when input.Equals("lgl", StringComparison.InvariantCulture):
-				case string when input.Equals("locationgroupslist", StringComparison.InvariantCulture):
+				case string when input.Equals("locationgrouplist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("lgl", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("locationgroupslist", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.LocationGroupList;
-				case string when input.Equals("locationgroupinfo", StringComparison.InvariantCulture):
-				case string when input.Equals("lgi", StringComparison.InvariantCulture):
+				case string when input.Equals("locationgroupinfo", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("lgi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.LocationGroupInfo;
-				case string when input.Equals("authorgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("authorgroup", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.AuthorGroup;
-				case string when input.Equals("createauthorgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("cag", StringComparison.InvariantCulture):
+				case string when input.Equals("createauthorgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("cag", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.CreateAuthorGroup;
-				case string when input.Equals("renameauthorgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("rag", StringComparison.InvariantCulture):
+				case string when input.Equals("renameauthorgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("rag", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.RenameAuthorGroup;
-				case string when input.Equals("deleteauthorgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("dag", StringComparison.InvariantCulture):
+				case string when input.Equals("deleteauthorgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dag", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.DeleteAuthorGroup;
-				case string when input.Equals("inviteauthor", StringComparison.InvariantCulture):
-				case string when input.Equals("ia", StringComparison.InvariantCulture):
+				case string when input.Equals("inviteauthor", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ia", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.InviteAuthor;
-				case string when input.Equals("acceptauthorinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("aai", StringComparison.InvariantCulture):
-				case string when input.Equals("acceptauthorgroupinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("aagi", StringComparison.InvariantCulture):
+				case string when input.Equals("acceptauthorinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("aai", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("acceptauthorgroupinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("aagi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.AcceptAuthorGroupInvite;
-				case string when input.Equals("denyauthorinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("dai", StringComparison.InvariantCulture):
-				case string when input.Equals("denyauthorgroupinvite", StringComparison.InvariantCulture):
-				case string when input.Equals("dagi", StringComparison.InvariantCulture):
+				case string when input.Equals("denyauthorinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dai", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("denyauthorgroupinvite", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dagi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.DenyAuthorGroupInvite;
-				case string when input.Equals("updateauthor", StringComparison.InvariantCulture):
-				case string when input.Equals("ua", StringComparison.InvariantCulture):
+				case string when input.Equals("updateauthor", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ua", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.UpdateAuthor;
-				case string when input.Equals("removeauthor", StringComparison.InvariantCulture):
-				case string when input.Equals("ra", StringComparison.InvariantCulture):
+				case string when input.Equals("removeauthor", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ra", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.RemoveAuthor;
-				case string when input.Equals("leaveauthorgroup", StringComparison.InvariantCulture):
-				case string when input.Equals("lag", StringComparison.InvariantCulture):
+				case string when input.Equals("leaveauthorgroup", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("lag", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.LeaveAuthorGroup;
-				case string when input.Equals("authorgrouprequestslist", StringComparison.InvariantCulture):
-				case string when input.Equals("agrl", StringComparison.InvariantCulture):
-				case string when input.Equals("arl", StringComparison.InvariantCulture):
-				case string when input.Equals("authorrequestslist", StringComparison.InvariantCulture):
-				case string when input.Equals("authorgrouprequestlist", StringComparison.InvariantCulture):
-				case string when input.Equals("authorrequestlist", StringComparison.InvariantCulture):
+				case string when input.Equals("authorgrouprequestslist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("agrl", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("arl", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("authorrequestslist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("authorgrouprequestlist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("authorrequestlist", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.AuthorGroupRequestList;
-				case string when input.Equals("authorgrouplist", StringComparison.InvariantCulture):
-				case string when input.Equals("agl", StringComparison.InvariantCulture):
-				case string when input.Equals("authorgroupslist", StringComparison.InvariantCulture):
+				case string when input.Equals("authorgrouplist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("agl", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("authorgroupslist", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.AuthorGroupList;
-				case string when input.Equals("authorgroupinfo", StringComparison.InvariantCulture):
-				case string when input.Equals("agi", StringComparison.InvariantCulture):
+				case string when input.Equals("authorgroupinfo", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("agi", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.AuthorGroupInfo;
-				case string when input.Equals("", StringComparison.InvariantCulture):
+				case string when input.Equals("retort", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("authorretortconfig", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("arc", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Retort;
+				case string when input.Equals("", StringComparison.InvariantCultureIgnoreCase):
 				default: return HelpSubject.Unknown;
 			}
 		}
@@ -516,6 +520,28 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				{
 					Title = "AuthorGroup Info Help",
 					Description = $"Lists the name, permissions, and requests for an AuthorGroup (see `{options.BotPrefix}help {HelpSubject.AuthorGroup}`) with given ID."
+				},
+				HelpSubject.Retort => new EmbedBuilder
+				{
+					Title = "Retort Help",
+					Description = $"The Retort command allows the user to set their {nameof(AuthorRetortConfig)}, which determines what settings {options.BotName} will use when generating retorts. " +
+					$"Retorts are sentences generated either when a user says {options.BotName}'s name, or when a user replies to one of {options.BotName}'s posts. " +
+					$"An {nameof(AuthorRetortConfig)} is tied to a specific Author and a specific Location (see `{options.BotPrefix}help {HelpSubject.Location}`), and the most specific {nameof(AuthorRetortConfig)} will be used, so if there is a config for both the Server and the Channel, the one for the Channel will be used. " +
+					$"The retort command is only offered as a slash command, as it has a large amount of parameters that it can be given. " +
+					$"Whenever the retort comamnd is ran, it completely replaces the existing {nameof(AuthorRetortConfig)} for a location." +
+					Environment.NewLine + Environment.NewLine +
+					$"Below are explanations of the parameters that can be given when using /retort.",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = false, Name = "**Location**", Value = $"This is the only required field, this can be either a Scope or a Location (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). If only a location is provided, the command will reset retort to empty." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**DisplayOption**", Value = "This can be either `Normal` or `Mimic`, Normal will have the bot just reply as a bot, Mimic will use a webhook to use your profile picture and name when retorting." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorFilter**", Value = $"This is a triple colon (:::) separated list of authors, this can be either a full AuthorOID (see `{options.BotPrefix}help {HelpSubject.Author}`) or a Discord User ID. This determines which Authors' messages will be used while generating a retort." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**LocationFilter**", Value = $"This is a triple colon (:::) separated list of either Scopes or Locations (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). This determines which Locations' messages will be used while generating a retort. Keep in mind the Location's settings still apply." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorGroup**", Value = $"This is the ID of the AuthorGroup that will be used for generation, an AuthorFilter will further filter the pool provided by the AuthorGroup." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**LocationGroup**", Value = $"This is the ID of the LocationGroup that will be used for generation, a LocationFilter will further filter the pool provided by the LocationGroup. Keep in mind the Location's settings still apply." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**Keyword**", Value = "This forces the keyword used when generating to be the given word, otherwise a keyword will be generated." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**FirstWord**", Value = "This forces the first word of the generated retort to be the given word." }
+					}
 				},
 				_ => throw new NotImplementedException()
 			};

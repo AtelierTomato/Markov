@@ -167,10 +167,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("acceptlocationinvitation")]
-		[Alias("ali", "acceptlocationgroupinvitation", "algi")]
+		[Command("acceptlocationinvite")]
+		[Alias("ali", "acceptlocationgroupinvite", "algi")]
 		[Summary("Accepts a LocationGroup invitation")]
-		public async Task AcceptLocationInvitation(string inviteLocationParam, ulong id)
+		public async Task AcceptLocationInvite(string inviteLocationParam, ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -216,10 +216,10 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
-		[Command("denylocationinvitation")]
-		[Alias("dli", "denylocationgroupinvitation", "dlgi")]
-		[Summary("Denies a LocationGroup invitation")]
-		public async Task DenyLocationInvitation(string inviteLocationParam, ulong id)
+		[Command("denylocationinvite")]
+		[Alias("dli", "denylocationgroupinvite", "dlgi")]
+		[Summary("Denies a LocationGroup invite")]
+		public async Task DenyLocationInvite(string inviteLocationParam, ulong id)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -402,7 +402,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[Command("locationgrouplist")]
 		[Alias("lgl", "locationgroupslist")]
-		[Summary("Lists LocationGroupRequests for an author")]
+		[Summary("Lists LocationGroups for an author")]
 		public async Task LocationGroupList()
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());

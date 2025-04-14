@@ -64,6 +64,57 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("speakkeyword", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("sk", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.SpeakKeyword;
+				case string when input.Equals("global", StringComparison.InvariantCulture):
+				case string when input.Equals("g", StringComparison.InvariantCulture):
+					return HelpSubject.Global;
+				case string when input.Equals("setlocationgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("slg", StringComparison.InvariantCulture):
+					return HelpSubject.SetLocationGroup;
+				case string when input.Equals("locationgroup", StringComparison.InvariantCulture):
+					return HelpSubject.LocationGroup;
+				case string when input.Equals("createlocationgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("clg", StringComparison.InvariantCulture):
+					return HelpSubject.CreateLocationGroup;
+				case string when input.Equals("renamelocationgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("rlg", StringComparison.InvariantCulture):
+					return HelpSubject.RenameLocationGroup;
+				case string when input.Equals("deletelocationgroup", StringComparison.InvariantCulture):
+				case string when input.Equals("dlg", StringComparison.InvariantCulture):
+					return HelpSubject.DeleteLocationGroup;
+				case string when input.Equals("invitelocation", StringComparison.InvariantCulture):
+				case string when input.Equals("il", StringComparison.InvariantCulture):
+					return HelpSubject.InviteLocation;
+				case string when input.Equals("acceptlocationinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("ali", StringComparison.InvariantCulture):
+				case string when input.Equals("acceptlocationgroupinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("algi", StringComparison.InvariantCulture):
+					return HelpSubject.AcceptLocationGroupInvite;
+				case string when input.Equals("denylocationinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("dli", StringComparison.InvariantCulture):
+				case string when input.Equals("denylocationgroupinvite", StringComparison.InvariantCulture):
+				case string when input.Equals("dlgi", StringComparison.InvariantCulture):
+					return HelpSubject.DenyLocationGroupInvite;
+				case string when input.Equals("updatelocation", StringComparison.InvariantCulture):
+				case string when input.Equals("ul", StringComparison.InvariantCulture):
+					return HelpSubject.UpdateLocation;
+				case string when input.Equals("removelocation", StringComparison.InvariantCulture):
+				case string when input.Equals("rl", StringComparison.InvariantCulture):
+					return HelpSubject.RemoveLocation;
+				case string when input.Equals("locationgrouprequestslist", StringComparison.InvariantCulture):
+				case string when input.Equals("lgrl", StringComparison.InvariantCulture):
+				case string when input.Equals("lrl", StringComparison.InvariantCulture):
+				case string when input.Equals("locationrequestslist", StringComparison.InvariantCulture):
+				case string when input.Equals("locationgrouprequestlist", StringComparison.InvariantCulture):
+				case string when input.Equals("locationrequestlist", StringComparison.InvariantCulture):
+					return HelpSubject.LocationGroupRequestList;
+				case string when input.Equals("locationgrouplist", StringComparison.InvariantCulture):
+				case string when input.Equals("lgl", StringComparison.InvariantCulture):
+				case string when input.Equals("locationgroupslist", StringComparison.InvariantCulture):
+					return HelpSubject.LocationGroupList;
+				case string when input.Equals("locationgroupinfo", StringComparison.InvariantCulture):
+				case string when input.Equals("lgi", StringComparison.InvariantCulture):
+					return HelpSubject.LocationGroupInfo;
+				case string when input.Equals("", StringComparison.InvariantCulture):
 				default: return HelpSubject.Unknown;
 			}
 		}
@@ -198,6 +249,119 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				{
 					Title = "Speak Keyword Help",
 					Description = $"Similar to `{options.BotPrefix}speak`, but the parameter given will set the keyword of the sentence."
+				},
+				HelpSubject.Global => new EmbedBuilder
+				{
+					Title = "Global Help",
+					Description = "Only usable by server admins and bot developers. " +
+					$"Allows a server admin to enable {options.BotName} to use the global database when generating sentences in a Location. " +
+					"By default, if given no arguments, it will enable or disable global settings for a server. " +
+					$"Otherwise, it can take a Location or Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`) as a parameter to determine where to apply the setting. " +
+					$"If a Location or a Scope is provided, and a second parameter \"Inherit\" is given, it will reset the global setting to inherit from higher up global settings, otherwise, it will switch global on or off explicitly.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}global Channel Inherit" }
+				},
+				HelpSubject.SetLocationGroup => new EmbedBuilder
+				{
+					Title = "Set LocationGroup Help",
+					Description = $"Sets the LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) for a Location. " +
+					$"Requires a Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`) as a parameter, and the ID of a LocationGroup. " +
+					"To unset the LocationGroup for a Location, use only a Location and a Scope with this command, and no LocationGroup ID.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}slg Server 143" }
+				},
+				HelpSubject.LocationGroup => new EmbedBuilder
+				{
+					Title = "LocationGroup Help",
+					Description = $"A LocationGroup is a group of Locations (see `{options.BotPrefix}help {HelpSubject.Location}` with set permissions allowing for the pooling of usable messages across multiple locations. " +
+					$"If you set a Location to use a certain LocationGroup using `{options.BotPrefix}setlocationgroup`, then all Locations in that group will contribute to the database that {options.BotName} pulls from when generating a sentence. " +
+					$"Keep ind mind that this does not change the availability of messages in the database, if a message is only allowed to be used in a specific server, being in a LocationGroup with that server will not change this. " +
+					$"Instead, think of a LocationGroup as an alternative to Global being turned on, so your Location can use messages from any of the Location in the group. " +
+					$"Every LocationGroup is assigned a numeric ID and must be given a name," +
+					Environment.NewLine + Environment.NewLine +
+					"Locations registered to a LocationGroup may have the following permissions assigned to them:",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = false, Name = "**SentencesInGroup**", Value = "Locations with this permission will contribute their Sentences to the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**UseGroup**", Value = $"Locations with this permission are allowed to have their LocationGroup set to this LocationGroup, their owners may also use the LocationGroup in their retort configs." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**AddLocation**", Value = "The owner of this Location may invite other Locations to the group, or update the permissions of other Locations in the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**RemoveLocation**", Value = "The owner of this Location may remove other Locations from the group." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**RenameGroup**", Value = "The owner of this Location may rename the LocationGroup." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**DeleteGroup**", Value = "The owner of this Location may delete the LocationGroup." }
+					}
+				},
+				HelpSubject.CreateLocationGroup => new EmbedBuilder
+				{
+					Title = "Create LocationGroup Help",
+					Description = $"Creates a new LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) at provided Scope (see `{options.BotPrefix}help {HelpSubject.Scope}`) and with provided name.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}clg Server My New Group" }
+				},
+				HelpSubject.RenameLocationGroup => new EmbedBuilder
+				{
+					Title = "Rename LocationGroup Help",
+					Description = $"Renames a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) with given ID to given name.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}rlg 21 My Updated Name" }
+				},
+				HelpSubject.DeleteLocationGroup => new EmbedBuilder
+				{
+					Title = "Delete LocationGroup Help",
+					Description = $"Deletes a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) with given ID or given name.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}dlg My Old Group" }
+				},
+				HelpSubject.InviteLocation => new EmbedBuilder
+				{
+					Title = "Invite Location Help",
+					Description = $"Invites a Location to a LocationGroup." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter must be the ID of the LocationGroup you'd like to invite the Location to." +
+					Environment.NewLine + $"The second parameter must either be a Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`)." +
+					Environment.NewLine + $"Any further parameters must be any combination of permissions (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) for the invited Location to have.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}il 23 Server SentencesInGroup UseGroup" }
+				},
+				HelpSubject.AcceptLocationGroupInvite => new EmbedBuilder
+				{
+					Title = "Accept LocationGroup Invite",
+					Description = $"Accepts an invite to a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`)." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter is the Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`) to which the invitation was sent." +
+					Environment.NewLine + $"The second parameter is the ID of the LocationGroup.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}ali Server 23" }
+				},
+				HelpSubject.DenyLocationGroupInvite => new EmbedBuilder
+				{
+					Title = "Deny LocationGroup Invite",
+					Description = $"Denies an invite to a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`)." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter is the Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`) to which the invitation was sent." +
+					Environment.NewLine + $"The second parameter is the ID of the LocationGroup.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}dli Server 23" }
+				},
+				HelpSubject.UpdateLocation => new EmbedBuilder
+				{
+					Title = "Update Location Help",
+					Description = $"Updates the permissions of a Location in a LocationGroup." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter must be the ID of the LocationGroup you'd like to update the permissions of the Location in." +
+					Environment.NewLine + $"The second parameter must either be a Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`)." +
+					Environment.NewLine + $"Any further parameters must be any combination of permissions (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) for the Location to have.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}ul 23 Server SentencesInGroup UseGroup RenameGroup" }
+				},
+				HelpSubject.RemoveLocation => new EmbedBuilder
+				{
+					Title = "Remove Location Help",
+					Description = $"Removes a Location from a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`), this can be used to remove a Location that you own even if you do not have the RemoveLocations permission." + Environment.NewLine +
+					Environment.NewLine + $"The first parameter is the Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`) that you would like to remove from the group." +
+					Environment.NewLine + $"The second parameter is the ID or name of the LocationGroup.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}rl Server 23" }
+				},
+				HelpSubject.LocationGroupRequestList => new EmbedBuilder
+				{
+					Title = "LocationGroup Request List Help",
+					Description = $"Lists all invitations for Locations that you own to LocationGroups (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`)."
+				},
+				HelpSubject.LocationGroupList => new EmbedBuilder
+				{
+					Title = "LocationGroup List Help",
+					Description = $"Lists all LocationGroups (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`) that Locations you own are registered to."
+				},
+				HelpSubject.LocationGroupInfo => new EmbedBuilder
+				{
+					Title = "LocationGroup Info Help",
+					Description = $"Lists the name, permissions, and requests for a LocationGroup (see `{options.BotPrefix}help {HelpSubject.LocationGroup}`)."
 				},
 				_ => throw new NotImplementedException()
 			};

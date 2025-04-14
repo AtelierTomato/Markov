@@ -35,8 +35,14 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				await ReplyAsync(message: "slow down!!");
 				return;
 			}
-
-			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(helpContentBuilder.ParseSubject(parameter)).Build());
+			try
+			{
+				await ReplyAsync(embed: helpContentBuilder.BuildForSubject(helpContentBuilder.ParseSubject(parameter)).Build());
+			}
+			catch
+			{
+				await ReplyAsync($"there is no command named \"{parameter}\"");
+			}
 		}
 	}
 }

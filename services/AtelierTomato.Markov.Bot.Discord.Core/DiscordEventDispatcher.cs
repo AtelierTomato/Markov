@@ -10,6 +10,7 @@ using AtelierTomato.Markov.Storage;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
+using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly IServiceProvider serviceProvider;
 		private readonly InteractionService interactionService;
 		private readonly WebhookHandler webhookHandler;
-		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider, InteractionService interactionService, WebhookHandler webhookHandler)
+		private readonly HelpContentBuilder helpContentBuilder;
+		public DiscordEventDispatcher(ILogger<DiscordEventDispatcher> logger, DiscordSocketClient client, DiscordSentenceParser sentenceParser, IWordStatisticAccess wordStatisticAccess, ISentenceAccess sentenceAccess, IAuthorPermissionAccess authorPermissionAccess, IAuthorRetortConfigAccess authorRetortConfigAccess, ILocationAccess locationAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, ILocationSettingAccess locationSettingAccess, IOptions<DiscordBotOptions> options, MarkovChain markovChain, KeywordProvider keywordProvider, DiscordSentenceRenderer sentenceRenderer, DiscordSentenceBuilder sentenceBuilder, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, AuthorGroupManager authorGroupManager, CommandService commandService, IServiceProvider serviceProvider, InteractionService interactionService, WebhookHandler webhookHandler, HelpContentBuilder helpContentBuilder)
 		{
 			this.logger = logger;
 			this.client = client;
@@ -85,6 +87,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			// commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
 			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
 			this.webhookHandler = webhookHandler;
+			this.helpContentBuilder = helpContentBuilder;
 		}
 
 
@@ -168,19 +171,52 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 			var context = new SocketCommandContext(this.client, message);
 
-			// Create a number to track where the prefix ends and the command begins
-			int argPos = 0;
-			var prefixDetected = message.HasStringPrefix(options.BotPrefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos);
-
-			if (prefixDetected)
+			try
 			{
-				// Execute the command with the command context we just created, along with the service provider for precondition checks.
-				using (context.Channel.EnterTypingState()) _ = await commandService.ExecuteAsync(context: context, argPos: argPos, services: serviceProvider);
+				// Create a number to track where the prefix ends and the command begins
+				int argPos = 0;
+				var prefixDetected = message.HasStringPrefix(options.BotPrefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos);
+
+				if (prefixDetected)
+				{
+					// Execute the command with the command context we just created, along with the service provider for precondition checks.
+					using (context.Channel.EnterTypingState()) _ = await commandService.ExecuteAsync(context: context, argPos: argPos, services: serviceProvider);
+				}
+
+				_ = await ProcessForGathering(message, context);
+
+				await ProcessForRetorting(message, context);
 			}
-
-			_ = await ProcessForGathering(message, context);
-
-			await ProcessForRetorting(message, context);
+			catch (HttpException e)
+			{
+				this.logger.LogError(e,
+					"Something went terribly wrong ({DiscordCode}: {DiscordCodeName}). Message ID {MessageId} from user \"{UserName}\" ({UserId}) in channel \"{ChannelName}\" ({ChannelId}) of server \"{ServerName}\" ({ServerID}) -- {Content}",
+					(int)(e.DiscordCode ?? DiscordErrorCode.GeneralError),
+					(e.DiscordCode ?? DiscordErrorCode.GeneralError).ToString(),
+					messageParam.Id,
+					messageParam.Author?.Username,
+					messageParam.Author?.Id,
+					messageParam.Channel?.Name,
+					messageParam.Channel?.Id,
+					context.Guild?.Name,
+					context.Guild?.Id,
+					messageParam.Content);
+				throw;
+			}
+			catch (Exception e)
+			{
+				this.logger.LogError(e,
+					"Something went terribly wrong. Message ID {MessageId} from user \"{UserName}\" ({UserId}) in channel \"{ChannelName}\" ({ChannelId}) of server \"{ServerName}\" ({ServerID}) -- {Content}",
+					messageParam.Id,
+					messageParam.Author?.Username,
+					messageParam.Author?.Id,
+					messageParam.Channel?.Name,
+					messageParam.Channel?.Id,
+					context.Guild?.Name,
+					context.Guild?.Id,
+					messageParam.Content);
+				throw;
+			}
 		}
 
 		private async Task Client_MessageUpdated(Cacheable<IMessage, ulong> cacheable, SocketMessage messageParam, ISocketMessageChannel channel)
@@ -424,12 +460,26 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		}
 		private async Task Client_JoinedGuild(SocketGuild guild)
 		{
+			this.logger.LogInformation("This bot was added to a new server: \"{ServerName}\" ({ServerID})", guild.Name, guild.Id);
 			var owner = new AuthorOID(ServiceType.Discord, options.DiscordInstance, guild.OwnerId.ToString());
 			IEnumerable<Location> locations = [new(DiscordObjectOID.ForServer(options.DiscordInstance, guild.Id), guild.Name, owner)];
 			locations = locations.Concat(await Task.WhenAll(guild.Channels.Select(async c => new Location(await objectOIDBuilder.Build(guild, c, options.DiscordInstance), c.Name, owner))));
 
 			await locationAccess.WriteLocationRange(locations);
 			logger.LogInformation("Wrote {Number} locations to the database from newly joined group \"{Group}\".", locations.Count(), guild.Name);
+
+			foreach (var channel in guild.TextChannels.Where(tc => tc is not IThreadChannel and not IVoiceChannel).OrderBy(x => x.Position))
+			{
+				try
+				{
+					using (channel.EnterTypingState()) await channel.SendMessageAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.GettingStarted).Build());
+					break;
+				}
+				catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.InsufficientPermissions || e.DiscordCode == DiscordErrorCode.MissingPermissions)
+				{
+					//this is fine, we're looking for the first channel we can actually post in
+				}
+			}
 		}
 
 		public async Task Client_RoleUpdated(SocketRole oldRole, SocketRole newRole)

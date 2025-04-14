@@ -45,5 +45,12 @@
 		AuthorGroupList,
 		AuthorGroupInfo,
 		Retort,
+		Ping,
+		QuerySentences,
+		Say,
+		Announce,
+		Leave,
+		ServerList,
+		ChannelList,
 	}
 }

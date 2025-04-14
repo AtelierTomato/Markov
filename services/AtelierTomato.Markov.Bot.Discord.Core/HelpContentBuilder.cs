@@ -168,6 +168,25 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("authorretortconfig", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("arc", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.Retort;
+				case string when input.Equals("ping", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Ping;
+				case string when input.Equals("querysentences", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("qs", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.QuerySentences;
+				case string when input.Equals("say", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Say;
+				case string when input.Equals("announce", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Announce;
+				case string when input.Equals("leave", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Leave;
+				case string when input.Equals("serverlist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("servers", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("sl", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.ServerList;
+				case string when input.Equals("channellist", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("channels", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("cl", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.ChannelList;
 				case string when input.Equals("", StringComparison.InvariantCultureIgnoreCase):
 				default: return HelpSubject.Unknown;
 			}
@@ -528,12 +547,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					$"Retorts are sentences generated either when a user says {options.BotName}'s name, or when a user replies to one of {options.BotName}'s posts. " +
 					$"An {nameof(AuthorRetortConfig)} is tied to a specific Author and a specific Location (see `{options.BotPrefix}help {HelpSubject.Location}`), and the most specific {nameof(AuthorRetortConfig)} will be used, so if there is a config for both the Server and the Channel, the one for the Channel will be used. " +
 					$"The retort command is only offered as a slash command, as it has a large amount of parameters that it can be given. " +
-					$"Whenever the retort comamnd is ran, it completely replaces the existing {nameof(AuthorRetortConfig)} for a location." +
+					$"Whenever the retort command is ran, it completely replaces the existing {nameof(AuthorRetortConfig)} for a location." +
 					Environment.NewLine + Environment.NewLine +
-					$"Below are explanations of the parameters that can be given when using /retort.",
+					$"Below are explanations of the parameters that can be given when using `/retort`.",
 					Fields =
 					{
-						new EmbedFieldBuilder { IsInline = false, Name = "**Location**", Value = $"This is the only required field, this can be either a Scope or a Location (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). If only a location is provided, the command will reset retort to empty." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**Location**", Value = $"This is the only required field, this can be either a Scope or a Location (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). If only a location is provided, the command will reset the retort config to empty." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**DisplayOption**", Value = "This can be either `Normal` or `Mimic`, Normal will have the bot just reply as a bot, Mimic will use a webhook to use your profile picture and name when retorting." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorFilter**", Value = $"This is a triple colon (:::) separated list of authors, this can be either a full AuthorOID (see `{options.BotPrefix}help {HelpSubject.Author}`) or a Discord User ID. This determines which Authors' messages will be used while generating a retort." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**LocationFilter**", Value = $"This is a triple colon (:::) separated list of either Scopes or Locations (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). This determines which Locations' messages will be used while generating a retort. Keep in mind the Location's settings still apply." },
@@ -542,6 +561,59 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						new EmbedFieldBuilder { IsInline = false, Name = "**Keyword**", Value = "This forces the keyword used when generating to be the given word, otherwise a keyword will be generated." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**FirstWord**", Value = "This forces the first word of the generated retort to be the given word." }
 					}
+				},
+				HelpSubject.Ping => new EmbedBuilder
+				{
+					Title = "Ping Help",
+					Description = "Pings the bot! Pong!",
+				},
+				HelpSubject.QuerySentences => new EmbedBuilder
+				{
+					Title = "Query Sentences Help",
+					Description = $"Allows you to query sentences from the database with a variety of filters. " +
+					$"This command is only offered as a slash command due to having a variety of different parameters that can be applied to it. " +
+					$"Queried sentences will be sent in DM regardless of where the command was sent from. " +
+					$"Keep in mind that you can only filter by Authors that are in AuthorGroups that you have access to, and Locations that you own or that are in LocationGroups that you have access to." +
+					Environment.NewLine + Environment.NewLine +
+					$"Below are explanations of the parameters that can be given when using `/querysentences`.",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorGroup**", Value = "This is the ID of the AuthorGroup that will be used during querying, an AuthorFilter will further filter the pool provided by the AuthorGroup." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**LocationGroup**", Value = "This is the ID of the LocationGroup that will be used during querying, a LocationFilter will further filter the pool provided by the LocationGroup." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorFilter**", Value = $"This is a triple colon (:::) separated list of authors, this can be either a full AuthorOID (see `{options.BotPrefix}help {HelpSubject.Author}`) or a Discord User ID. This determines which Authors' sentences will be returned by the query." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**LocationFilter**", Value = $"This is a triple colon (:::) separated list of either Scopes or Locations (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). This determines which Locations' messages will be returned by the query." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**SearchString**", Value = "This is any string that you would like to search for, it can be a word or a group of words." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**Count**", Value = "This is the amount of sentences to return, by default this is set to 100." }
+					}
+				},
+				HelpSubject.Say => new EmbedBuilder
+				{
+					Title = "Say Help",
+					Description = "Allows the bot developer to make the bot parrot whatever is after the command name.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}say i'm dumb" }
+				},
+				HelpSubject.Announce => new EmbedBuilder
+				{
+					Title = "Announce Help",
+					Description = "Allows the bot developer to send an announcement to the first available channel in every server that the bot is in.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}announce i just sold {options.BotName} to microsoft for $4 million" }
+				},
+				HelpSubject.Leave => new EmbedBuilder
+				{
+					Title = "Leave Help",
+					Description = "Allows the bot developer to make the bot leave the server. " +
+					"If no parameter is given, it will leave the server that it is currently in, otherwise, it takes the Discord ID of the server.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}leave 907121695779856394" }
+				},
+				HelpSubject.ServerList => new EmbedBuilder
+				{
+					Title = "Server List Help",
+					Description = "Returns a list of servers that the bot is in."
+				},
+				HelpSubject.ChannelList => new EmbedBuilder
+				{
+					Title = "Channel List Help",
+					Description = "Returns a list of channels in the current guild that the bot is in."
 				},
 				_ => throw new NotImplementedException()
 			};

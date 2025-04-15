@@ -153,7 +153,7 @@ namespace AtelierTomato.Markov.Core.Test
 			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
 			await locationGroupManager.RenameGroup(sender, id, "MyNewerGroup");
 			Mock.Get(locationGroupPermissionAccess).Verify();
-			Mock.Get(locationGroupAccess).Verify(g => g.WriteLocationGroup(new LocationGroup(id, "MyNewerGroup")), Times.Once());
+			Mock.Get(locationGroupAccess).Verify(g => g.WriteLocationGroup(It.Is<LocationGroup>(lg => lg.ID == id && lg.Name == "MyNewerGroup")), Times.Once());
 		}
 
 		[Fact]
@@ -703,11 +703,11 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			var filter = new SentenceFilter(
 				[
-					channel, // transitively in location group and author location group
-					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"), // transitively in location group, not in author location group
-					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"), // not in location group nor author location group
-					senderLocation, // in location group and author location group
-					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420") // transitively in location group and author location group
+					channel, // transitively in location group and author location group, in local
+					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"), // transitively in location group, not in author location group, not in local
+					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"), // not in location group nor author location group, not in local
+					senderLocation, // in location group and author location group, not in local
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420") // transitively in location group and author location group, in local
 				],
 				[author]
 			);
@@ -715,10 +715,6 @@ namespace AtelierTomato.Markov.Core.Test
 			var locationAccess = Mock.Of<ILocationAccess>();
 			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
 			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
-			Mock.Get(locationGroupPermissionAccess)
-				.Setup(l => l.ReadLocationGroupPermission(id, channel))
-				.Returns(Task.FromResult<LocationGroupPermission?>(locationGroupPermission))
-				.Verifiable();
 			Mock.Get(locationGroupPermissionAccess)
 				.Setup(l => l.ReadLocationGroupPermissionRangeByID(id))
 				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([locationGroupPermission, locationGroupPermission2, locationGroupPermission3, locationGroupPermission4]));
@@ -756,7 +752,6 @@ namespace AtelierTomato.Markov.Core.Test
 			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
 			IEnumerable<IObjectOID> expectedData = [
 					channel,
-					senderLocation,
 					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
 				];
 			result.Should().BeEquivalentTo(expectedData);
@@ -880,7 +875,11 @@ namespace AtelierTomato.Markov.Core.Test
 			var logger = Mock.Of<ILogger<LocationGroupManager>>();
 			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
 			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
-			IEnumerable<IObjectOID> expectedData = [];
+			IEnumerable<IObjectOID> expectedData = [
+				location,
+				DiscordObjectOID.Parse("Discord:discord.com:295808243509362700"),
+				senderLocation,
+			];
 			result.Should().BeEquivalentTo(expectedData);
 			Mock.Get(locationGroupPermissionAccess).Verify();
 			Mock.Get(locationSettingAccess).Verify();

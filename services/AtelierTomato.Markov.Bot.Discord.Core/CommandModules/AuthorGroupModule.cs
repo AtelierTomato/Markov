@@ -18,7 +18,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly Cooldown cooldown;
 		private readonly DiscordObjectOIDBuilder objectOIDBuilder;
 		private readonly AuthorGroupManager authorGroupManager;
-		public AuthorGroupModule(IAuthorGroupAccess authorGroupAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, IAuthorGroupRequestAccess authorGroupRequestAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, AuthorGroupManager authorGroupManager)
+		private readonly HelpContentBuilder helpContentBuilder;
+		public AuthorGroupModule(IAuthorGroupAccess authorGroupAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, IAuthorGroupRequestAccess authorGroupRequestAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, AuthorGroupManager authorGroupManager, HelpContentBuilder helpContentBuilder)
 		{
 			this.authorGroupAccess = authorGroupAccess;
 			this.authorGroupPermissionAccess = authorGroupPermissionAccess;
@@ -27,6 +28,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.cooldown = cooldown;
 			this.objectOIDBuilder = objectOIDBuilder;
 			this.authorGroupManager = authorGroupManager;
+			this.helpContentBuilder = helpContentBuilder;
 		}
 
 		[Command("createauthorgroup")]
@@ -43,6 +45,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			var id = await authorGroupManager.CreateGroup(authorOID, name);
 			await ReplyAsync($"created new {nameof(AuthorGroup)} with ID \"{id}\" and name \"{name}\"!");
+		}
+
+		[Command("createauthorgroup")]
+		[Alias("cag")]
+		[Summary("Creates an AuthorGroup and returns its name and ID")]
+		public async Task CreateAuthorGroup()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.CreateAuthorGroup).Build());
 		}
 
 		[Command("renameauthorgroup")]
@@ -66,6 +83,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				await ReplyAsync(ex.Message);
 			}
+		}
+
+		[Command("renameauthorgroup")]
+		[Alias("rag")]
+		[Summary("Renames an AuthorGroup")]
+		public async Task RenameAuthorGroup([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.RenameAuthorGroup).Build());
 		}
 
 		[Command("deleteauthorgroup")]
@@ -118,6 +150,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				await ReplyAsync(ex.Message);
 			}
+		}
+
+		[Command("deleteauthorgroup")]
+		[Alias("dag")]
+		[Summary("Deletes an AuthorGroup")]
+		public async Task DeleteAuthorGroup()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.DeleteAuthorGroup).Build());
 		}
 
 		[Command("inviteauthor")]
@@ -207,6 +254,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("acceptauthorinvite")]
+		[Alias("aai", "acceptauthorgroupinvite", "aagi")]
+		[Summary("Accepts an AuthorGroup invitation")]
+		public async Task AcceptAuthorInvite()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.AcceptAuthorGroupInvite).Build());
+		}
+
 		[Command("denyauthorinvite")]
 		[Alias("dai", "denyauthorgroupinvite", "dagi")]
 		[Summary("Denies an AuthorGroup invitation")]
@@ -263,6 +325,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				await ReplyAsync(ex.Message);
 			}
+		}
+
+		[Command("denyauthorinvite")]
+		[Alias("dai", "denyauthorgroupinvite", "dagi")]
+		[Summary("Denies an AuthorGroup invitation")]
+		public async Task DenyAuthorInvite()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.DenyAuthorGroupInvite).Build());
 		}
 
 		[Command("updateauthor")]
@@ -364,6 +441,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("removeauthor")]
+		[Alias("ra")]
+		[Summary("Removes an author from an AuthorGroup")]
+		public async Task RemoveAuthor()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.RemoveAuthor).Build());
+		}
+
 		[Command("leaveauthorgroup")]
 		[Alias("lag")]
 		[Summary("Leaves an AuthorGroup")]
@@ -422,10 +514,25 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("leaveauthorgroup")]
+		[Alias("lag")]
+		[Summary("Leaves an AuthorGroup")]
+		public async Task LeaveAuthorGroup()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.LeaveAuthorGroup).Build());
+		}
+
 		[Command("authorgrouprequestslist")]
 		[Alias("agrl", "arl", "authorrequestslist", "authorgrouprequestlist", "authorrequestlist")]
 		[Summary("Lists AuthorGroupRequests for an author")]
-		public async Task AuthorGroupRequestsList()
+		public async Task AuthorGroupRequestsList([Remainder] string? _ = null)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -452,7 +559,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("authorgrouplist")]
 		[Alias("agl", "authorgroupslist")]
 		[Summary("Lists AuthorGroupRequests for an author")]
-		public async Task AuthorGroupList()
+		public async Task AuthorGroupList([Remainder] string? _ = null)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -512,6 +619,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				.WithTitle("Requests")
 				.Export();
 			await ReplyAsync($"Info for {nameof(AuthorGroup)} with ID \"{group.ID}\" and Name \"{group.Name}\":" + Environment.NewLine + "```" + listBuilderPerms + Environment.NewLine + listBuilderRequests + "```");
+		}
+
+		[Command("authorgroupinfo")]
+		[Alias("agi")]
+		[Summary("Lists the name, permissions, and requests for an AuthorGroup")]
+		public async Task AuthorGroupInfo()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.AuthorGroupInfo).Build());
 		}
 
 		private AuthorGroupPermission? ParseAuthorGroupPermission(string[] parameters)

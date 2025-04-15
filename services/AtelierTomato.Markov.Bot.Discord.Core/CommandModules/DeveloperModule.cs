@@ -88,7 +88,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[Command("servers")]
 		[Alias("serverlist", "sl")]
-		public async Task ServerList()
+		public async Task ServerList([Remainder] string? _ = null)
 		{
 			if (!options.DeveloperIDs.Contains(Context.User.Id))
 			{
@@ -105,7 +105,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[Command("channels")]
 		[Alias("channellist", "cl")]
-		public async Task ServerChannelInfo()
+		public async Task ServerChannelInfo([Remainder] string? _ = null)
 		{
 			if (!options.DeveloperIDs.Contains(Context.User.Id))
 			{

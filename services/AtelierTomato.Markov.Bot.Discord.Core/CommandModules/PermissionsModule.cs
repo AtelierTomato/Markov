@@ -225,7 +225,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("permsuser")]
 		[Alias("pu", "permissionsuser")]
 		[Summary("Checks if the user is opted in and replies showing where and with what permissions.")]
-		public async Task PermissionsUser()
+		public async Task PermissionsUser([Remainder] string? _ = null)
 		{
 			var author = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -252,7 +252,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("permsserver")]
 		[Alias("ps", "permserver", "permissionsserver", "permissionserver")]
 		[Summary("Checks if the server has any opted in members and replies showing who and with what permissions.")]
-		public async Task PermissionsServer()
+		public async Task PermissionsServer([Remainder] string? _ = null)
 		{
 			if (Context.Channel is IDMChannel)
 			{
@@ -289,7 +289,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("permsall")]
 		[Alias("pa", "permissionsall")]
 		[Summary("Checks all of the permissions in the entire database, bot developers only!")]
-		public async Task PermissionsAll()
+		public async Task PermissionsAll([Remainder] string? _ = null)
 		{
 			if (!options.DeveloperIDs.Contains(Context.User.Id))
 			{

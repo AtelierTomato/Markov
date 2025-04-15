@@ -21,7 +21,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly DiscordObjectOIDBuilder objectOIDBuilder;
 		private readonly LocationGroupManager locationGroupManager;
 		private readonly MultiParser<IObjectOID> objectOIDParser;
-		public LocationGroupModule(ILocationGroupAccess locationGroupAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, MultiParser<IObjectOID> objectOIDParser)
+		private readonly HelpContentBuilder helpContentBuilder;
+		public LocationGroupModule(ILocationGroupAccess locationGroupAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, ILocationGroupRequestAccess locationGroupRequestAccess, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordObjectOIDBuilder objectOIDBuilder, LocationGroupManager locationGroupManager, MultiParser<IObjectOID> objectOIDParser, HelpContentBuilder helpContentBuilder)
 		{
 			this.locationGroupAccess = locationGroupAccess;
 			this.locationGroupPermissionAccess = locationGroupPermissionAccess;
@@ -31,6 +32,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.objectOIDBuilder = objectOIDBuilder;
 			this.locationGroupManager = locationGroupManager;
 			this.objectOIDParser = objectOIDParser;
+			this.helpContentBuilder = helpContentBuilder;
 		}
 
 		[Command("createlocationgroup")]
@@ -63,6 +65,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("createlocationgroup")]
+		[Alias("clg")]
+		[Summary("Creates a LocationGroup and returns its name and ID")]
+		public async Task CreateLocationGroup([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.CreateLocationGroup).Build());
+		}
+
 		[Command("renamelocationgroup")]
 		[Alias("rlg")]
 		[Summary("Renames a LocationGroup")]
@@ -84,6 +101,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				await ReplyAsync(ex.Message);
 			}
+		}
+
+		[Command("renamelocationgroup")]
+		[Alias("rlg")]
+		[Summary("Renames a LocationGroup")]
+		public async Task RenameAuthorGroup([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.RenameLocationGroup).Build());
 		}
 
 		[Command("deletelocationgroup")]
@@ -136,6 +168,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				await ReplyAsync(ex.Message);
 			}
+		}
+
+		[Command("deletelocationgroup")]
+		[Alias("dlg")]
+		[Summary("Deletes a LocationGroup")]
+		public async Task DeleteLocationGroup()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.DeleteLocationGroup).Build());
 		}
 
 		[Command("invitelocation")]
@@ -216,6 +263,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("acceptlocationinvite")]
+		[Alias("ali", "acceptlocationgroupinvite", "algi")]
+		[Summary("Accepts a LocationGroup invitation")]
+		public async Task AcceptLocationInvite([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.AcceptLocationGroupInvite).Build());
+		}
+
 		[Command("denylocationinvite")]
 		[Alias("dli", "denylocationgroupinvite", "dlgi")]
 		[Summary("Denies a LocationGroup invite")]
@@ -262,6 +324,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				await ReplyAsync(ex.Message);
 			}
+		}
+
+		[Command("denylocationinvite")]
+		[Alias("dli", "denylocationgroupinvite", "dlgi")]
+		[Summary("Denies a LocationGroup invite")]
+		public async Task DenyLocationInvite([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.DenyLocationGroupInvite).Build());
 		}
 
 		[Command("updatelocation")]
@@ -373,10 +450,25 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 		}
 
+		[Command("removelocation")]
+		[Alias("rl")]
+		[Summary("Removes a location from a LocationGroup")]
+		public async Task RemoveLocation()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.RemoveLocation).Build());
+		}
+
 		[Command("locationgrouprequestslist")]
 		[Alias("lgrl", "lrl", "locationrequestslist", "locationgrouprequestlist", "locationrequestlist")]
 		[Summary("Lists LocationGroupRequests for an author")]
-		public async Task LocationGroupRequestsList()
+		public async Task LocationGroupRequestsList([Remainder] string? _ = null)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -403,7 +495,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		[Command("locationgrouplist")]
 		[Alias("lgl", "locationgroupslist")]
 		[Summary("Lists LocationGroups for an author")]
-		public async Task LocationGroupList()
+		public async Task LocationGroupList([Remainder] string? _ = null)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -463,6 +555,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				.WithTitle("Requests")
 				.Export();
 			await ReplyAsync($"Info for {nameof(LocationGroup)} with ID \"{group.ID}\" and Name \"{group.Name}\":" + Environment.NewLine + "```" + listBuilderPerms + Environment.NewLine + listBuilderRequests + "```");
+		}
+
+		[Command("locationgroupinfo")]
+		[Alias("lgi")]
+		[Summary("Lists the name, permissions, and requests for a LocationGroup")]
+		public async Task LocationGroupInfo([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.LocationGroupInfo).Build());
 		}
 
 		private LocationGroupPermission? ParseLocationGroupPermission(string[] parameters, DiscordObjectOID location)

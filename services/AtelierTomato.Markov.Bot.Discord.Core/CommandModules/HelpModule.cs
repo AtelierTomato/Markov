@@ -47,7 +47,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 
 		[Command("gettingstarted")]
 		[Alias("gs")]
-		public async Task GettingStarted()
+		public async Task GettingStarted([Remainder] string? _ = null)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -60,7 +60,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		}
 
 		[Command("faq")]
-		public async Task FAQ()
+		public async Task FAQ([Remainder] string? _ = null)
 		{
 			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
 			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
@@ -70,6 +70,48 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				return;
 			}
 			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.FAQ).Build());
+		}
+
+		[Command("retort")]
+		[Alias("authorretortconfig", "arc")]
+		public async Task Retort([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.Retort).Build());
+		}
+
+		[Command("querysentences")]
+		[Alias("qs")]
+		public async Task QuerySentences([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.QuerySentences).Build());
+		}
+
+		[Command("deletesentences")]
+		[Alias("ds")]
+		public async Task DeleteSentences([Remainder] string? _ = null)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.DeleteSentences).Build());
 		}
 	}
 }

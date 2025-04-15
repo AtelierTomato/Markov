@@ -17,7 +17,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly ILocationAccess locationAccess;
 		private readonly ILocationSettingAccess locationSettingAccess;
 		private readonly MultiParser<IObjectOID> objectOIDParser;
-		public LocationSettingsModule(IOptions<DiscordBotOptions> options, DiscordObjectOIDBuilder objectOIDBuilder, Cooldown cooldown, ILocationSettingAccess locationSettingAccess, ILocationAccess locationAccess, MultiParser<IObjectOID> objectOIDParser)
+		private readonly HelpContentBuilder helpContentBuilder;
+		public LocationSettingsModule(IOptions<DiscordBotOptions> options, DiscordObjectOIDBuilder objectOIDBuilder, Cooldown cooldown, ILocationSettingAccess locationSettingAccess, ILocationAccess locationAccess, MultiParser<IObjectOID> objectOIDParser, HelpContentBuilder helpContentBuilder)
 		{
 			this.options = options.Value;
 			this.objectOIDBuilder = objectOIDBuilder;
@@ -25,6 +26,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.locationAccess = locationAccess;
 			this.locationSettingAccess = locationSettingAccess;
 			this.objectOIDParser = objectOIDParser;
+			this.helpContentBuilder = helpContentBuilder;
 		}
 
 		[Command("global")]
@@ -142,6 +144,21 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			{
 				await ReplyAsync($"updated {nameof(LocationGroup)} for {location} to group with ID {locationGroup}!");
 			}
+		}
+
+		[Command("setlocationgroup")]
+		[Alias("slg")]
+		[Summary("Sets the LocationGroup that will be used when generating sentences in this location.")]
+		public async Task SetLocationGroup()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.SetLocationGroup).Build());
 		}
 	}
 }

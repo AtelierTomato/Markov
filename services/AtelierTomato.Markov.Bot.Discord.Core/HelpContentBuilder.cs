@@ -1,4 +1,5 @@
-﻿using AtelierTomato.Markov.Core;
+﻿using AtelierTomato.Dice;
+using AtelierTomato.Markov.Core;
 using AtelierTomato.Markov.Core.Generation;
 using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
@@ -13,11 +14,13 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 		private readonly DiscordBotOptions options;
 		private readonly MarkovChainOptions markovChainOptions;
 		private readonly SentenceParserOptions sentenceParserOptions;
-		public HelpContentBuilder(IOptions<DiscordBotOptions> options, IOptions<MarkovChainOptions> markovChainOptions, IOptions<SentenceParserOptions> sentenceParserOptions)
+		private readonly DiceOptions diceOptions;
+		public HelpContentBuilder(IOptions<DiscordBotOptions> options, IOptions<MarkovChainOptions> markovChainOptions, IOptions<SentenceParserOptions> sentenceParserOptions, IOptions<DiceOptions> diceOptions)
 		{
 			this.options = options.Value;
 			this.markovChainOptions = markovChainOptions.Value;
 			this.sentenceParserOptions = sentenceParserOptions.Value;
+			this.diceOptions = diceOptions.Value;
 		}
 
 		public HelpSubject ParseSubject(string input)
@@ -201,6 +204,24 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("channels", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("cl", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.ChannelList;
+				case string when input.Equals("calculator", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("calculate", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("calc", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("c", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Calculate;
+				case string when input.Equals("roll", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dice", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("die", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.Roll;
+				case string when input.Equals("rollrepeat", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("rollrep", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("rr", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dierepeat", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dierep", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dicerepeat", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dicerep", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("dr", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.RollRepeat;
 				case string when input.Equals("", StringComparison.InvariantCultureIgnoreCase):
 				default: return HelpSubject.Unknown;
 			}
@@ -708,6 +729,82 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				{
 					Title = "Channel List Help",
 					Description = "Returns a list of channels in the current guild that the bot is in."
+				},
+				HelpSubject.Calculate => new EmbedBuilder
+				{
+					Title = "Calculator Help",
+					Description = "A rudimentary calculator that can do multiplication, division, addition, subtraction, and exponents, as well as handle parentheses. " +
+					"Mathematical equations can be inputted as you would in a normal calculator, however, you must close all parentheses and may not have parentheses that have nothing inside of them.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}calc 12*3^(5+8)" }
+				},
+				HelpSubject.Roll => new EmbedBuilder
+				{
+					Title = "Dice Help",
+					Description = "A complex dice roller that also implements a calculator, basic rolls follow a #d# setup where the first number is the amount of dice and the second is the amount of sides. " +
+					"All calculations happen last, unless they are in parentheses. " +
+					$"For calculator help, look at {options.BotPrefix}help calc. " +
+					$"The terminology used to refer to aspects of the dice roll is complex, so here is an example of what each part is:" + Environment.NewLine +
+					$"In the dice command `{options.BotPrefix}roll 1d20+10d20e1`, 1d20 and 10d20e1 are the *dice expressions*. Dice expressions tell the bot what kind of dice to roll (the number after the d) and how often (number before the d). Optionally, parameters after the second number may be added for more complex dice roll scenarios." + Environment.NewLine +
+					$"Multiple complex dice can be rolled and added together or whatever you prefer in a single command, all parameters that do not directly conflict with each other can be used at the same time. " +
+					$"The different extra parameters are as follows. " +
+					$"All # signs refer to any number, anything in parentheses is optional to the parameter.",
+					Fields = {
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**o**",
+							Value = "[O]rders a dice expression's rolls by descending size."
+						},
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**(i)r#(;#)**",
+							Value = "[R]erolls the die until it rolls at least the first number. " +
+							$"The second number determines how many times the dice will be rerolled, if no second number is hit, the default value of {diceOptions.DefaultRerolls} will be used. " +
+							"If the preceding i is present, the die will be rerolled [i]nfinitely until they hit this number."
+						},
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**(i)e#(;#)**",
+							Value = "[E]xplodes the die if it hits the first number. " +
+							"Explosion means that it will roll the same die again, and then add on the resulting roll to the total value for that individual roll. " +
+							"The second number determines how many times the die can explode, this does not include the initial roll, only explosion rolls after the fact (so a 1d20e20;10 has a maximum value of 220). " +
+							$"If no second number is set, the default value of {diceOptions.DefaultExplosionRecursions} will be used. " +
+							"The preceding i will allow the die to be rerolled [i]nfinitely."
+						},
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**p#**",
+							Value = "Dro[p]s the set number of dice rolled which are of the lowest values."
+						},
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**k#**",
+							Value = "[K]eeps the set number of dice which rolled the highest values, meaning the result will only include the amount of dice set."
+						},
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**t# and f#**",
+							Value = "[T]arget and [f]ailure, when set, will turn the resulting number of a dice expression from the sum of the dice rolled to a different kind of roll where any roll at or above the [t]arget number will add one to the result and any roll at or below the [f]ailure number will subtract one from the result."
+						},
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**s and h**",
+							Value = "[S]how and [h]ide determine whether or not this dice expression will output in the message or not, with [h]idden expressions not outputting any text and [s]hown expressions outputting the total of the dice rolls and optionally individual dice. " +
+							"By default, only the last roll in a dice expression, as in the one that would occur last based on order of operations, will output."
+						},
+						new EmbedFieldBuilder {
+							IsInline = false,
+							Name = "**q and v**",
+							Value = "[Q]uiet and [v]erbose determine if each individual roll in a dice expression will be shown or not, with [q]uiet dice expressions only showing the result and [v]erbose dice expressions showing each individual roll. " +
+							$"By default, only the dice rolls in a dice expression with less than {diceOptions.DefaultDiceOutputCutoff} dice are outputted, dice rolls with more dice are summarized as just a result."
+						}
+					},
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}roll 10d20e20r5k10o" }
+				},
+				HelpSubject.RollRepeat => new EmbedBuilder
+				{
+					Title = "Dice Repeat Help",
+					Description = "Allows you to roll multiples of the same dice request at once, all dice parameters and mathematics that can be used in a normal roll can be used here.",
+					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}rr 10 1d20ie20ir200" }
 				},
 				_ => throw new NotImplementedException()
 			};

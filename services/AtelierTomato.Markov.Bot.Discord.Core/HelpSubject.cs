@@ -55,5 +55,8 @@
 		Leave,
 		ServerList,
 		ChannelList,
+		Calculate,
+		Roll,
+		RollRepeat
 	}
 }

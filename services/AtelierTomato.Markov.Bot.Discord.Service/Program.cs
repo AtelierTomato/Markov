@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using AtelierTomato.Calculator;
+using AtelierTomato.Dice;
 using AtelierTomato.Markov.Bot.Discord.Core;
 using AtelierTomato.Markov.Bot.Discord.Service;
 using AtelierTomato.Markov.Core;
@@ -37,6 +39,7 @@ builder.Services.AddOptions<MarkovChainOptions>().Bind(builder.Configuration.Get
 builder.Services.AddOptions<DiscordSentenceParserOptions>().Bind(builder.Configuration.GetSection("DiscordSentenceParser"));
 builder.Services.AddOptions<SqliteAccessOptions>().Bind(builder.Configuration.GetSection("SqliteAccess"));
 builder.Services.AddOptions<CooldownOptions>().Bind(builder.Configuration.GetSection("Cooldown"));
+builder.Services.AddOptions<DiceOptions>().Bind(builder.Configuration.GetSection("Dice"));
 
 builder.Services.AddHostedService<Worker>();
 
@@ -78,6 +81,12 @@ builder.Services
 	.AddSingleton<AuthorPermissionTableFormatter>()
 	.AddSingleton<WebhookHandler>()
 	.AddSingleton<HelpContentBuilder>()
+	.AddSingleton<ExpressionParser>()
+	.AddSingleton<ExpressionExecutor>()
+	.AddSingleton<DiceExpressionParser>()
+	.AddSingleton<DiceExpressionExecutor>()
+	.AddSingleton<DiceRequestExecutor>()
+	.AddSingleton<IDiceRng, DiceRng>()
 	.AddSingleton(_ => new MultiParser<IObjectOID>([new BookObjectOIDParser(), new SpecialObjectOIDParser(), new DiscordObjectOIDParser()]))
 	.AddSingleton(new CommandService(new CommandServiceConfig { DefaultRunMode = Discord.Commands.RunMode.Async }))
 	.AddSingleton(_ => new InteractionService(client.Rest, new InteractionServiceConfig { DefaultRunMode = Discord.Interactions.RunMode.Async }));

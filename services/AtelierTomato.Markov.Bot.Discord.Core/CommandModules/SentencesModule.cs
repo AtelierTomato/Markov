@@ -1,12 +1,13 @@
 ﻿using System.Text;
 using AtelierTomato.Markov.Core.Cooldown;
 using AtelierTomato.Markov.Model;
-using AtelierTomato.Markov.Model.ObjectOID;
+using AtelierTomato.Markov.Model.ObjectOID.LocationTypes;
 using AtelierTomato.Markov.Service.Discord;
 using AtelierTomato.Markov.Storage;
 using ConsoleTableExt;
 using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
@@ -22,7 +23,8 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 		private readonly MultiParser<IObjectOID> objectOIDParser;
 		private readonly DiscordBotOptions options;
 		private readonly Cooldown cooldown;
-		public SentencesModule(ISentenceAccess sentenceAccess, IAuthorPermissionAccess authoerPermissionAccess, ILocationAccess locationAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser, IOptions<DiscordBotOptions> options, Cooldown cooldown)
+		private readonly DiscordSocketClient client;
+		public SentencesModule(ISentenceAccess sentenceAccess, IAuthorPermissionAccess authoerPermissionAccess, ILocationAccess locationAccess, IAuthorGroupPermissionAccess authorGroupPermissionAccess, ILocationGroupPermissionAccess locationGroupPermissionAccess, DiscordObjectOIDBuilder objectOIDBuilder, MultiParser<IObjectOID> objectOIDParser, IOptions<DiscordBotOptions> options, Cooldown cooldown, DiscordSocketClient client)
 		{
 			this.sentenceAccess = sentenceAccess;
 			this.authoerPermissionAccess = authoerPermissionAccess;
@@ -33,6 +35,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			this.objectOIDParser = objectOIDParser;
 			this.options = options.Value;
 			this.cooldown = cooldown;
+			this.client = client;
 		}
 
 		[SlashCommand("querysentences", "Query sentences based on various parameters.")]
@@ -170,28 +173,25 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 				{
 					newLocationsForFilter = locationFilter
 						.Split(":::")
-						.Select(async entry =>
+						.Select(entry =>
 						{
-							if (ulong.TryParse(entry, out var id))
+							if (Enum.TryParse<DiscordLocationType>(entry, true, out var locationDepth))
 							{
-								IGuild? guild = Context.Client.GetGuild(id);
-								if (guild is not null)
-									return DiscordObjectOID.ForServer(options.DiscordInstance, id);
-
-								var channel = Context.Client.GetChannel(id);
-								if (channel is IGuildChannel guildChannel)
-									guild = guildChannel.Guild;
-								if (channel is not null)
-									return await objectOIDBuilder.Build(guild, channel, options.DiscordInstance);
-
-								throw new ArgumentException($"No {nameof(IChannel)} or {nameof(IGuild)} found for ID '{id}'.", nameof(locationFilter));
+								var parsedLocation = locationOID.ForLocationType(locationDepth);
+								if (parsedLocation is not null)
+								{
+									return parsedLocation;
+								}
+								else
+								{
+									throw new InvalidOperationException();
+								}
 							}
 							else
 							{
 								return objectOIDParser.Parse(entry);
 							}
 						})
-						.Select(task => task.Result)
 						.ToList();
 				}
 				catch
@@ -234,13 +234,260 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 
 			var sentences = await sentenceAccess.ReadSentenceRange(new SentenceFilter(effectiveLocationFilter, effectiveAuthorFilter), searchString, count);
-			var listBuilder = ConsoleTableBuilder
-				.From(sentences.ToList())
-				.WithFormat(ConsoleTableBuilderFormat.Minimal)
-				.Export();
-			using var stream = new MemoryStream(Encoding.UTF8.GetBytes(listBuilder.ToString()));
-			await ReplyAsync("sending you the output in DMs!");
-			await Context.User.SendFileAsync(stream, "query results.txt");
+			bool success = await TrySendMessagesToUser(Context.User, sentences);
+			if (success)
+			{
+				await ReplyAsync("sent you the output in DMs!");
+			}
+			else
+			{
+				await ReplyAsync("failed to send the output! maybe the file was too large?");
+			}
+		}
+
+		[SlashCommand("deletesentences", "Delete sentences based on various parameters.")]
+		public async Task DeleteSentencesCommand(
+			[Summary("authorfilter", "Triple colon (:::) separated list of authors")] string? authorFilter = null,
+			[Summary("locationfilter", "Triple colon (:::) separated list of locations")] string? locationFilter = null,
+			[Summary("searchstring", "Text to search for")] string? searchString = null
+		)
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var locationOID = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, locationOID, CooldownType.MessagesCheck))
+			{
+				await RespondAsync(text: "slow down!!", ephemeral: true);
+				return;
+			}
+			var isDev = options.DeveloperIDs.Contains(Context.User.Id);    // Some guards only need to be checked if not a developer.
+			List<AuthorOID> effectiveAuthorFilter = [];
+			List<IObjectOID> effectiveLocationFilter = [];
+			if (authorFilter is not null)
+			{
+				try
+				{
+					effectiveAuthorFilter = authorFilter
+						.Split(":::")
+						.Select(entry => ulong.TryParse(entry, out _)
+							? new AuthorOID(ServiceType.Discord, options.DiscordInstance, entry)
+							: AuthorOID.Parse(entry))
+						.ToList();
+				}
+				catch
+				{
+					await RespondAsync("failed to parse the author filter", ephemeral: true);
+					return;
+				}
+				if (!isDev && locationFilter is null && effectiveAuthorFilter.Any(a => a != authorOID))
+				{
+					await RespondAsync("you cannot filter by authors for that are not you unless there is also a locationfilter specified");
+					return;
+				}
+			}
+			else if (locationFilter is null)
+			{
+				// If a LocationFilter is not handed to the bot as well, we specify that we are just deleting messages from the user who sent the command.
+				effectiveAuthorFilter = [authorOID];
+			}
+			if (locationFilter is not null)
+			{
+				try
+				{
+					effectiveLocationFilter = locationFilter
+						.Split(":::")
+						.Select(entry =>
+						{
+							if (Enum.TryParse<DiscordLocationType>(entry, true, out var locationDepth))
+							{
+								var parsedLocation = locationOID.ForLocationType(locationDepth);
+								if (parsedLocation is not null)
+								{
+									return parsedLocation;
+								}
+								else
+								{
+									throw new InvalidOperationException();
+								}
+							}
+							else
+							{
+								return objectOIDParser.Parse(entry);
+							}
+						})
+						.ToList();
+				}
+				catch
+				{
+					await RespondAsync("failed to parse the location filter", ephemeral: true);
+					return;
+				}
+				if (!isDev)
+				{
+					var locations = (await locationAccess.ReadLocationRange(effectiveLocationFilter)).ToList();
+
+					var missingLocations = effectiveLocationFilter.Where(li => !locations.Any(l => l.ID == li));
+					if (missingLocations.Any())
+					{
+						// Not ephemeral so that they can easily do this contacting
+						await RespondAsync("locations without entries in the location database found:\n" +
+							$"{missingLocations}\n" +
+							"please contact the bot owner in order to fix this.");
+						return;
+					}
+					var ownersForLocations = locations.Select(l => l.Owner).ToList();
+					if (ownersForLocations.Any(lo => lo != authorOID))
+					{
+						if (authorFilter is not null && effectiveAuthorFilter.Any(a => a != authorOID))
+						{
+							await RespondAsync("you cannot filter by locations that you do not own and authors that are not you at once", ephemeral: true);
+							return;
+						}
+						if (authorFilter is null)
+						{
+							await RespondAsync("you cannot filter by locations that you do not own unless you provide an authorfilter", ephemeral: true);
+							return;
+						}
+					}
+				}
+			}
+
+			SentenceFilter filter = new(effectiveLocationFilter, effectiveAuthorFilter);
+			var sentences = await sentenceAccess.ReadSentenceRange(filter, searchString);
+			var builder = new ComponentBuilder()
+				.WithButton("Yes, delete sentences", customId: "confirm_delete", ButtonStyle.Danger)
+				.WithButton("Show message", customId: "show_messages", ButtonStyle.Primary)
+				.WithButton("Cancel", customId: "cancel_delete", ButtonStyle.Secondary);
+			string authorString;
+			if (filter.Authors is not null && filter.Authors.Count is not 0)
+			{
+				authorString = "authors " + string.Join(' ', filter.Authors);
+			}
+			else
+			{
+				authorString = "all Authors";
+			}
+			string locationString;
+			if (filter.OIDs is not null && filter.OIDs.Count is not 0)
+			{
+				locationString = "locations " + string.Join(' ', filter.OIDs);
+			}
+			else
+			{
+				locationString = "all Locations";
+			}
+
+			if (searchString is not null)
+			{
+				await RespondAsync(
+					text: $"this will delete {sentences.Count()} sentences from {locationString} and {authorString} that match the string \"{searchString}\". " +
+					$"are you sure you would like to continue?",
+					components: builder.Build(),
+					ephemeral: true
+				);
+			}
+			else
+			{
+				await RespondAsync(
+					text: $"this will delete {sentences.Count()} sentences from {locationString} and {authorString}. " +
+					$"are you sure you would like to continue?",
+					components: builder.Build(),
+					ephemeral: true
+				);
+			}
+
+			var originalResponse = await GetOriginalResponseAsync();
+
+			while (true)
+			{
+				var interaction = await WaitForButtonAsync(originalResponse.Id, Context.User.Id);
+
+				if (interaction is null)
+				{
+					await FollowupAsync("no response, cancelled.", ephemeral: true);
+					return;
+				}
+
+				if (interaction.Data.CustomId == "confirm_delete")
+				{
+					await interaction.UpdateAsync(msg =>
+					{
+						msg.Content = "confirmed, deleting messages...";
+						msg.Components = new ComponentBuilder().Build();
+					});
+
+					await sentenceAccess.DeleteSentenceRange(filter, searchString);
+
+					await FollowupAsync("deletion complete!", ephemeral: true);
+					return;
+				}
+				else if (interaction.Data.CustomId == "cancel_delete")
+				{
+					await interaction.UpdateAsync(msg =>
+					{
+						msg.Content = "cancelled.";
+						msg.Components = new ComponentBuilder().Build();
+					});
+					return;
+				}
+				else if (interaction.Data.CustomId == "show_messages")
+				{
+					bool success = await TrySendMessagesToUser(Context.User, sentences);
+
+					var followUpBuilder = new ComponentBuilder()
+						.WithButton("Yes, delete sentences", customId: "confirm_delete", ButtonStyle.Danger)
+						.WithButton("Cancel", customId: "cancel_delete", ButtonStyle.Secondary);
+
+					await interaction.UpdateAsync(msg =>
+					{
+						msg.Content = success
+							? "messages sent in DMs. would you like to delete or cancel?"
+							: "failed to send messages, maybe the file was too large? would you like to delete or cancel anyway?";
+						msg.Components = followUpBuilder.Build();
+					});
+				}
+			}
+		}
+
+		private static async Task<bool> TrySendMessagesToUser(SocketUser user, IEnumerable<Sentence> sentences)
+		{
+			try
+			{
+				var listBuilder = ConsoleTableBuilder
+					.From(sentences.ToList())
+					.WithFormat(ConsoleTableBuilderFormat.Minimal)
+					.Export();
+				using var stream = new MemoryStream(Encoding.UTF8.GetBytes(listBuilder.ToString()));
+				await user.SendFileAsync(stream, "query results.txt");
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private async Task<SocketMessageComponent?> WaitForButtonAsync(ulong messageId, ulong userId)
+		{
+			var tcs = new TaskCompletionSource<SocketMessageComponent>();
+
+			Task Handler(SocketMessageComponent component)
+			{
+				if (component.Message.Id == messageId && component.User.Id == userId)
+				{
+					tcs.TrySetResult(component);
+				}
+
+				return Task.CompletedTask;
+			}
+
+			client.ButtonExecuted += Handler;
+
+			var timeoutTask = Task.Delay(TimeSpan.FromMinutes(3));
+			var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+			client.ButtonExecuted -= Handler;
+
+			return completedTask == tcs.Task ? tcs.Task.Result : null;
 		}
 	}
 }

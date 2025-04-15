@@ -49,6 +49,7 @@
 		Retort,
 		Ping,
 		QuerySentences,
+		DeleteSentences,
 		Say,
 		Announce,
 		Leave,

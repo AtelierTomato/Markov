@@ -184,6 +184,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("querysentences", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("qs", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.QuerySentences;
+				case string when input.Equals("deletesentences", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ds", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.DeleteSentences;
 				case string when input.Equals("say", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.Say;
 				case string when input.Equals("announce", StringComparison.InvariantCultureIgnoreCase):
@@ -220,7 +223,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						new EmbedFieldBuilder { IsInline = true, Name = "**Settings Commands**", Value = "`global` `setlocationgroup` `retort`" },
 						new EmbedFieldBuilder { IsInline = false, Name = "**LocationGroup Commands**", Value = "`createlocationgroup` `renamelocationgroup` `deletelocationgroup` `invitelocation` `acceptlocationinvite` `denylocationinvite` `updatelocation` `removelocation` `locationrequestlist` `locationgrouplist` `locationgroupinfo`" },
 						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorGroup Commands**", Value = "`createauthorgroup` `renameauthorgroup` `deleteauthorgroup` `inviteauthor` `acceptauthorinvite` `denyauthorinvite` `updateauthor` `removeauthor` `leaveauthorgroup` `authorrequestlist` `authorgrouplist` `authorgroupinfo`" },
-						new EmbedFieldBuilder { IsInline = true, Name = "**Other Commands**", Value = "`ping` `querysentences` `gettingstarted` `faq`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Other Commands**", Value = "`ping` `querysentences` `deletesentences` `gettingstarted` `faq`" },
 						new EmbedFieldBuilder { IsInline = true, Name = "**Developer Commands**", Value = "`say` `announce` `leave` `serverlist` `channellist`" },
 						new EmbedFieldBuilder { IsInline = true, Name = "**Other Help Topics**", Value = "`scope` `location` `author` `locationgroup` `authorgroup`"}
 					}
@@ -658,6 +661,23 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						new EmbedFieldBuilder { IsInline = false, Name = "**LocationFilter**", Value = $"This is a triple colon (:::) separated list of either Scopes or Locations (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). This determines which Locations' messages will be returned by the query." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**SearchString**", Value = "This is any string that you would like to search for, it can be a word or a group of words." },
 						new EmbedFieldBuilder { IsInline = false, Name = "**Count**", Value = "This is the amount of sentences to return, by default this is set to 100." }
+					}
+				},
+				HelpSubject.DeleteSentences => new EmbedBuilder
+				{
+					Title = "Delete Sentences Help",
+					Description = $"Allows you to delete sentences from the database with a variety of filters. " +
+					$"This command is only offered as a slash command due to having a variety of different parameters that can be applied to it. " +
+					$"The command will require confirmation before executing the deletion, and you will be able to view the sentences to delete before the fact. " +
+					$"If the command is ran with no parameters, it will default to attempting to delete all sentences in the bot that are from you. " +
+					$"You can only delete your own messages or messages from Locations that you own." +
+					Environment.NewLine + Environment.NewLine +
+					$"Below are explanations of the parameters that can be given when using `/querysentences`.",
+					Fields =
+					{
+						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorFilter**", Value = $"This is a triple colon (:::) separated list of authors, this can be either a full AuthorOID (see `{options.BotPrefix}help {HelpSubject.Author}`) or a Discord User ID. This determines which Authors' sentences will be delete by the command." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**LocationFilter**", Value = $"This is a triple colon (:::) separated list of either Scopes or Locations (see `{options.BotPrefix}help {HelpSubject.Scope}` and `{options.BotPrefix}help {HelpSubject.Location}`). This determines which Locations' messages will be deleted by the command." },
+						new EmbedFieldBuilder { IsInline = false, Name = "**SearchString**", Value = "This is any string that you would like to search for, it can be a word or a group of words." },
 					}
 				},
 				HelpSubject.Say => new EmbedBuilder

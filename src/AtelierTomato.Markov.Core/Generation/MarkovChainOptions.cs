@@ -6,6 +6,6 @@
 		public int MaximumPrevListLength { get; set; } = 10;
 		public int MaximumMarkovRerolls { get; set; } = 100;
 		public int MaximumLengthForReroll { get; set; } = 100;
-		public double CopyPastaKillingProbability { get; set; } = .02;
+		public double CopyPastaKillingProbability { get; set; } = 0.02;
 	}
 }

@@ -173,6 +173,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 			try
 			{
+				if (message.Content.Contains("typing", StringComparison.InvariantCultureIgnoreCase))
+				{
+					await context.Channel.TriggerTypingAsync();
+				}
+
 				// Create a number to track where the prefix ends and the command begins
 				int argPos = 0;
 				var prefixDetected = message.HasStringPrefix(options.BotPrefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos);

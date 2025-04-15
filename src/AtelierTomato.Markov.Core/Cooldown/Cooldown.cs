@@ -37,7 +37,6 @@ namespace AtelierTomato.Markov.Core.Cooldown
 					CooldownType.MessagesCheck => options.MessagesCheckCooldown,
 					CooldownType.ImageDownload => options.ImageDownloadCooldown,
 					CooldownType.ImageUpload => options.ImageUploadCooldown,
-					CooldownType.WebhookFail => options.WebhookFailCooldown,
 					_ => options.GeneralCooldown
 				};
 				return DateTimeOffset.Now - cooldownTime > commandCooldown;

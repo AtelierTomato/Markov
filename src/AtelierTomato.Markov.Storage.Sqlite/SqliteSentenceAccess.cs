@@ -278,6 +278,12 @@ on conflict ({nameof(Sentence.OID)}) do update set
 
 		private static async Task CreateSentenceFilterOIDsTempTable(IReadOnlyCollection<IObjectOID> objectOIDs, SqliteConnection connection)
 		{
+			// Just in case, drop the table if it already exists.
+			await connection.ExecuteAsync($@"
+DROP TABLE IF EXISTS {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)};
+");
+
+			// Now create the new table.
 			await connection.ExecuteAsync(@$"
 CREATE TEMPORARY TABLE IF NOT EXISTS {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)} (
 	{nameof(Sentence.OID)}	TEXT NOT NULL UNIQUE,

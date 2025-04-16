@@ -68,28 +68,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			this.commandService = commandService;
 			this.serviceProvider = serviceProvider;
 			this.interactionService = interactionService;
-
-			this.client.Log += msg => Task.Run(() => this.Client_Log(msg));
-			this.client.Ready += this.Client_Ready;
-
-			this.client.MessageReceived += this.Client_MessageReceived;
-			this.client.MessageUpdated += this.Client_MessageUpdated;
-			this.client.ReactionAdded += this.Client_ReactionAdded;
-			this.client.GuildUpdated += this.Client_GuildUpdated;
-			this.client.ChannelUpdated += this.Client_ChannelUpdated;
-			this.client.ChannelCreated += this.Client_ChannelCreated;
-			this.client.RoleUpdated += this.Client_RoleUpdated;
-			this.client.GuildMemberUpdated += this.Client_GuildMemberUpdated;
-			this.client.ThreadCreated += this.Client_ThreadCreated;
-			this.client.ThreadUpdated += this.Client_ThreadUpdated;
-			this.client.JoinedGuild += this.Client_JoinedGuild;
-
-			// commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
-			commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
 			this.webhookHandler = webhookHandler;
 			this.helpContentBuilder = helpContentBuilder;
 		}
-
 
 		//private void LogCommandServiceCommandExecuted(Optional<CommandInfo> commandInfo, ICommandContext commandContext, IResult result)
 		//{
@@ -125,6 +106,23 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 		public async Task StartAsync()
 		{
+			this.client.Log += msg => Task.Run(() => this.Client_Log(msg));
+			this.client.Ready += this.Client_Ready;
+
+			this.client.MessageReceived += this.Client_MessageReceived;
+			this.client.MessageUpdated += this.Client_MessageUpdated;
+			this.client.ReactionAdded += this.Client_ReactionAdded;
+			this.client.GuildUpdated += this.Client_GuildUpdated;
+			this.client.ChannelUpdated += this.Client_ChannelUpdated;
+			this.client.ChannelCreated += this.Client_ChannelCreated;
+			this.client.RoleUpdated += this.Client_RoleUpdated;
+			this.client.GuildMemberUpdated += this.Client_GuildMemberUpdated;
+			this.client.ThreadCreated += this.Client_ThreadCreated;
+			this.client.ThreadUpdated += this.Client_ThreadUpdated;
+			this.client.JoinedGuild += this.Client_JoinedGuild;
+
+			// commandService.CommandExecuted += (commandInfo, commandContext, result) => Task.Run(() => this.LogCommandServiceCommandExecuted(commandInfo, commandContext, result));
+			await commandService.AddModulesAsync(assembly: Assembly.GetAssembly(typeof(DiscordEventDispatcher)), services: serviceProvider);
 			await this.client.StartAsync();
 		}
 
@@ -188,9 +186,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					using (context.Channel.EnterTypingState()) _ = await commandService.ExecuteAsync(context: context, argPos: argPos, services: serviceProvider);
 				}
 
-				_ = await ProcessForGathering(message, context);
+				_ = Task.Run(async () => await ProcessForGathering(message, context));
 
-				await ProcessForRetorting(message, context);
+				_ = Task.Run(async () => await ProcessForRetorting(message, context));
 			}
 			catch (HttpException e)
 			{
@@ -239,7 +237,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						return;
 
 					var context = new SocketCommandContext(this.client, message);
-					_ = await ProcessForGathering(message, context);
+					_ = Task.Run(async () => await ProcessForGathering(message, context));
 				}
 				else
 				{
@@ -294,7 +292,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 			if (writeEmojis.Contains(reaction.Emote))
 			{
-				if (await ProcessForGathering(message, context))
+				bool gatheringResult = await Task.Run(async () => await ProcessForGathering(message, context));
+
+				if (gatheringResult)
 				{
 					await message.AddReactionAsync(reaction.Emote);
 				}
@@ -306,7 +306,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 			else if (deleteEmojis.Contains(reaction.Emote))
 			{
 				// Delete all sentences made from this message from the database
-				await ProcessForDeleting(message, context);
+				_ = Task.Run(async () => await ProcessForDeleting(message, context));
 				await message.AddReactionAsync(reaction.Emote);
 			}
 		}
@@ -575,6 +575,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 
 			if (!isMention && !isReply)
 				return; // no reason to butt in here.
+
 
 			using (context.Channel.EnterTypingState())
 			{

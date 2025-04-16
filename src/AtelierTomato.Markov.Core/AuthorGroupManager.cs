@@ -192,10 +192,6 @@ namespace AtelierTomato.Markov.Core
 			{
 				authors = authors.Intersect(retortSetting.Filter.Authors);
 			}
-			else
-			{
-				authors = [];
-			}
 			return authors;
 		}
 

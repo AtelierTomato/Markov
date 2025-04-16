@@ -22,7 +22,7 @@ namespace AtelierTomato.Markov.Core.Generation
 				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword, queryScope);
 				if (sentence is null)
 					return string.Empty;
-				if (!filter.OIDs.Any(l => l.IsParentOrEqualTo(sentence.OID)) || !filter.Authors.Any(a => a == sentence.Author))
+				if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sentence.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sentence.Author)))
 				{
 					// If for whatever reason something that shouldn't appear with our filter shows up, return nothing
 					logger.LogError(
@@ -65,7 +65,7 @@ namespace AtelierTomato.Markov.Core.Generation
 				{
 					foreach (var sent in sentences)
 					{
-						if (!filter.OIDs.Any(l => l.IsParentOrEqualTo(sent.OID)) || !filter.Authors.Any(a => a == sent.Author))
+						if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sent.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sent.Author)))
 						{
 							// If for whatever reason something that shouldn't appear with our filter shows up, output the messages as is
 							logger.LogError(

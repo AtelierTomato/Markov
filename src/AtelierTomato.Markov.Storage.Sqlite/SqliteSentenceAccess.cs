@@ -21,17 +21,13 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			if (filter is { Authors: [], OIDs: [] } && string.IsNullOrWhiteSpace(searchString))
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
-			IEnumerable<string>? authors = null;
-			if (filter.Authors is not [])
-			{
-				authors = filter.Authors!.Select(a => a.ToString());
-			}
+			IEnumerable<string> authors = filter.Authors.Select(a => a.ToString());
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 
 			connection.Open();
 
-			if (filter.OIDs is not [])
+			if (filter.OIDs.Any())
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs!, connection);
 
@@ -42,11 +38,12 @@ WHERE {nameof(Sentence)}.{nameof(Sentence.OID)} IN (
 	FROM {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 	WHERE ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%')
 ) AND
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 ",
 				new
 				{
+					hasAuthors = authors.Any(),
 					authors,
 					searchString
 				});
@@ -70,17 +67,13 @@ DELETE FROM {nameof(Sentence)} WHERE
 
 		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
-			IEnumerable<string>? authors = null;
-			if (filter.Authors is not [])
-			{
-				authors = filter.Authors.Select(a => a.ToString());
-			}
+			IEnumerable<string> authors = filter.Authors.Select(a => a.ToString());
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 			IEnumerable<SentenceRow> result;
 
-			if (filter.OIDs is not [])
+			if (filter.OIDs.Any())
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
@@ -88,7 +81,7 @@ DELETE FROM {nameof(Sentence)} WHERE
 SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 ON (SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( @hasAuthors is 0 OR {nameof(Sentence.Author)} IN @authors ) AND
 ( SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
 ORDER BY
@@ -99,6 +92,7 @@ LIMIT @amount
 				new
 				{
 					queryScope = queryScope?.ToString(),
+					hasAuthors = authors.Any(),
 					authors,
 					previousIDs = previousIDs.Select(x => x.ToString()),
 					prevList = string.Join(' ', prevList),
@@ -111,7 +105,7 @@ LIMIT @amount
 				result = await connection.QueryAsync<SentenceRow>($@"
 SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( @hasAuthors is 0 OR {nameof(Sentence.Author)} IN @authors ) AND
 ( SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
 ORDER BY
@@ -122,6 +116,7 @@ LIMIT @amount
 				new
 				{
 					queryScope = queryScope?.ToString(),
+					hasAuthors = authors.Any(),
 					authors,
 					previousIDs = previousIDs.Select(x => x.ToString()),
 					prevList = string.Join(' ', prevList),
@@ -137,24 +132,19 @@ LIMIT @amount
 
 		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
-			IEnumerable<string>? authors = null;
-			if (filter.Authors is not [])
-			{
-				authors = filter.Authors.Select(a => a.ToString());
-			}
+			IEnumerable<string> authors = filter.Authors.Select(a => a.ToString());
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 			SentenceRow? result;
-			if (filter.OIDs is not [])
+			if (filter.OIDs.Any())
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
-
 				result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
 SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 ON (SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
+( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
@@ -163,16 +153,19 @@ LIMIT 1
 						new
 						{
 							queryScope = queryScope?.ToString(),
+							hasAuthors = authors.Any(),
 							authors,
 							keyword
 						});
+
+
 			}
 			else
 			{
 				result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
 SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM SentenceAfterLinkWithPermission WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors )
+( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
 CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
@@ -181,6 +174,7 @@ LIMIT 1
 						new
 						{
 							queryScope = queryScope?.ToString(),
+							hasAuthors = authors.Any(),
 							authors,
 							keyword
 						});
@@ -193,29 +187,26 @@ LIMIT 1
 
 		public async Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null, int? count = null)
 		{
-			IEnumerable<string>? authors = null;
-			if (filter.Authors is not [])
-			{
-				authors = filter.Authors.Select(a => a.ToString());
-			}
+			IEnumerable<string> authors = filter.Authors.Select(a => a.ToString());
 
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
 			IEnumerable<SentenceRow> result;
 
-			if (filter.OIDs is not [])
+			if (filter.OIDs.Any())
 			{
 				await CreateSentenceFilterOIDsTempTable(filter.OIDs, connection);
 
 				result = await connection.QueryAsync<SentenceRow>($@"
 SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 ON ({nameof(Sentence)}.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%') WHERE
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( hasAuthors is 0 OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 LIMIT CASE WHEN @count IS NULL THEN -1 ELSE @count END
 ",
 				new
 				{
+					hasAuthors = authors.Any(),
 					authors,
 					searchString,
 					count
@@ -225,12 +216,13 @@ LIMIT CASE WHEN @count IS NULL THEN -1 ELSE @count END
 			{
 				result = await connection.QueryAsync<SentenceRow>($@"
 SELECT {nameof(Sentence)}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)} FROM {nameof(Sentence)} WHERE
-( @authors IS NULL OR {nameof(Sentence.Author)} IN @authors ) AND
+( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors ) AND
 ( @searchString IS NULL OR (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @searchString || ' %' )
 LIMIT CASE WHEN @count IS NULL THEN -1 ELSE @count END
 ",
 				new
 				{
+					hasAuthors = authors.Any(),
 					authors,
 					searchString,
 					count
@@ -281,7 +273,7 @@ on conflict ({nameof(Sentence.OID)}) do update set
 			// Just in case, drop the table if it already exists.
 			await connection.ExecuteAsync($@"
 DROP TABLE IF EXISTS {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)};
-");
+			");
 
 			// Now create the new table.
 			await connection.ExecuteAsync(@$"

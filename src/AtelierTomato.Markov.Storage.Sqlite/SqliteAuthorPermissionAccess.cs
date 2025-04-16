@@ -40,7 +40,7 @@ FROM {nameof(AuthorPermission)}
 SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)} WHERE
 {nameof(AuthorPermission.Author)} = @author AND
-({nameof(AuthorPermission.QueryScope)} is '' OR {nameof(AuthorPermission.QueryScope)} || ':' LIKE @queryScope || ':%')
+({nameof(AuthorPermission.QueryScope)} is '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.QueryScope)} || ':%')
 ORDER BY LENGTH ({nameof(AuthorPermission.QueryScope)}) DESC LIMIT 1
 ",
 			new

@@ -244,7 +244,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						new EmbedFieldBuilder { IsInline = true, Name = "**Settings Commands**", Value = "`global` `setlocationgroup` `retort`" },
 						new EmbedFieldBuilder { IsInline = false, Name = "**LocationGroup Commands**", Value = "`createlocationgroup` `renamelocationgroup` `deletelocationgroup` `invitelocation` `acceptlocationinvite` `denylocationinvite` `updatelocation` `removelocation` `locationrequestlist` `locationgrouplist` `locationgroupinfo`" },
 						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorGroup Commands**", Value = "`createauthorgroup` `renameauthorgroup` `deleteauthorgroup` `inviteauthor` `acceptauthorinvite` `denyauthorinvite` `updateauthor` `removeauthor` `leaveauthorgroup` `authorrequestlist` `authorgrouplist` `authorgroupinfo`" },
-						new EmbedFieldBuilder { IsInline = true, Name = "**Other Commands**", Value = "`ping` `querysentences` `deletesentences` `gettingstarted` `faq`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Other Commands**", Value = "`ping` `querysentences` `deletesentences` `gettingstarted` `faq` `calculate` `roll` `rollrepeat`" },
 						new EmbedFieldBuilder { IsInline = true, Name = "**Developer Commands**", Value = "`say` `announce` `leave` `serverlist` `channellist`" },
 						new EmbedFieldBuilder { IsInline = true, Name = "**Other Help Topics**", Value = "`scope` `location` `author` `locationgroup` `authorgroup`"}
 					}

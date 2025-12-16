@@ -44,14 +44,12 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					cooldown.WriteCooldownTime(author, locationDiscord, CooldownType.ImageDownload);
 				}
 
-				var webhook =
-					(await context.Guild.GetWebhooksAsync())
-						.Where(x =>
-							x.Creator.Id == client.CurrentUser.Id &&
-							x.ChannelId == context.Channel.Id &&
-							x.Name == displayName
-						)
-						.FirstOrDefault();
+				var webhook = (await context.Guild.GetWebhooksAsync())
+					.FirstOrDefault(x =>
+						x.Creator.Id == client.CurrentUser.Id
+						&& x.ChannelId == context.Channel.Id
+						&& x.Name == displayName
+					);
 				if (webhook is null)
 				{
 					webhook = await ((SocketTextChannel)context.Channel).CreateWebhookAsync(displayName, GetImage(user).Stream);

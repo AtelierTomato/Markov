@@ -4,8 +4,9 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class AuthorRow
 	{
-		public string ID { get; set; }
-		public string Name { get; set; }
+		public string ID { get; set; } = string.Empty;
+		public string Name { get; set; } = string.Empty;
+		public AuthorRow() { }
 		public AuthorRow(string ID, string name)
 		{
 			this.ID = ID;

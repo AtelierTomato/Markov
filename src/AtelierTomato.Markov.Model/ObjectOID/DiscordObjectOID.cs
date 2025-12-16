@@ -1,19 +1,20 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using AtelierTomato.Markov.Model.ObjectOID.LocationTypes;
 
 namespace AtelierTomato.Markov.Model.ObjectOID
 {
 	public class DiscordObjectOID : IObjectOID
 	{
-		public ServiceType Service { get; } = ServiceType.Discord;
-		public string Instance { get; set; }
+		public override ServiceType Service { get; } = ServiceType.Discord;
+		public override string? Instance { get; set; }
 		public ulong? Server { get; set; }
 		public ulong? Category { get; set; }
 		public ulong? Channel { get; set; }
 		public ulong? Thread { get; set; }
 		public ulong? Message { get; set; }
 		public int? Sentence { get; set; }
-		private DiscordObjectOID(string instance, ulong? server = null, ulong? category = null, ulong? channel = null, ulong? thread = null, ulong? message = null, int? sentence = null)
+		private DiscordObjectOID(string? instance = null, ulong? server = null, ulong? category = null, ulong? channel = null, ulong? thread = null, ulong? message = null, int? sentence = null)
 		{
 			Instance = instance;
 			Server = server;
@@ -23,6 +24,8 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			Message = message;
 			Sentence = sentence;
 		}
+		public static DiscordObjectOID ForService()
+			=> new();
 		public static DiscordObjectOID ForInstance(string instance)
 			=> new(instance);
 		public static DiscordObjectOID ForServer(string instance, ulong server)
@@ -54,6 +57,10 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			if (match.Groups[nameof(ServiceType)].Value != ServiceType.Discord.ToString())
 				throw new ArgumentException("The OID given is not a DiscordObjectOID, as it does not begin with Discord.", nameof(OID));
 
+			if (!match.Groups[nameof(Instance)].Success)
+			{
+				return ForService();
+			}
 			var instance = match.Groups[nameof(Instance)].Value;
 
 			if (!match.Groups[nameof(Server)].Success)
@@ -101,10 +108,10 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 			return ForSentence(instance, serverId, categoryId, channelId, threadId, messageId, sentenceId);
 		}
 
-		public IObjectOID Base()
+		public override IObjectOID Base()
 		{
 			if (Server is not null)
-				return ForServer(Instance, (ulong)Server);
+				return ForServer(Instance!, (ulong)Server);
 			else
 				return this;
 		}
@@ -112,7 +119,10 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 		public override string ToString()
 		{
 			var oidBuilder = new OIDBuilder(Service);
-			oidBuilder.Append(Instance);
+			if (Instance is not null)
+			{
+				oidBuilder.Append(Instance);
+			}
 			if (Server.HasValue)
 			{
 				oidBuilder.Append(Server.Value.ToString(CultureInfo.InvariantCulture));
@@ -180,6 +190,61 @@ namespace AtelierTomato.Markov.Model.ObjectOID
 				throw new InvalidOperationException("A DiscordObjectOID cannot be returned with a Sentence if there is no value in Message.");
 			}
 			return new DiscordObjectOID(Instance, Server, Category, Channel, Thread, Message, sentence);
+		}
+
+		public DiscordObjectOID? ForLocationType(DiscordLocationType type)
+		{
+			return type switch
+			{
+				DiscordLocationType.Global => null,
+				DiscordLocationType.Discord => ForService(),
+				DiscordLocationType.Instance => Instance is not null ? ForInstance(Instance) : ThrowForLocationTypeError(type),
+				DiscordLocationType.Server => Server is not null ? ForServer(Instance!, (ulong)Server) : ThrowForLocationTypeError(type),
+				DiscordLocationType.Category => Category is not null ? ForCategory(Instance!, (ulong)Server!, (ulong)Category) : ThrowForLocationTypeError(type),
+				DiscordLocationType.Channel => Channel is not null ? ForChannel(Instance!, (ulong)Server!, (ulong)Category!, (ulong)Channel) : ThrowForLocationTypeError(type),
+				DiscordLocationType.Thread => Thread is not null ? ForThread(Instance!, (ulong)Server!, (ulong)Category!, (ulong)Channel!, (ulong)Thread) : ThrowForLocationTypeError(type),
+				DiscordLocationType.Message => Message is not null ? ForMessage(Instance!, (ulong)Server!, (ulong)Category!, (ulong)Channel!, (ulong)Thread!, (ulong)Message) : ThrowForLocationTypeError(type),
+				DiscordLocationType.Sentence => Sentence is not null ? ForSentence(Instance!, (ulong)Server!, (ulong)Category!, (ulong)Channel!, (ulong)Thread!, (ulong)Message!, (int)Sentence) : ThrowForLocationTypeError(type),
+				_ => throw new NotImplementedException()
+			};
+		}
+
+		private static DiscordObjectOID ThrowForLocationTypeError(DiscordLocationType type)
+		{
+			throw new ArgumentOutOfRangeException(nameof(type), $"This object does not possess a '{type}' value.");
+		}
+
+		/// <summary>
+		/// Returns the OID but with a different category.
+		/// </summary>
+		/// <param name="category"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		public DiscordObjectOID UpdateCategory(ulong category)
+		{
+			if (Category is null)
+				throw new InvalidOperationException($"Cannot update the category for {nameof(DiscordObjectOID)} '{this}' because it does not have a {nameof(Category)}.");
+
+			if (!Channel.HasValue)
+			{
+				return ForCategory(Instance!, (ulong)Server!, category);
+			}
+			else if (!Thread.HasValue)
+			{
+				return ForChannel(Instance!, (ulong)Server!, category, (ulong)Channel);
+			}
+			else if (!Message.HasValue)
+			{
+				return ForThread(Instance!, (ulong)Server!, category, (ulong)Channel, (ulong)Thread);
+			}
+			else if (!Sentence.HasValue)
+			{
+				return ForMessage(Instance!, (ulong)Server!, category, (ulong)Channel, (ulong)Thread, (ulong)Message);
+			}
+			else
+			{
+				return ForSentence(Instance!, (ulong)Server!, category, (ulong)Channel, (ulong)Thread, (ulong)Message, (int)Sentence);
+			}
 		}
 	}
 }

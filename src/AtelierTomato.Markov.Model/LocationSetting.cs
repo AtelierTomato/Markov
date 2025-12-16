@@ -43,8 +43,8 @@
 			}
 		}
 		public bool? GlobalAllowed { get; set; }
-		public Guid? LocationGroup { get; set; }
-		public LocationSetting(IObjectOID ID, List<string> writeReactions, List<string> deleteReactions, List<string> failReactions, bool? globalAllowed, Guid? locationGroup)
+		public ulong? LocationGroup { get; set; }
+		public LocationSetting(IObjectOID ID, List<string> writeReactions, List<string> deleteReactions, List<string> failReactions, bool? globalAllowed, ulong? locationGroup)
 		{
 			this.ID = ID;
 			WriteReactions = writeReactions;

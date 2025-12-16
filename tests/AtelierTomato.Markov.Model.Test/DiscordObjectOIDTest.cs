@@ -118,8 +118,8 @@ namespace AtelierTomato.Markov.Model.Test
 		[Fact]
 		public void DiscordParseOnlyHasSerivceTypeTest()
 		{
-			Action act = () => DiscordObjectOID.Parse("Discord");
-			act.Should().Throw<ArgumentException>().WithMessage("The OID given is not a valid DiscordObjectOID. (Parameter 'OID')");
+			var discordService = DiscordObjectOID.Parse("Discord");
+			discordService.Should().BeEquivalentTo(DiscordObjectOID.ForService());
 		}
 		[Fact]
 		public void DiscordParseServerNotUlongTest()

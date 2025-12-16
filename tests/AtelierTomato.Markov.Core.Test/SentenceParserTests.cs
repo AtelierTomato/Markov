@@ -111,7 +111,9 @@ Life in the Vault is about to change.";
 				["lisp is “fun”, unless you “defun x”.", new string[] { "lisp is “ fun ” , unless you “ defun x ” ." }],
 				[">implying that i'm implying", new string[] { "> implying that i 'm implying" }],
 				[">implying that i am implying", new string[] { "> implying that i am implying" }],
-				["i want to eat—drink water", new string[] { "i want to eat — drink water" }]
+				["i want to eat—drink water", new string[] { "i want to eat — drink water" }],
+				["i want to eat/drink water", new string[] { "i want to eat / drink water" }],
+				["i want to eat\\drink water", new string[] { "i want to eat \\ drink water" }]
 			];
 		}
 

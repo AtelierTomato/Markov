@@ -1,0 +1,11 @@
+[Unit]
+Description=A Discord Markov bot.
+
+[Service]
+Type=notify
+ExecStart=/bin/false
+SyslogIdentifier=discordmarkovbot
+
+[Install]
+WantedBy=multi-user.target
+

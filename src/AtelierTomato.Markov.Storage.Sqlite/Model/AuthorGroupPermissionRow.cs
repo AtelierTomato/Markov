@@ -4,10 +4,11 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class AuthorGroupPermissionRow
 	{
-		public string ID { get; set; }
-		public string Author { get; set; }
-		public string Permissions { get; set; }
-		public AuthorGroupPermissionRow(string ID, string author, string permissions)
+		public ulong ID { get; set; }
+		public string Author { get; set; } = string.Empty;
+		public string Permissions { get; set; } = string.Empty;
+		public AuthorGroupPermissionRow() { }
+		public AuthorGroupPermissionRow(ulong ID, string author, string permissions)
 		{
 			this.ID = ID;
 			Author = author;
@@ -15,7 +16,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 		}
 		public AuthorGroupPermissionRow(AuthorGroupPermission authorGroupPermission)
 		{
-			ID = authorGroupPermission.ID.ToString();
+			ID = authorGroupPermission.ID;
 			Author = authorGroupPermission.Author.ToString();
 			Permissions = authorGroupPermission.Permissions.ToString();
 		}
@@ -25,7 +26,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 				throw new InvalidOperationException($"One or more of listed permissions is invalid: {Permissions}");
 
 			return new(
-				Guid.Parse(ID),
+				ID,
 				AuthorOID.Parse(Author),
 				permissions
 			);

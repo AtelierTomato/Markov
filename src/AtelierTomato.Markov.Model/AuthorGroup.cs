@@ -2,6 +2,6 @@
 {
 	public record AuthorGroup
 	(
-		Guid ID, string Name
+		ulong ID, string Name
 	);
 }

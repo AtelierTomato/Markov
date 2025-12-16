@@ -31,7 +31,7 @@ FROM {nameof(AuthorPermission)}
 			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
 		}
 
-		public async Task<AuthorPermission?> ReadAuthorPermission(AuthorOID author, IObjectOID queryScope)
+		public async Task<AuthorPermission?> ReadAuthorPermission(AuthorOID author, IObjectOID? queryScope)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -40,13 +40,13 @@ FROM {nameof(AuthorPermission)}
 SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
 FROM {nameof(AuthorPermission)} WHERE
 {nameof(AuthorPermission.Author)} = @author AND
-@queryScope || ':' LIKE {nameof(AuthorPermission.QueryScope)} || ':%'
+({nameof(AuthorPermission.QueryScope)} is '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.QueryScope)} || ':%')
 ORDER BY LENGTH ({nameof(AuthorPermission.QueryScope)}) DESC LIMIT 1
 ",
 			new
 			{
-				author,
-				queryScope
+				author = author.ToString(),
+				queryScope = queryScope?.ToString() ?? string.Empty
 			});
 
 			connection.Close();
@@ -54,7 +54,7 @@ ORDER BY LENGTH ({nameof(AuthorPermission.QueryScope)}) DESC LIMIT 1
 			return result?.ToAuthorPermission(objectOIDParser);
 		}
 
-		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID> queryScopes)
+		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRange(IEnumerable<AuthorOID> authors, IEnumerable<IObjectOID?> queryScopes)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -66,13 +66,54 @@ WHERE {nameof(AuthorPermission.Author)} in @authors AND {nameof(AuthorPermission
 ",
 			new
 			{
-				authors,
-				queryScopes
+				authors = authors.Select(a => a.ToString()),
+				queryScopes = queryScopes.Select(q => q?.ToString() ?? string.Empty)
 			});
 
 			connection.Close();
 
 			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
+		}
+
+		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRangeByBaseLocation(IObjectOID location)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
+SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
+FROM {nameof(AuthorPermission)} WHERE
+{nameof(AuthorPermission.QueryScope)} || ':' LIKE @location || ':%' OR
+{nameof(AuthorPermission.AllowedScope)} || ':' LIKE @location || ':%'
+",
+			new
+			{
+				location = location.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(u => u.ToAuthorPermission(objectOIDParser));
+		}
+
+		public async Task<IEnumerable<AuthorPermission>> ReadAuthorPermissionRangeByAuthor(AuthorOID author)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+			connection.Open();
+
+			var result = await connection.QueryAsync<AuthorPermissionRow>($@"
+SELECT {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryScope)}, {nameof(AuthorPermission.AllowedScope)}
+FROM {nameof(AuthorPermission)}
+WHERE {nameof(AuthorPermission.Author)} is @author
+",
+			new
+			{
+				author = author.ToString()
+			});
+
+			connection.Close();
+
+			return result.Select(a => a.ToAuthorPermission(objectOIDParser));
 		}
 
 		private static async Task WriteCore(SqliteConnection connection, AuthorPermission authorPermission)
@@ -106,6 +147,27 @@ ON CONFLICT ( {nameof(AuthorPermission.Author)}, {nameof(AuthorPermission.QueryS
 			}
 
 			await transaction.CommitAsync();
+		}
+
+		public async Task DeleteAuthorPermission(AuthorOID author, IObjectOID? queryScope)
+		{
+			await using var connection = new SqliteConnection(options.ConnectionString);
+
+			connection.Open();
+
+			await connection.ExecuteAsync($@"
+DELETE FROM {nameof(AuthorPermission)}
+WHERE {nameof(AuthorPermission.Author)} IS @author
+AND {nameof(AuthorPermission.QueryScope)} IS @queryScope
+			",
+				new
+				{
+					author = author.ToString(),
+					queryScope = queryScope?.ToString() ?? string.Empty
+				}
+			);
+
+			connection.Close();
 		}
 	}
 }

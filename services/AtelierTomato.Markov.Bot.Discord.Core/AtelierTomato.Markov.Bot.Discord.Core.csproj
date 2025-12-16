@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ConsoleTableExt" Version="3.3.0" />
+    <PackageReference Include="Discord.Net" Version="3.17.0" />
+    <PackageReference Include="Discord.Net.WebSocket" Version="3.17.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AtelierTomato.Markov.Service.Discord\AtelierTomato.Markov.Service.Discord.csproj" />
+    <ProjectReference Include="..\..\src\AtelierTomato.Markov.Storage.Sqlite\AtelierTomato.Markov.Storage.Sqlite.csproj" />
+  </ItemGroup>
+
+</Project>

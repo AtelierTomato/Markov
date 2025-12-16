@@ -1,25 +1,36 @@
 ﻿using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Storage;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core.Generation
 {
-	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovChainOptions> options)
+	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovChainOptions> options, ILogger<MarkovChain> logger)
 	{
 		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
 		private readonly MarkovChainOptions options = options.Value;
+		private readonly ILogger<MarkovChain> logger = logger;
 		private static readonly Random random = new();
 
-		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null)
+		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null, IObjectOID? queryScope = null)
 		{
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
 			List<IObjectOID> prevIDs = [];
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
+				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword, queryScope);
 				if (sentence is null)
 					return string.Empty;
+				if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sentence.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sentence.Author)))
+				{
+					// If for whatever reason something that shouldn't appear with our filter shows up, return nothing
+					logger.LogError(
+						"Somehow, a message was returned that doesn't match our filter while generating. This is VERY BAD." + Environment.NewLine + "Filter: {filter}" + Environment.NewLine + "Sentence Data: {sentence}",
+						"\n\tOIDs: " + string.Join(' ', filter.OIDs.Select(o => o.ToString())) + "\n\tAuthors: " + string.Join(' ', filter.Authors.Select(a => a.ToString())), $"\n\tOID: {sentence.OID}\n\tAuthor: {sentence.Author}"
+					);
+					return string.Empty;
+				}
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 				prevIDs.Add(sentence.OID);
 			}
@@ -49,11 +60,20 @@ namespace AtelierTomato.Markov.Core.Generation
 					allowedRerolls = options.MaximumMarkovRerolls;
 				}
 
-				var sentences = await sentenceAccess.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, filter, keyword);
+				var sentences = await sentenceAccess.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, filter, keyword, queryScope);
 				if (sentences.Any())
 				{
 					foreach (var sent in sentences)
 					{
+						if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sent.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sent.Author)))
+						{
+							// If for whatever reason something that shouldn't appear with our filter shows up, output the messages as is
+							logger.LogError(
+								"Somehow, a message was returned that doesn't match our filter while generating. This is VERY BAD." + Environment.NewLine + "Filter: {filter}" + Environment.NewLine + "Sentence Data: {sentence}",
+								"\n\tOIDs: " + string.Join(' ', filter.OIDs.ToString()) + "\n\tAuthors: " + string.Join(' ', filter.Authors.ToString()), $"\n\tOID: {sent.OID}\n\tAuthor: {sent.Author}"
+							);
+							return string.Join(' ', tokenizedSentence);
+						}
 						prevIDs.Add(sent.OID);
 						currentPastaLength++;
 

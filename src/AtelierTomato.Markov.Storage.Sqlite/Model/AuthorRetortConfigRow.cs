@@ -4,16 +4,17 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 {
 	public class AuthorRetortConfigRow
 	{
-		public string Author { get; set; }
-		public string Location { get; set; }
-		public string DisplayOption { get; set; }
-		public string FilterOIDs { get; set; }
-		public string FilterAuthors { get; set; }
-		public string? AuthorGroup { get; set; }
-		public string? LocationGroup { get; set; }
+		public string Author { get; set; } = string.Empty;
+		public string Location { get; set; } = string.Empty;
+		public string DisplayOption { get; set; } = string.Empty;
+		public string FilterOIDs { get; set; } = string.Empty;
+		public string FilterAuthors { get; set; } = string.Empty;
+		public ulong? AuthorGroup { get; set; }
+		public ulong? LocationGroup { get; set; }
 		public string? Keyword { get; set; }
 		public string? FirstWord { get; set; }
-		public AuthorRetortConfigRow(string author, string location, string displayOption, string filterOIDs, string filterAuthors, string? authorGroup = null, string? locationGroup = null, string? keyword = null, string? firstWord = null)
+		public AuthorRetortConfigRow() { }
+		public AuthorRetortConfigRow(string author, string location, string displayOption, string filterOIDs, string filterAuthors, ulong? authorGroup = null, ulong? locationGroup = null, string? keyword = null, string? firstWord = null)
 		{
 			Author = author;
 			Location = location;
@@ -32,8 +33,8 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 			DisplayOption = authorRetortConfig.DisplayOption.ToString();
 			FilterOIDs = string.Join(":::", authorRetortConfig.Filter.OIDs);
 			FilterAuthors = string.Join(":::", authorRetortConfig.Filter.Authors);
-			AuthorGroup = authorRetortConfig.AuthorGroup?.ToString();
-			LocationGroup = authorRetortConfig.LocationGroup?.ToString();
+			AuthorGroup = authorRetortConfig.AuthorGroup;
+			LocationGroup = authorRetortConfig.LocationGroup;
 			Keyword = authorRetortConfig.Keyword;
 			FirstWord = authorRetortConfig.FirstWord;
 		}
@@ -45,47 +46,17 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 				throw new InvalidOperationException($"{DisplayOption} is not a valid type of {nameof(DisplayOptionType)}");
 			}
 
-			// AUTHOR GROUP
-			Guid? authorGroup;
-			if (string.IsNullOrEmpty(AuthorGroup))
-			{
-				authorGroup = null;
-			}
-			else if (!Guid.TryParse(AuthorGroup, out Guid guid))
-			{
-				throw new InvalidOperationException($"{AuthorGroup} is not a valid {nameof(Guid)} value.");
-			}
-			else
-			{
-				authorGroup = guid;
-			}
-
-			// LOCATION GROUP
-			Guid? locationGroup;
-			if (string.IsNullOrEmpty(LocationGroup))
-			{
-				locationGroup = null;
-			}
-			else if (!Guid.TryParse(LocationGroup, out Guid guid))
-			{
-				throw new InvalidOperationException($"{LocationGroup} is not a valid {nameof(Guid)} value.");
-			}
-			else
-			{
-				locationGroup = guid;
-			}
-
 			// RETURN
 			return new AuthorRetortConfig(
 				AuthorOID.Parse(Author),
 				objectOIDParser.Parse(Location),
 				displayOption,
 				new SentenceFilter(
-					FilterOIDs.Split(":::").Select(objectOIDParser.Parse).ToList(),
-					FilterAuthors.Split(":::").Select(AuthorOID.Parse).ToList()
+					FilterOIDs.Split(":::").Where(s => !string.IsNullOrEmpty(s)).Select(objectOIDParser.Parse).ToList(),
+					FilterAuthors.Split(":::").Where(s => !string.IsNullOrEmpty(s)).Select(AuthorOID.Parse).ToList()
 				),
-				authorGroup,
-				locationGroup,
+				AuthorGroup,
+				LocationGroup,
 				Keyword,
 				FirstWord
 			);

@@ -64,7 +64,14 @@ ORDER BY LENGTH ({nameof(LocationSetting.ID)}) DESC
 
 			connection.Close();
 
-			return result.Select(l => l.ToLocationSetting(objectOIDParser));
+			if (result.Any())
+			{
+				return result.Select(l => l.ToLocationSetting(objectOIDParser));
+			}
+			else
+			{
+				return [];
+			}
 		}
 
 		public async Task<IEnumerable<LocationSetting>> ReadLocationSettingRangeByBaseLocation(IObjectOID ID)
@@ -86,7 +93,6 @@ ORDER BY LENGTH({nameof(LocationSetting.ID)}) ASC
 			connection.Close();
 
 			return result.Select(l => l.ToLocationSetting(objectOIDParser));
-
 		}
 
 		public async Task WriteLocationSetting(LocationSetting locationSetting) => await WriteLocationSettingRange([locationSetting]);

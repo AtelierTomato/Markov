@@ -19,6 +19,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		private readonly Regex replaceEmojiPattern = new(@"<a?:([^:]+):[0-9]+>", RegexOptions.Compiled);
 		private readonly Regex removeNegativeHeaderPattern = new(@"(?<=^|\n)(-# )(?=\S)", RegexOptions.Compiled);
 		private readonly Regex replaceTimestampPattern = new(@"<t:(\d+):([RDdTtFf])>", RegexOptions.Compiled);
+		private readonly Regex removeDiscordInvitePattern = new(@"discord\.gg/\S+");
 
 		private readonly DiscordSentenceParserOptions discordOptions;
 		private readonly MarkdownPipeline pipeline;
@@ -49,6 +50,7 @@ namespace AtelierTomato.Markov.Service.Discord
 			text = RemoveNegativeHeader(text);
 			text = EscapeQuoteArrow(text);
 			text = Markdown.ToPlainText(text, pipeline);
+			text = RemoveDiscordInvite(text);
 
 			return base.ParseIntoSentenceTexts(text).Select(ReplaceEmoji);
 		}
@@ -136,6 +138,7 @@ namespace AtelierTomato.Markov.Service.Discord
 		private string DeleteCodeBlocks(string text) => codeBlockPattern.Replace(text, Environment.NewLine);
 		private string DeleteInlineCodeBlocks(string text) => inlineCodeBlockPattern.Replace(text, " ");
 		private string EscapeQuoteArrow(string text) => escapeQuoteArrowPattern.Replace(text, m => "\\" + m.Groups[1].Value);
+		private string RemoveDiscordInvite(string text) => removeDiscordInvitePattern.Replace(text, "");
 		private string RemoveNegativeHeader(string text) => removeNegativeHeaderPattern.Replace(text, m => "");
 		private string ReplaceTimestamps(string text, DateTimeOffset dateSent) => replaceTimestampPattern.Replace(text, m =>
 		{
@@ -160,6 +163,5 @@ namespace AtelierTomato.Markov.Service.Discord
 			};
 		});
 		private string ReplaceEmoji(string text) => replaceEmojiPattern.Replace(text, m => "e:" + m.Groups[1].Value + ":");
-		protected override IEnumerable<string> TokenizeProcessedSentence(string s) => s.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Where(w => !w.Contains("discord.gg"));
 	}
 }

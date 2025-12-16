@@ -14,7 +14,7 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			this.options = options.Value;
 		}
 
-		public async Task DeleteAuthorFromAuthorGroup(Guid ID, AuthorOID author)
+		public async Task DeleteAuthorFromAuthorGroup(ulong ID, AuthorOID author)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -22,14 +22,14 @@ namespace AtelierTomato.Markov.Storage.Sqlite
 			await connection.ExecuteAsync($@"DELETE FROM {nameof(AuthorGroupPermission)} WHERE {nameof(AuthorGroupPermission.ID)} IS @id AND {nameof(AuthorGroupPermission.Author)} IS @author",
 				new
 				{
-					id = ID.ToString(),
+					id = ID,
 					author = author.ToString()
 				});
 
 			connection.Close();
 		}
 
-		public async Task<AuthorGroupPermission?> ReadAuthorGroupPermission(Guid ID, AuthorOID author)
+		public async Task<AuthorGroupPermission?> ReadAuthorGroupPermission(ulong ID, AuthorOID author)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -41,7 +41,7 @@ SELECT {nameof(AuthorGroupPermission.ID)}, {nameof(AuthorGroupPermission.Author)
 ",
 			new
 			{
-				id = ID.ToString(),
+				id = ID,
 				author = author.ToString()
 			});
 
@@ -69,7 +69,7 @@ WHERE {nameof(AuthorGroupPermission.Author)} IS @author
 			return result.Select(u => u.ToAuthorGroupPermission());
 		}
 
-		public async Task<IEnumerable<AuthorGroupPermission>> ReadAuthorGroupPermissionRangeByID(Guid ID)
+		public async Task<IEnumerable<AuthorGroupPermission>> ReadAuthorGroupPermissionRangeByID(ulong ID)
 		{
 			await using var connection = new SqliteConnection(options.ConnectionString);
 			connection.Open();
@@ -80,7 +80,7 @@ WHERE {nameof(AuthorGroupPermission.ID)} IS @id
 ",
 			new
 			{
-				id = ID.ToString()
+				id = ID
 			});
 
 			connection.Close();

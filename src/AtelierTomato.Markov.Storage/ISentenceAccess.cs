@@ -31,7 +31,7 @@ namespace AtelierTomato.Markov.Storage
 		/// <param name="filter">The <see cref="SentenceFilter"/> that the resulting <see cref="Sentence"/>s must match.</param>
 		/// <param name="searchString">The string that the resulting <see cref="Sentence"/>s must contain.</param>
 		/// <returns></returns>
-		Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null);
+		Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null, int? count = null);
 
 		Task WriteSentence(Sentence sentence);
 

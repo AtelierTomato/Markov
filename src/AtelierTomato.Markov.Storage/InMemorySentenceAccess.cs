@@ -16,8 +16,8 @@ namespace AtelierTomato.Markov.Storage
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
 			sentenceStorage.RemoveAll(s =>
-				(filter.OIDs is [] || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
-				(filter.Authors is [] || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) && (searchString is null || s.Text.Contains(searchString)));
+				(filter.OIDs is [] || filter.OIDs.Any(oid => oid.IsParentOrEqualTo(s.OID))) &&
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author == author)) && (searchString is null || s.Text.Contains(searchString)));
 			return Task.CompletedTask;
 		}
 
@@ -52,13 +52,18 @@ namespace AtelierTomato.Markov.Storage
 			return sentenceQueryResult[random.Next(sentenceQueryResult.Count - 1)];
 		}
 
-		public Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
+		public Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null, int? count = null)
 		{
-			return Task.FromResult(sentenceStorage.Where(s =>
-				(filter.OIDs is [] || filter.OIDs.Any(oid => s.OID.ToString().StartsWith(oid.ToString(), StringComparison.InvariantCultureIgnoreCase))) &&
-				(filter.Authors is [] || filter.Authors.Any(author => s.Author.ToString() == author.ToString())) &&
+			var filteredSentences = sentenceStorage.Where(s =>
+				(filter.OIDs is [] || filter.OIDs.Any(oid => oid.IsParentOrEqualTo(s.OID))) &&
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author == author)) &&
 				(searchString is null || s.Text.Contains(searchString))
-			));
+			);
+			if (count.HasValue)
+			{
+				filteredSentences = filteredSentences.Take(count.Value);
+			}
+			return Task.FromResult(filteredSentences);
 		}
 
 		public Task WriteSentence(Sentence sentence)

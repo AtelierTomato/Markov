@@ -6,10 +6,11 @@ namespace AtelierTomato.Markov.Storage.Sqlite.Model
 	// All string version of Sentence, used as a return type of queries that .ToString() the Sentence in however they store the Sentence.
 	internal sealed class SentenceRow
 	{
-		public string OID { get; set; }
-		public string Author { get; set; }
-		public string Date { get; set; }
-		public string Text { get; set; }
+		public string OID { get; set; } = string.Empty;
+		public string Author { get; set; } = string.Empty;
+		public string Date { get; set; } = string.Empty;
+		public string Text { get; set; } = string.Empty;
+		public SentenceRow() { }
 		public SentenceRow(string OID, string author, string date, string text)
 		{
 			this.OID = OID;

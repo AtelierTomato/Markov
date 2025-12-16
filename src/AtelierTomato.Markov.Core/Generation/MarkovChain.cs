@@ -25,9 +25,13 @@ namespace AtelierTomato.Markov.Core.Generation
 				if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sentence.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sentence.Author)))
 				{
 					// If for whatever reason something that shouldn't appear with our filter shows up, return nothing
-					logger.LogError(
-						"Somehow, a message was returned that doesn't match our filter while generating. This is VERY BAD." + Environment.NewLine + "Filter: {filter}" + Environment.NewLine + "Sentence Data: {sentence}",
-						"\n\tOIDs: " + string.Join(' ', filter.OIDs.Select(o => o.ToString())) + "\n\tAuthors: " + string.Join(' ', filter.Authors.Select(a => a.ToString())), $"\n\tOID: {sentence.OID}\n\tAuthor: {sentence.Author}"
+					_logInvalidFilteredSentence(
+						logger,
+						string.Join(' ', filter.OIDs.Select(o => o.ToString())),
+						string.Join(' ', filter.Authors.Select(a => a.ToString())),
+						sentence.OID.ToString(),
+						sentence.Author.ToString(),
+						null
 					);
 					return string.Empty;
 				}
@@ -68,9 +72,13 @@ namespace AtelierTomato.Markov.Core.Generation
 						if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sent.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sent.Author)))
 						{
 							// If for whatever reason something that shouldn't appear with our filter shows up, output the messages as is
-							logger.LogError(
-								"Somehow, a message was returned that doesn't match our filter while generating. This is VERY BAD." + Environment.NewLine + "Filter: {filter}" + Environment.NewLine + "Sentence Data: {sentence}",
-								"\n\tOIDs: " + string.Join(' ', filter.OIDs.ToString()) + "\n\tAuthors: " + string.Join(' ', filter.Authors.ToString()), $"\n\tOID: {sent.OID}\n\tAuthor: {sent.Author}"
+							_logInvalidFilteredSentence(
+								logger,
+								string.Join(' ', filter.OIDs.Select(o => o.ToString())),
+								string.Join(' ', filter.Authors.Select(a => a.ToString())),
+								sent.OID.ToString(),
+								sent.Author.ToString(),
+								null
 							);
 							return string.Join(' ', tokenizedSentence);
 						}
@@ -142,5 +150,27 @@ namespace AtelierTomato.Markov.Core.Generation
 			var discardThreshold = 1 - Math.Pow(1 - options.CopyPastaKillingProbability, currentPastaLength);
 			return random.NextDouble() < discardThreshold;
 		}
+
+		private static readonly Action<
+			ILogger,
+			string, // OIDs
+			string, // Authors
+			string, // SentenceOID
+			string, // SentenceAuthor
+			Exception?
+		> _logInvalidFilteredSentence =
+			LoggerMessage.Define<string, string, string, string>(
+				LogLevel.Error,
+				new EventId(6, nameof(Generate)),
+"""
+Somehow, a message was returned that doesn't match our filter while generating. This is VERY BAD.
+Filter:
+	OIDs: {OIDs}
+	Authors: {Authors}
+Sentence Data:
+	OID: {SentenceOID}
+	Author: {SentenceAuthor}
+"""
+			);
 	}
 }

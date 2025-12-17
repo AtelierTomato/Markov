@@ -160,5 +160,26 @@ namespace AtelierTomato.Markov.Bot.Discord.Core.CommandModules
 			}
 			await ReplyAsync(embed: helpContentBuilder.BuildForSubject(HelpSubject.SetLocationGroup).Build());
 		}
+
+		[Command("refreshowner")]
+		[Alias("ro")]
+		[Summary("Checks, updates, and sends the owner of the Guild.")]
+		public async Task RefreshOwner()
+		{
+			var authorOID = new AuthorOID(ServiceType.Discord, options.DiscordInstance, Context.User.Id.ToString());
+			var location = await objectOIDBuilder.Build(Context.Guild, Context.Channel, options.DiscordInstance);
+			if (!cooldown.HandleCooldown(authorOID, location, CooldownType.Default))
+			{
+				await ReplyAsync(message: "slow down!!");
+				return;
+			}
+
+			var guild = Context.Guild;
+			var owner = new AuthorOID(ServiceType.Discord, options.DiscordInstance, guild.Owner.Id.ToString());
+			IEnumerable<Location> locations = [new Location(DiscordObjectOID.ForServer(options.DiscordInstance, guild.Id), guild.Name, owner)];
+			locations = locations.Concat(await Task.WhenAll(guild.Channels.Select(async c => new Location(await objectOIDBuilder.Build(guild, c, options.DiscordInstance), c.Name, owner))));
+			await locationAccess.WriteLocationRange(locations);
+			await ReplyAsync($"owner for guild {guild.Id} \"{guild.Name}\" updated to {guild.Owner.Id} \"{guild.Owner.GlobalName}\"!");
+		}
 	}
 }

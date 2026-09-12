@@ -21,6 +21,7 @@
 		SpeakKeyword,
 		Global,
 		SetLocationGroup,
+		RefreshOwner,
 		LocationGroup,
 		CreateLocationGroup,
 		RenameLocationGroup,

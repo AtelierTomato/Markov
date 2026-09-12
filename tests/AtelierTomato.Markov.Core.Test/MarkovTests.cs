@@ -3,7 +3,7 @@ using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Model.ObjectOID;
 using AtelierTomato.Markov.Storage;
 using FluentAssertions;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -16,9 +16,8 @@ namespace AtelierTomato.Markov.Core.Test
 		{
 			var options = Options.Create(new MarkovChainOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
-			var logger = NullLogger<MarkovChain>.Instance;
 
-			var target = new MarkovChain(sentenceAccess, options, logger);
+			var target = new MarkovChain(sentenceAccess, options, Mock.Of<ILogger<MarkovChain>>());
 
 			target.Should().NotBeNull().And.BeOfType<MarkovChain>();
 		}
@@ -29,9 +28,8 @@ namespace AtelierTomato.Markov.Core.Test
 			var options = Options.Create(new MarkovChainOptions { });
 			var sentenceAccess = Mock.Of<ISentenceAccess>();
 			var filter = new SentenceFilter([], []);
-			var logger = NullLogger<MarkovChain>.Instance;
 
-			var target = new MarkovChain(sentenceAccess, options, logger);
+			var target = new MarkovChain(sentenceAccess, options, Mock.Of<ILogger<MarkovChain>>());
 			var result = await target.Generate(filter);
 			result.Should().Be(string.Empty);
 		}
@@ -44,9 +42,8 @@ namespace AtelierTomato.Markov.Core.Test
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 			var filter = new SentenceFilter(null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-			var logger = NullLogger<MarkovChain>.Instance;
 
-			var target = new MarkovChain(sentenceAccess, options, logger);
+			var target = new MarkovChain(sentenceAccess, options, Mock.Of<ILogger<MarkovChain>>());
 			var result = await target.Generate(filter);
 			result.Should().Be(string.Empty);
 		}
@@ -82,8 +79,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceRange);
-			var logger = NullLogger<MarkovChain>.Instance;
-			MarkovChain generator = new(sentenceAccess, Options.Create(new MarkovChainOptions { }), logger);
+			MarkovChain generator = new(sentenceAccess, Options.Create(new MarkovChainOptions { }), Mock.Of<ILogger<MarkovChain>>());
 			var result = await generator.Generate(new SentenceFilter([], []), null, "lol");
 			result.Should().Be("lol this is my head");
 		}
@@ -118,8 +114,7 @@ namespace AtelierTomato.Markov.Core.Test
 			];
 			InMemorySentenceAccess sentenceAccess = new();
 			await sentenceAccess.WriteSentenceRange(sentenceRange);
-			var logger = NullLogger<MarkovChain>.Instance;
-			MarkovChain generator = new(sentenceAccess, Options.Create(new MarkovChainOptions { }), logger);
+			MarkovChain generator = new(sentenceAccess, Options.Create(new MarkovChainOptions { }), Mock.Of<ILogger<MarkovChain>>());
 			var result = await generator.Generate(new SentenceFilter([], []));
 			result.Should().StartWith("look at this");
 			result.Should().NotBe("look at this");

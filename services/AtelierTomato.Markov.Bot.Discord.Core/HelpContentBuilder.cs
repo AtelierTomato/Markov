@@ -87,6 +87,9 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 				case string when input.Equals("setlocationgroup", StringComparison.InvariantCultureIgnoreCase):
 				case string when input.Equals("slg", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.SetLocationGroup;
+				case string when input.Equals("refreshowner", StringComparison.InvariantCultureIgnoreCase):
+				case string when input.Equals("ro", StringComparison.InvariantCultureIgnoreCase):
+					return HelpSubject.RefreshOwner;
 				case string when input.Equals("locationgroup", StringComparison.InvariantCultureIgnoreCase):
 					return HelpSubject.LocationGroup;
 				case string when input.Equals("createlocationgroup", StringComparison.InvariantCultureIgnoreCase):
@@ -244,7 +247,7 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 						new EmbedFieldBuilder { IsInline = true, Name = "**Settings Commands**", Value = "`global` `setlocationgroup` `retort`" },
 						new EmbedFieldBuilder { IsInline = false, Name = "**LocationGroup Commands**", Value = "`createlocationgroup` `renamelocationgroup` `deletelocationgroup` `invitelocation` `acceptlocationinvite` `denylocationinvite` `updatelocation` `removelocation` `locationrequestlist` `locationgrouplist` `locationgroupinfo`" },
 						new EmbedFieldBuilder { IsInline = false, Name = "**AuthorGroup Commands**", Value = "`createauthorgroup` `renameauthorgroup` `deleteauthorgroup` `inviteauthor` `acceptauthorinvite` `denyauthorinvite` `updateauthor` `removeauthor` `leaveauthorgroup` `authorrequestlist` `authorgrouplist` `authorgroupinfo`" },
-						new EmbedFieldBuilder { IsInline = true, Name = "**Other Commands**", Value = "`ping` `querysentences` `deletesentences` `gettingstarted` `faq` `calculate` `roll` `rollrepeat`" },
+						new EmbedFieldBuilder { IsInline = true, Name = "**Other Commands**", Value = "`ping` `querysentences` `deletesentences` `gettingstarted` `faq` `refreshowner` `calculate` `roll` `rollrepeat`" },
 						new EmbedFieldBuilder { IsInline = true, Name = "**Developer Commands**", Value = "`say` `announce` `leave` `serverlist` `channellist`" },
 						new EmbedFieldBuilder { IsInline = true, Name = "**Other Help Topics**", Value = "`scope` `location` `author` `locationgroup` `authorgroup`"}
 					}
@@ -446,6 +449,11 @@ namespace AtelierTomato.Markov.Bot.Discord.Core
 					$"Requires a Location or a Scope (see `{options.BotPrefix}help {HelpSubject.Location}` and `{options.BotPrefix}help {HelpSubject.Scope}`) as a parameter, and the ID of a LocationGroup. " +
 					"To unset the LocationGroup for a Location, use only a Location and a Scope with this command, and no LocationGroup ID.",
 					Footer = new EmbedFooterBuilder { Text = $"Example: {options.BotPrefix}slg Server 143" }
+				},
+				HelpSubject.RefreshOwner => new EmbedBuilder
+				{
+					Title = "Refresh Owner Help",
+					Description = $"Checks, updates, and outputs the Owner of a Server. Useful when {options.BotName} fails to properly update the Owner of a Server when it has changed."
 				},
 				HelpSubject.LocationGroup => new EmbedBuilder
 				{

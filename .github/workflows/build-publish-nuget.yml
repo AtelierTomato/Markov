@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -23,7 +26,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       - name: Restore dependencies
         run: |
@@ -42,9 +45,15 @@ jobs:
           for proj in $(find src -type f -name '*.csproj'); do
             dotnet pack "$proj" --configuration Release --no-build
           done
+          
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: suflors
 
       - name: Publish to NuGet.org
-        run: dotnet nuget push src/**/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+        run: dotnet nuget push src/**/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate --no-service-endpoint
 
       - name: Publish to GitHub Packages
         run: dotnet nuget push src/**/*.nupkg --api-key ${{ secrets.GH_TOKEN }} --source "https://nuget.pkg.github.com/AtelierTomato/index.json" --skip-duplicate

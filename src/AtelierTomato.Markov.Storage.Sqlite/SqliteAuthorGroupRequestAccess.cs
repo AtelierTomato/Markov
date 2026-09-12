@@ -1,4 +1,5 @@
-﻿using AtelierTomato.Markov.Model;
+﻿using System.Globalization;
+using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Storage.Sqlite.Model;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -80,7 +81,7 @@ WHERE {nameof(AuthorGroupPermission.ID)} IS @id
 ",
 			new
 			{
-				id = ID.ToString()
+				id = ID.ToString(CultureInfo.InvariantCulture)
 			});
 
 			connection.Close();

@@ -2,6 +2,9 @@
 
 namespace AtelierTomato.Markov.Storage
 {
+	/// <summary>
+	/// Internal use only, due to lack of persistence this is not to be used in production.
+	/// </summary>
 	public class InMemorySentenceAccess : ISentenceAccess
 	{
 		private readonly Random random = new();
@@ -9,30 +12,39 @@ namespace AtelierTomato.Markov.Storage
 		public IReadOnlyList<Sentence> SentenceStorage { get => sentenceStorage; }
 		public Task DeleteSentenceRange(SentenceFilter filter, string? searchString = null)
 		{
-			if (filter.OID is null && filter.Author is null && searchString is null)
+			if (filter is { Authors: [], OIDs: [] } && string.IsNullOrWhiteSpace(searchString))
 				throw new ArgumentException("You cannot delete all sentences from the database through this command, at least one part of the filter must have a value.", nameof(filter));
 
 			sentenceStorage.RemoveAll(s =>
-				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString(), StringComparison.InvariantCultureIgnoreCase)) &&
-				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
-				(searchString is null || s.Text.Contains(searchString)));
+				(filter.OIDs is [] || filter.OIDs.Any(oid => oid.IsParentOrEqualTo(s.OID))) &&
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author == author)) && (searchString is null || s.Text.Contains(searchString)));
 			return Task.CompletedTask;
 		}
 
-		public async Task<Sentence?> ReadNextRandomSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
+		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
 			List<Sentence>? sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			if (sentenceQueryResult is null or [])
 			{
-				return null;
+				sentenceQueryResult = (await ReadSentenceRange(filter)).Where(s => s.Text.Contains(string.Join(' ', prevList))).Where(s => !previousIDs.Contains(s.OID)).ToList();
 			}
+			if (sentenceQueryResult is null or [])
+			{
+				return [];
+			}
+			sentenceQueryResult = sentenceQueryResult.OrderBy(x => random.Next()).ToList();
+			var resultCount = Math.Min(amount, sentenceQueryResult.Count);
 
-			return sentenceQueryResult[random.Next(sentenceQueryResult.Count - 1)];
+			return sentenceQueryResult.Take(resultCount);
 		}
 
-		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null)
+		public async Task<Sentence?> ReadRandomSentence(SentenceFilter filter, string? keyword = null, IObjectOID? queryScope = null)
 		{
 			List<Sentence> sentenceQueryResult = (await ReadSentenceRange(filter, keyword)).ToList();
+			if (sentenceQueryResult is null or [])
+			{
+				sentenceQueryResult = (await ReadSentenceRange(filter)).ToList();
+			}
 			if (sentenceQueryResult is null or [])
 			{
 				return null;
@@ -40,13 +52,18 @@ namespace AtelierTomato.Markov.Storage
 			return sentenceQueryResult[random.Next(sentenceQueryResult.Count - 1)];
 		}
 
-		public Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null)
+		public Task<IEnumerable<Sentence>> ReadSentenceRange(SentenceFilter filter, string? searchString = null, int? count = null)
 		{
-			return Task.FromResult(sentenceStorage.Where(s =>
-				(filter.OID is null || s.OID.ToString().StartsWith(filter.OID.ToString(), StringComparison.InvariantCultureIgnoreCase)) &&
-				(filter.Author is null || s.Author.ToString() == filter.Author.ToString()) &&
+			var filteredSentences = sentenceStorage.Where(s =>
+				(filter.OIDs is [] || filter.OIDs.Any(oid => oid.IsParentOrEqualTo(s.OID))) &&
+				(filter.Authors is [] || filter.Authors.Any(author => s.Author == author)) &&
 				(searchString is null || s.Text.Contains(searchString))
-			));
+			);
+			if (count.HasValue)
+			{
+				filteredSentences = filteredSentences.Take(count.Value);
+			}
+			return Task.FromResult(filteredSentences);
 		}
 
 		public Task WriteSentence(Sentence sentence)

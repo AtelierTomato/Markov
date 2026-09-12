@@ -11,4 +11,100 @@ CREATE TABLE IF NOT EXISTS "WordStatistic" (
 	"Appearances"	INTEGER NOT NULL,
 	PRIMARY KEY("Name")
 );
+CREATE TABLE IF NOT EXISTS "Author" (
+	"ID"	TEXT NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
+	PRIMARY KEY("ID")
+);
+CREATE TABLE IF NOT EXISTS "Location" (
+	"ID"	TEXT NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
+	"Owner"	TEXT NOT NULL,
+	PRIMARY KEY("ID")
+);
+CREATE TABLE IF NOT EXISTS "LocationSetting" (
+	"ID"	TEXT NOT NULL,
+	"WriteReactions"	TEXT NOT NULL,
+	"DeleteReactions"	TEXT NOT NULL,
+	"FailReactions"	TEXT NOT NULL,
+	"GlobalAllowed"	INTEGER,
+	"LocationGroup"	INTEGER,
+	PRIMARY KEY("ID")
+);
+CREATE TABLE IF NOT EXISTS "AuthorPermission" (
+	"Author"	TEXT NOT NULL,
+	"QueryScope"	TEXT NOT NULL,
+	"AllowedScope"	TEXT,
+	PRIMARY KEY("Author","QueryScope")
+);
+CREATE VIEW IF NOT EXISTS SentenceAfterLinkWithPermission As
+	SELECT s.OID, s.Author, s.Date, s.Text, up.AllowedScope
+	FROM Sentence s
+	INNER JOIN AuthorPermission up
+	ON s.Author = up.Author
+	AND (
+		up.QueryScope IS '' 
+		OR INSTR(s.OID, up.QueryScope) = 1
+	)
+	WHERE LENGTH(COALESCE(up.QueryScope, '')) = (
+		SELECT MAX(LENGTH(COALESCE(up2.QueryScope, '')))
+		FROM AuthorPermission up2
+		WHERE s.Author = up2.Author
+		AND (
+			up2.QueryScope IS NULL 
+			OR INSTR(s.OID, up2.QueryScope) = 1
+		)
+	);
+CREATE TABLE IF NOT EXISTS "AuthorGroup" (
+	"ID"	INTEGER NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
+	PRIMARY KEY("ID" AUTOINCREMENT)
+	CHECK("ID" > 0)
+);
+CREATE TABLE IF NOT EXISTS "AuthorGroupPermission" (
+	"ID"	INTEGER NOT NULL,
+	"Author"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Author")
+);
+CREATE TABLE IF NOT EXISTS "AuthorGroupRequest" (
+	"ID"	INTEGER NOT NULL,
+	"Author"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "AuthorGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Author")
+);
+CREATE TABLE IF NOT EXISTS "AuthorRetortConfig" (
+	"Author" TEXT NOT NULL,
+	"Location" TEXT NOT NULL,
+	"DisplayOption" TEXT NOT NULL,
+	"FilterOIDs" TEXT NOT NULL,
+	"FilterAuthors" TEXT NOT NULL,
+	"AuthorGroup" INTEGER,
+	"LocationGroup" INTEGER,
+	"Keyword" TEXT,
+	"FirstWord" TEXT,
+	PRIMARY KEY("Author","Location")
+);
+CREATE TABLE IF NOT EXISTS "LocationGroup" (
+	"ID"	INTEGER NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
+	PRIMARY KEY("ID" AUTOINCREMENT),
+	CHECK("ID" > 0)
+);
+CREATE TABLE IF NOT EXISTS "LocationGroupPermission" (
+	"ID"	INTEGER NOT NULL,
+	"Location"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "LocationGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Location")
+);
+CREATE TABLE IF NOT EXISTS "LocationGroupRequest" (
+	"ID"	INTEGER NOT NULL,
+	"Location"	TEXT NOT NULL,
+	"Permissions"	TEXT,
+	FOREIGN KEY("ID") REFERENCES "LocationGroup"("ID") ON DELETE CASCADE,
+	PRIMARY KEY("ID","Location")
+);
 COMMIT;

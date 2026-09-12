@@ -1,0 +1,22 @@
+﻿using AtelierTomato.Markov.Model;
+
+namespace AtelierTomato.Markov.Storage.Sqlite.Model
+{
+	public class AuthorRow
+	{
+		public string ID { get; set; } = string.Empty;
+		public string Name { get; set; } = string.Empty;
+		public AuthorRow() { }
+		public AuthorRow(string ID, string name)
+		{
+			this.ID = ID;
+			Name = name;
+		}
+		public AuthorRow(Author author)
+		{
+			ID = author.ID.ToString();
+			Name = author.Name;
+		}
+		public Author ToAuthor() => new(AuthorOID.Parse(ID), Name);
+	}
+}

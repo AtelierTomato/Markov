@@ -14,6 +14,7 @@ namespace AtelierTomato.Markov.Core.Test
 		[InlineData(@"the students' council decided you die today", @"the students ' council decided you die today")]
 		[InlineData(@"check out http://zombo.com the best website", @"check out the best website")]
 		[InlineData(@"funny money :laala: time yo", @"funny money :laala : time yo")]
+		[InlineData(@":madou: 1 2 3 4 :mikanScreech: :gregor:", @":madou : 1 2 3 4 :mikanScreech : :gregor :")]
 		public void ParseSimpleText(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -110,7 +111,9 @@ Life in the Vault is about to change.";
 				["lisp is “fun”, unless you “defun x”.", new string[] { "lisp is “ fun ” , unless you “ defun x ” ." }],
 				[">implying that i'm implying", new string[] { "> implying that i 'm implying" }],
 				[">implying that i am implying", new string[] { "> implying that i am implying" }],
-				["i want to eat—drink water", new string[] { "i want to eat — drink water" }]
+				["i want to eat—drink water", new string[] { "i want to eat — drink water" }],
+				["i want to eat/drink water", new string[] { "i want to eat / drink water" }],
+				["i want to eat\\drink water", new string[] { "i want to eat \\ drink water" }]
 			];
 		}
 
@@ -144,6 +147,26 @@ Life in the Vault is about to change.";
 			var result = target.ParseIntoSentenceTexts(input);
 
 			result.Should().ContainSingle().And.Contain(output);
+		}
+
+		[Theory]
+		[InlineData("(this is a sentence in parentheses.) This is sentence number two", new string[] { "( this is a sentence in parentheses . )", "This is sentence number two" })]
+		[InlineData("[this is a sentence in brackets.] This is sentence number two", new string[] { "[ this is a sentence in brackets . ]", "This is sentence number two" })]
+		[InlineData("{this is a sentence in curly braces.} This is sentence number two", new string[] { "{ this is a sentence in curly braces . }", "This is sentence number two" })]
+		[InlineData("\"this is a sentence in quotes.\" This is sentence number two", new string[] { "\" this is a sentence in quotes . \"", "This is sentence number two" })]
+		[InlineData("»this is a sentence in quotes.« This is sentence number two", new string[] { "» this is a sentence in quotes . «", "This is sentence number two" })]
+		[InlineData("«this is a sentence in quotes.» This is sentence number two", new string[] { "« this is a sentence in quotes . »", "This is sentence number two" })]
+		[InlineData("“this is a sentence in quotes.” This is sentence number two", new string[] { "“ this is a sentence in quotes . ”", "This is sentence number two" })]
+		[InlineData("[(this is a sentence in multiple closers.)] This is sentence number two", new string[] { "[ ( this is a sentence in multiple closers . ) ]", "This is sentence number two" })]
+		[InlineData("(this is a sentence in parentheses. ) This is sentence number two", new string[] { "( this is a sentence in parentheses .", ") This is sentence number two" })]
+		public void CaptureTrailingPunctuationTests(string input, IEnumerable<string> output)
+		{
+			var options = new SentenceParserOptions();
+			var target = new SentenceParser(Options.Create(options));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
 		}
 	}
 }

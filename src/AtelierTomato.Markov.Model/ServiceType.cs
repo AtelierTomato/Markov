@@ -2,7 +2,7 @@
 {
 	public enum ServiceType
 	{
-		Invalid = 0,
+		Special = 0,
 		Book = 1,
 		Discord = 2,
 	}

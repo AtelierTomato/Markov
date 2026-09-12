@@ -1,0 +1,935 @@
+﻿using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Model.ObjectOID;
+using AtelierTomato.Markov.Storage;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
+
+namespace AtelierTomato.Markov.Core.Test
+{
+	public class LocationGroupManagerTests
+	{
+		private readonly ulong id = 53;
+		private readonly AuthorOID sender = AuthorOID.Parse("Discord:discord.com:142781100152848384");
+		private readonly AuthorOID author = AuthorOID.Parse("Discord:discord.com:644249977840730118");
+		private readonly DiscordObjectOID senderLocation = DiscordObjectOID.Parse("Discord:discord.com:1196939360080253061");
+		private readonly DiscordObjectOID location = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248");
+
+		[Theory]
+		[InlineData(null)]
+		[InlineData("")]
+		[InlineData(" ")]
+		public async Task CreateGroupNameEmptyFailTest(string? name)
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+#pragma warning disable CS8604 // Possible null reference argument.
+			Func<Task> act = async () => await locationGroupManager.CreateGroup(sender, senderLocation, name);
+#pragma warning restore CS8604 // Possible null reference argument.
+			await act.Should().ThrowAsync<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'name')");
+		}
+
+		[Fact]
+		public async Task CreateGroupNoOwnerFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(null))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.CreateGroup(sender, senderLocation, "MyNewGroup");
+			await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Cannot process {nameof(LocationGroup)} creation as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
+			Mock.Get(locationAccess).Verify();
+		}
+
+		[Fact]
+		public async Task CreateGroupDifferentOwnerFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(author))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.CreateGroup(sender, senderLocation, "MyNewGroup");
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{author}" of {nameof(Location)} "{senderLocation}". (Parameter '{nameof(senderLocation)}')""");
+			Mock.Get(locationAccess).Verify();
+		}
+
+		[Fact]
+		public async Task CreateGroupTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(sender))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.CreateGroup(sender, senderLocation, "MyNewGroup");
+			Mock.Get(locationAccess).Verify();
+			Mock.Get(locationGroupAccess).Verify(g => g.WriteNewLocationGroup("MyNewGroup"), Times.Once());
+			Mock.Get(locationGroupPermissionAccess).Verify(g => g.WriteLocationGroupPermission(It.IsAny<LocationGroupPermission>()), Times.Once());
+		}
+
+		[Theory]
+		[InlineData(null)]
+		[InlineData("")]
+		[InlineData(" ")]
+		public async Task RenameGroupNameEmptyFailTest(string? name)
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+#pragma warning disable CS8604 // Possible null reference argument.
+			Func<Task> act = async () => await locationGroupManager.RenameGroup(sender, id, name);
+#pragma warning restore CS8604 // Possible null reference argument.
+			await act.Should().ThrowAsync<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'name')");
+		}
+
+		[Fact]
+		public async Task RenameGroupNoPermissionFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.RenameGroup(sender, id, "MyNewerGroup");
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to rename group with ID "{id}". (Parameter '{nameof(sender)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task RenameGroupTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RenameGroup))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.RenameGroup(sender, id, "MyNewerGroup");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationGroupAccess).Verify(g => g.WriteLocationGroup(It.Is<LocationGroup>(lg => lg.ID == id && lg.Name == "MyNewerGroup")), Times.Once());
+		}
+
+		[Fact]
+		public async Task DeleteGroupNoPermissionFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.DeleteGroup(sender, id);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to delete group with ID "{id}". (Parameter '{nameof(sender)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task DeleteGroupTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.DeleteGroup))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.DeleteGroup(sender, id);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationGroupAccess).Verify(g => g.DeleteLocationGroup(id), Times.Once());
+		}
+
+		[Fact]
+		public async Task SendOrUpdateLocationGroupRequestNoPermissionFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.SendOrUpdateLocationGroupRequest(sender, new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup));
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to add locations to group with ID "{id}". (Parameter '{nameof(sender)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task SendOrUpdateLocationGroupRequestAlreadyMemberFailTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.AddLocation))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location))
+				.Returns(Task.FromResult<LocationGroupPermission?>(locationGroupPermission))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.SendOrUpdateLocationGroupRequest(sender, locationGroupPermission);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Location "{locationGroupPermission.Location}" is already registered to group with ID "{locationGroupPermission.ID}". (Parameter '{nameof(locationGroupPermission)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task SendOrUpdateLocationGroupRequestLackingPermissionsFailTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.AddLocation))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.SendOrUpdateLocationGroupRequest(sender, locationGroupPermission);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have some of the permissions they are trying to assign. (Parameter '{nameof(locationGroupPermission)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task SendOrUpdateLocationGroupRequestTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.AddLocation))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(locationGroupPermission.ID, locationGroupPermission.Location))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.SendOrUpdateLocationGroupRequest(sender, locationGroupPermission);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationGroupRequestAccess).Verify(g => g.WriteLocationGroupRequest(locationGroupPermission), Times.Once());
+		}
+
+		[Fact]
+		public async Task AcceptInvitationNoOwnerFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(null))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.AcceptInvitation(sender, senderLocation, id);
+			await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Cannot process {nameof(LocationGroup)}Request accepting as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
+			Mock.Get(locationAccess).Verify();
+		}
+
+		[Fact]
+		public async Task AcceptInvitationDifferentOwnerFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(author))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.AcceptInvitation(sender, senderLocation, id);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{author}" of {nameof(Location)} "{senderLocation}". (Parameter 'locationID')""");
+			Mock.Get(locationAccess).Verify();
+		}
+
+		[Fact]
+		public async Task AcceptInvitationNoInvitationFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(sender))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			Mock.Get(locationGroupRequestAccess)
+				.Setup(l => l.ReadLocationGroupRequest(id, senderLocation))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.AcceptInvitation(sender, senderLocation, id);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Location "{senderLocation}" has not been sent an invitation to group with ID "{id}". (Parameter 'ID')""");
+			Mock.Get(locationAccess).Verify();
+			Mock.Get(locationGroupRequestAccess).Verify();
+		}
+
+		[Fact]
+		public async Task AcceptInvitationTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(sender))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			Mock.Get(locationGroupRequestAccess)
+				.Setup(l => l.ReadLocationGroupRequest(id, senderLocation))
+				.Returns(Task.FromResult<LocationGroupPermission?>(locationGroupPermission))
+				.Verifiable();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.AcceptInvitation(sender, senderLocation, id);
+			Mock.Get(locationAccess).Verify();
+			Mock.Get(locationGroupRequestAccess).Verify();
+			Mock.Get(locationGroupPermissionAccess).Verify(g => g.WriteLocationGroupPermission(locationGroupPermission), Times.Once());
+			Mock.Get(locationGroupRequestAccess).Verify(g => g.DeleteLocationGroupRequest(id, senderLocation), Times.Once());
+		}
+
+		[Fact]
+		public async Task DenyInvitationNoOwnerFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(null))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.DenyInvitation(sender, senderLocation, id);
+			await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Cannot process {nameof(LocationGroup)}Request denying as the database returned no {nameof(Location.Owner)} for the {nameof(Location)}. Either run command Refresh{nameof(Location)} or contact the owner of the bot.");
+			Mock.Get(locationAccess).Verify();
+		}
+
+		[Fact]
+		public async Task DenyInvitationDifferentOwnerFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(author))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.DenyInvitation(sender, senderLocation, id);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" is not the same {nameof(Author)} as the {nameof(Location.Owner)} "{author}" of {nameof(Location)} "{senderLocation}". (Parameter 'locationID')""");
+			Mock.Get(locationAccess).Verify();
+		}
+
+		[Fact]
+		public async Task DenyInvitationNoInvitationFoundFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(sender))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			Mock.Get(locationGroupRequestAccess)
+				.Setup(l => l.ReadLocationGroupRequest(id, senderLocation))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.DenyInvitation(sender, senderLocation, id);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Location "{senderLocation}" has not been sent an invitation to group with ID "{id}". (Parameter 'ID')""");
+			Mock.Get(locationAccess).Verify();
+			Mock.Get(locationGroupRequestAccess).Verify();
+		}
+
+		[Fact]
+		public async Task DenyInvitationTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			Mock.Get(locationAccess)
+				.Setup(l => l.ReadLocationOwner(senderLocation))
+				.Returns(Task.FromResult<AuthorOID?>(sender))
+				.Verifiable();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			Mock.Get(locationGroupRequestAccess)
+				.Setup(l => l.ReadLocationGroupRequest(id, senderLocation))
+				.Returns(Task.FromResult<LocationGroupPermission?>(locationGroupPermission))
+				.Verifiable();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.DenyInvitation(sender, senderLocation, id);
+			Mock.Get(locationAccess).Verify();
+			Mock.Get(locationGroupRequestAccess).Verify();
+			Mock.Get(locationGroupRequestAccess).Verify(g => g.DeleteLocationGroupRequest(id, senderLocation), Times.Once());
+		}
+
+		[Fact]
+		public async Task UpdateLocationNoPermissionFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.UpdateLocation(sender, new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup));
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to add locations to group with ID "{id}". (Parameter '{nameof(sender)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task UpdateLocationLackingPermissionsFailTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.AddLocation))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.UpdateLocation(sender, locationGroupPermission);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have some of the permissions they are trying to assign. (Parameter '{nameof(locationGroupPermission)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task UpdateLocationTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.AddLocation);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.AddLocation))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(id, senderLocation))
+				.Returns(Task.FromResult<LocationGroupPermission?>(new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup)))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.UpdateLocation(sender, locationGroupPermission);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationGroupPermissionAccess).Verify(g => g.WriteLocationGroupPermission(locationGroupPermission), Times.Once());
+		}
+
+		[Fact]
+		public async Task RemoveLocationNoPermissionFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.RemoveLocation(sender, id, senderLocation);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have permission to remove locations from group with ID "{id}". (Parameter '{nameof(sender)}')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task RemoveLocationNotRegisteredFailTest()
+		{
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(id))
+				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([]))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.RemoveLocation(sender, id, senderLocation);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Location "{senderLocation}" is not registered to group with ID "{id}". (Parameter 'location')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task RemoveLocationGroupOrphanedFailTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(locationGroupPermission.Permissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(id))
+				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([locationGroupPermission]))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.RemoveLocation(sender, id, senderLocation);
+			await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"""The {nameof(LocationGroup)} with ID "{id}" has no members with permission {nameof(LocationGroupPermissionType.DeleteGroup)}. This is unexpected.""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task RemoveLocationLastLocationWithDeleteFailTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(locationGroupPermission.Permissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(id))
+				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([locationGroupPermission]))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.RemoveLocation(sender, id, senderLocation);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Location "{senderLocation}" cannot be removed from group with ID "{id}" as it is the only member of it that has the permission {nameof(LocationGroupPermissionType.DeleteGroup)}. Please use "{nameof(LocationGroupManager.DeleteGroup)}" function instead. (Parameter 'location')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task RemoveLocationLackingPermissionsFailTest()
+		{
+			var senderLocationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup);
+			var locationGroupPermission = new LocationGroupPermission(id, location, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(senderLocationGroupPermission.Permissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(id))
+				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([senderLocationGroupPermission, locationGroupPermission]))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			Func<Task> act = async () => await locationGroupManager.RemoveLocation(sender, id, location);
+			await act.Should().ThrowAsync<ArgumentException>().WithMessage($"""Author "{sender}" does not have some of the permissions that the location they are trying to remove has. (Parameter 'location')""");
+			Mock.Get(locationGroupPermissionAccess).Verify();
+		}
+
+		[Fact]
+		public async Task RemoveLocationTest()
+		{
+			var senderLocationGroupPermission = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationGroupPermission = new LocationGroupPermission(id, location, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(id, sender))
+				.Returns(Task.FromResult(senderLocationGroupPermission.Permissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(id))
+				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([senderLocationGroupPermission, locationGroupPermission]))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			await locationGroupManager.RemoveLocation(sender, id, location);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationGroupPermissionAccess).Verify(g => g.DeleteLocationFromLocationGroup(id, location));
+		}
+
+		[Fact]
+		public async Task GetLocationsForFilterGlobalDisabledTest()
+		{
+			var locationGroupPermission = new LocationGroupPermission(id, location, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationGroupPermission2 = new LocationGroupPermission(id, senderLocation, LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationGroupPermission3 = new LocationGroupPermission(id, DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620"), LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.SentencesInGroup);
+			var locationGroupPermission4 = new LocationGroupPermission(id, DiscordObjectOID.Parse("Discord:discord.com:302152934249070593"), LocationGroupPermissionType.UseGroup);
+			ulong authorLocationGroup = 103;
+			var channel = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1318052420265316483:1318063513880494132");
+			var authorPermissions = LocationGroupPermissionType.AddLocation | LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.SentencesInGroup | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.RenameGroup;
+			IEnumerable<LocationGroupPermission> authorLocationGroupPermissions = [
+				new LocationGroupPermission(authorLocationGroup, location, authorPermissions), // in location group
+				new LocationGroupPermission(authorLocationGroup, DiscordObjectOID.Parse("Discord:discord.com:295808243509362700"), authorPermissions), // not in location group
+				new LocationGroupPermission(authorLocationGroup, senderLocation, authorPermissions), // in location group
+			];
+			var filter = new SentenceFilter(
+				[
+					channel, // transitively in location group and author location group, in local
+					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"), // transitively in location group, not in author location group, not in local
+					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"), // not in location group nor author location group, not in local
+					senderLocation, // in location group and author location group, not in local
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420") // transitively in location group and author location group, in local
+				],
+				[author]
+			);
+			var authorRetortConfig = new AuthorRetortConfig(author, channel, DisplayOptionType.Mimic, filter, null, authorLocationGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(id))
+				.Returns(Task.FromResult<IEnumerable<LocationGroupPermission>>([locationGroupPermission, locationGroupPermission2, locationGroupPermission3, locationGroupPermission4]));
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(authorLocationGroup, author))
+				.Returns(Task.FromResult(authorPermissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(authorLocationGroup, channel))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(authorLocationGroup))
+				.Returns(Task.FromResult(authorLocationGroupPermissions))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			Mock.Get(locationSettingAccess)
+					.Setup(l => l.ReadLocationSettingHierarchy(channel))
+					.Returns(Task.FromResult<IEnumerable<LocationSetting>>(
+						[
+							new(channel, [], [], [], false, null),
+							new(location, [], [], [], false, id),
+							new(DiscordObjectOID.Parse("Discord:discord.com"), [], [], [], false, new()) // Can be whatever, because the important thing is we *shouldn't* get here
+						]
+					))
+					.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			Mock.Get(authorRetortConfigAccess)
+					.Setup(l => l.ReadAuthorRetortConfig(author, channel))
+					.Returns(Task.FromResult<AuthorRetortConfig?>(authorRetortConfig))
+					.Verifiable();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
+			IEnumerable<IObjectOID> expectedData = [
+					channel,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				];
+			result.Should().BeEquivalentTo(expectedData);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationSettingAccess).Verify();
+			Mock.Get(authorRetortConfigAccess).Verify();
+		}
+
+		[Fact]
+		public async Task GetLocationsForFilterGlobalEnabledTest()
+		{
+			ulong authorLocationGroup = 107;
+			var channel = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1318052420265316483:1318063513880494132");
+			var authorPermissions = LocationGroupPermissionType.AddLocation | LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.SentencesInGroup | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.RenameGroup;
+			IEnumerable<LocationGroupPermission> authorLocationGroupPermissions = [
+				new LocationGroupPermission(authorLocationGroup, location, authorPermissions),
+				new LocationGroupPermission(authorLocationGroup, DiscordObjectOID.Parse("Discord:discord.com:295808243509362700"), authorPermissions),
+				new LocationGroupPermission(authorLocationGroup, senderLocation, authorPermissions),
+			];
+			var filter = new SentenceFilter(
+				[
+					channel, // transitively in author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"), // not in author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"), // not in author location group
+					senderLocation, // in author location group
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420") // transitively in author location group
+				],
+				[author]
+			);
+			var authorRetortConfig = new AuthorRetortConfig(author, channel, DisplayOptionType.Mimic, filter, null, authorLocationGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(authorLocationGroup, author))
+				.Returns(Task.FromResult(authorPermissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(authorLocationGroup, channel))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(authorLocationGroup))
+				.Returns(Task.FromResult(authorLocationGroupPermissions))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			Mock.Get(locationSettingAccess)
+					.Setup(l => l.ReadLocationSettingHierarchy(channel))
+					.Returns(Task.FromResult<IEnumerable<LocationSetting>>(
+						[
+							new(channel, [], [], [], true, null),
+							new(location, [], [], [], false, id), // In this test, this will also be ignored
+							new(DiscordObjectOID.Parse("Discord:discord.com"), [], [], [], false, new()) // Can be whatever, because the important thing is we *shouldn't* get here
+						]
+					))
+					.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			Mock.Get(authorRetortConfigAccess)
+					.Setup(l => l.ReadAuthorRetortConfig(author, channel))
+					.Returns(Task.FromResult<AuthorRetortConfig?>(authorRetortConfig))
+					.Verifiable();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
+			IEnumerable<IObjectOID> expectedData = [
+					channel,
+					senderLocation,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				];
+			result.Should().BeEquivalentTo(expectedData);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationSettingAccess).Verify();
+			Mock.Get(authorRetortConfigAccess).Verify();
+		}
+
+		[Fact]
+		public async Task GetLocationsForFilterGlobalEnabledNoAuthorFilterTest()
+		{
+			ulong authorLocationGroup = 1459;
+			var channel = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1318052420265316483:1318063513880494132");
+			var authorPermissions = LocationGroupPermissionType.AddLocation | LocationGroupPermissionType.UseGroup | LocationGroupPermissionType.SentencesInGroup | LocationGroupPermissionType.DeleteGroup | LocationGroupPermissionType.RemoveLocation | LocationGroupPermissionType.RenameGroup;
+			IEnumerable<LocationGroupPermission> authorLocationGroupPermissions = [
+				new LocationGroupPermission(authorLocationGroup, location, authorPermissions),
+				new LocationGroupPermission(authorLocationGroup, DiscordObjectOID.Parse("Discord:discord.com:295808243509362700"), authorPermissions),
+				new LocationGroupPermission(authorLocationGroup, senderLocation, authorPermissions),
+			];
+			var authorRetortConfig = new AuthorRetortConfig(author, channel, DisplayOptionType.Mimic, new SentenceFilter([], []), null, authorLocationGroup);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionsForOwner(authorLocationGroup, author))
+				.Returns(Task.FromResult(authorPermissions))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermission(authorLocationGroup, channel))
+				.Returns(Task.FromResult<LocationGroupPermission?>(null))
+				.Verifiable();
+			Mock.Get(locationGroupPermissionAccess)
+				.Setup(l => l.ReadLocationGroupPermissionRangeByID(authorLocationGroup))
+				.Returns(Task.FromResult(authorLocationGroupPermissions))
+				.Verifiable();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			Mock.Get(locationSettingAccess)
+					.Setup(l => l.ReadLocationSettingHierarchy(channel))
+					.Returns(Task.FromResult<IEnumerable<LocationSetting>>(
+						[
+							new(channel, [], [], [], true, null),
+							new(location, [], [], [], false, id), // In this test, this will also be ignored
+							new(DiscordObjectOID.Parse("Discord:discord.com"), [], [], [], false, new()) // Can be whatever, because the important thing is we *shouldn't* get here
+						]
+					))
+					.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			Mock.Get(authorRetortConfigAccess)
+					.Setup(l => l.ReadAuthorRetortConfig(author, channel))
+					.Returns(Task.FromResult<AuthorRetortConfig?>(authorRetortConfig))
+					.Verifiable();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
+			IEnumerable<IObjectOID> expectedData = [
+				location,
+				DiscordObjectOID.Parse("Discord:discord.com:295808243509362700"),
+				senderLocation,
+			];
+			result.Should().BeEquivalentTo(expectedData);
+			Mock.Get(locationGroupPermissionAccess).Verify();
+			Mock.Get(locationSettingAccess).Verify();
+			Mock.Get(authorRetortConfigAccess).Verify();
+		}
+
+		[Fact]
+		public async Task GetLocationsForFilterNoGroupsTest()
+		{
+			var channel = DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1318052420265316483:1318063513880494132");
+			var filter = new SentenceFilter(
+				[
+					channel,
+					DiscordObjectOID.Parse("Discord:discord.com:1312182108013465620:0:1321631281582182400"),
+					DiscordObjectOID.Parse("Discord:discord.com:1315082650603622440"),
+					senderLocation,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				],
+				[author]
+			);
+			var authorRetortConfig = new AuthorRetortConfig(author, channel, DisplayOptionType.Mimic, filter);
+			var locationAccess = Mock.Of<ILocationAccess>();
+			var locationGroupAccess = Mock.Of<ILocationGroupAccess>();
+			var locationGroupPermissionAccess = Mock.Of<ILocationGroupPermissionAccess>();
+			var locationGroupRequestAccess = Mock.Of<ILocationGroupRequestAccess>();
+			var locationSettingAccess = Mock.Of<ILocationSettingAccess>();
+			Mock.Get(locationSettingAccess)
+					.Setup(l => l.ReadLocationSettingHierarchy(channel))
+					.Returns(Task.FromResult<IEnumerable<LocationSetting>>(
+						[
+							new(channel, [], [], [], false, null),
+							new(location, [], [], [], false, null),
+						]
+					))
+					.Verifiable();
+			var authorRetortConfigAccess = Mock.Of<IAuthorRetortConfigAccess>();
+			Mock.Get(authorRetortConfigAccess)
+					.Setup(l => l.ReadAuthorRetortConfig(author, channel))
+					.Returns(Task.FromResult<AuthorRetortConfig?>(authorRetortConfig))
+					.Verifiable();
+			var logger = Mock.Of<ILogger<LocationGroupManager>>();
+			var locationGroupManager = new LocationGroupManager(locationAccess, locationGroupAccess, locationGroupPermissionAccess, locationGroupRequestAccess, locationSettingAccess, authorRetortConfigAccess, logger);
+			var result = await locationGroupManager.GetLocationsForFilter(author, channel);
+			IEnumerable<IObjectOID> expectedData = [
+					channel,
+					DiscordObjectOID.Parse("Discord:discord.com:1290098660385886248:1317994175152525420")
+				];
+			result.Should().BeEquivalentTo(expectedData);
+			Mock.Get(locationSettingAccess).Verify();
+			Mock.Get(authorRetortConfigAccess).Verify();
+		}
+	}
+}

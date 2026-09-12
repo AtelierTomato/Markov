@@ -168,7 +168,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 
 			var tags = new List<ITag> { userMentionTag, roleMentionTag, emojiTag, channelTag };
 
-			var result = target.ParseIntoSentenceTexts(input, tags);
+			var result = target.ParseIntoSentenceTexts(input, tags, DateTimeOffset.UtcNow);
 
 			result.Should().ContainSingle().And.Contain(output);
 
@@ -287,6 +287,8 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 
 		[Theory]
 		[InlineData("lol this is my server discord.gg/horseradish", "lol this is my server")]
+		[InlineData("lol this is my server discord.gg/hor3534tji3ogvjio5seradish applesauce", "lol this is my server applesauce")]
+		[InlineData("discord.gg/horsera431dish lol this is my server", "lol this is my server")]
 		public void RemoveDiscordServersTest(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -312,6 +314,27 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 			result.Should().BeEquivalentTo(output);
 		}
 
+		[Theory]
+		[InlineData("1 2 3 4 5 <t:2396027640:R>", "1 2 3 4 5 in 21 years")]
+		[InlineData("1 2 3 4 5 <t:1396027640:R>", "1 2 3 4 5 10 years ago")]
+		[InlineData("1 2 3 4 5 <t:1731191051:R>", "1 2 3 4 5 in 1 month")]
+		[InlineData("1 2 3 4 5 <t:2396027640:D>", "1 2 3 4 5 December 4 , 2045")]
+		[InlineData("1 2 3 4 5 <t:2396027640:d>", "1 2 3 4 5 12 / 04 / 2045")]
+		[InlineData("1 2 3 4 5 <t:2396027640:T>", "1 2 3 4 5 7:14:00 PM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:t>", "1 2 3 4 5 7:14 PM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:F>", "1 2 3 4 5 Monday , December 4 , 2045 7:14 PM")]
+		[InlineData("1 2 3 4 5 <t:2396027640:f>", "1 2 3 4 5 December 4 , 2045 7:14 PM")]
+		public void ReplaceTimestampsTest(string input, string output)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var result = target.ParseIntoSentenceTexts(input, [], DateTimeOffset.FromUnixTimeSeconds(1728511273));
+
+			result.Should().BeEquivalentTo(output);
+		}
+
 		// Below are tests copied from SentenceParserTests, but using the DiscordSentenceParser. All should pass or those that should not pass have been removed.
 		[Theory]
 		[InlineData(@"hello world how are you", @"hello world how are you")]
@@ -322,6 +345,7 @@ namespace AtelierTomato.Markov.Service.Discord.Test
 		[InlineData(@"the students' council decided you die today", @"the students ' council decided you die today")]
 		[InlineData(@"check out http://zombo.com the best website", @"check out the best website")]
 		[InlineData(@"funny money :laala: time yo", @"funny money :laala : time yo")]
+		[InlineData(@":madou: 1 2 3 4 :mikanScreech: :gregor:", @":madou : 1 2 3 4 :mikanScreech : :gregor :")]
 		public void ParseSimpleText(string input, string output)
 		{
 			var options = new SentenceParserOptions();
@@ -421,7 +445,9 @@ Life in the Vault is about to change.";
 				["lisp is “fun”, unless you “defun x”.", new string[] { "lisp is “ fun ” , unless you “ defun x ” ." }],
 				[">implying that i'm implying", new string[] { "> implying that i 'm implying" }],
 				[">implying that i am implying", new string[] { "> implying that i am implying" }],
-				["i want to eat—drink water", new string[] { "i want to eat — drink water" }]
+				["i want to eat—drink water", new string[] { "i want to eat — drink water" }],
+				["i want to eat/drink water", new string[] { "i want to eat / drink water" }],
+				["i want to eat\\drink water", new string[] { "i want to eat \\ drink water" }]
 			];
 		}
 
@@ -458,6 +484,27 @@ Life in the Vault is about to change.";
 			var result = target.ParseIntoSentenceTexts(input);
 
 			result.Should().ContainSingle().And.Contain(output);
+		}
+
+		[Theory]
+		[InlineData("(this is a sentence in parentheses.) This is sentence number two", new string[] { "( this is a sentence in parentheses . )", "This is sentence number two" })]
+		[InlineData("[this is a sentence in brackets.] This is sentence number two", new string[] { "[ this is a sentence in brackets . ]", "This is sentence number two" })]
+		[InlineData("{this is a sentence in curly braces.} This is sentence number two", new string[] { "{ this is a sentence in curly braces . }", "This is sentence number two" })]
+		[InlineData("\"this is a sentence in quotes.\" This is sentence number two", new string[] { "\" this is a sentence in quotes . \"", "This is sentence number two" })]
+		[InlineData("»this is a sentence in quotes.« This is sentence number two", new string[] { "» this is a sentence in quotes . «", "This is sentence number two" })]
+		[InlineData("«this is a sentence in quotes.» This is sentence number two", new string[] { "« this is a sentence in quotes . »", "This is sentence number two" })]
+		[InlineData("“this is a sentence in quotes.” This is sentence number two", new string[] { "“ this is a sentence in quotes . ”", "This is sentence number two" })]
+		[InlineData("[(this is a sentence in multiple closers.)] This is sentence number two", new string[] { "[ ( this is a sentence in multiple closers . ) ]", "This is sentence number two" })]
+		[InlineData("(this is a sentence in parentheses. ) This is sentence number two", new string[] { "( this is a sentence in parentheses .", ") This is sentence number two" })]
+		public void CaptureTrailingPunctuationTests(string input, IEnumerable<string> output)
+		{
+			var options = new SentenceParserOptions();
+			var discordOptions = new DiscordSentenceParserOptions();
+			var target = new DiscordSentenceParser(Options.Create(options), Options.Create(discordOptions));
+
+			var result = target.ParseIntoSentenceTexts(input);
+
+			result.Should().BeEquivalentTo(output);
 		}
 	}
 }

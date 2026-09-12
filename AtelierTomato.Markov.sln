@@ -40,6 +40,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtelierTomato.Markov.Storage.Test", "tests\AtelierTomato.Markov.Storage.Test\AtelierTomato.Markov.Storage.Test.csproj", "{CE26CECE-2E3F-49AD-B6CF-7EEF0C99C1FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Storage.Sqlite.Test", "tests\AtelierTomato.Markov.Storage.Sqlite.Test\AtelierTomato.Markov.Storage.Sqlite.Test.csproj", "{019AE362-E88C-4338-84BC-5DD658FB4DF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Bot.Discord.Service", "services\AtelierTomato.Markov.Bot.Discord.Service\AtelierTomato.Markov.Bot.Discord.Service.csproj", "{485E5DBB-017D-44B0-BD93-63A28CA30A98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtelierTomato.Markov.Bot.Discord.Core", "services\AtelierTomato.Markov.Bot.Discord.Core\AtelierTomato.Markov.Bot.Discord.Core.csproj", "{2C1D6316-FADF-4791-A72E-1185D5AE6A22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +88,18 @@ Global
 		{CE26CECE-2E3F-49AD-B6CF-7EEF0C99C1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE26CECE-2E3F-49AD-B6CF-7EEF0C99C1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE26CECE-2E3F-49AD-B6CF-7EEF0C99C1FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{019AE362-E88C-4338-84BC-5DD658FB4DF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{019AE362-E88C-4338-84BC-5DD658FB4DF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{019AE362-E88C-4338-84BC-5DD658FB4DF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{019AE362-E88C-4338-84BC-5DD658FB4DF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{485E5DBB-017D-44B0-BD93-63A28CA30A98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{485E5DBB-017D-44B0-BD93-63A28CA30A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{485E5DBB-017D-44B0-BD93-63A28CA30A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{485E5DBB-017D-44B0-BD93-63A28CA30A98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C1D6316-FADF-4791-A72E-1185D5AE6A22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C1D6316-FADF-4791-A72E-1185D5AE6A22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C1D6316-FADF-4791-A72E-1185D5AE6A22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C1D6316-FADF-4791-A72E-1185D5AE6A22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

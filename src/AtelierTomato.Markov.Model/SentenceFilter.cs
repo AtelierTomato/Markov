@@ -1,8 +1,8 @@
 ﻿namespace AtelierTomato.Markov.Model
 {
-	public class SentenceFilter(IObjectOID? OID, AuthorOID? author)
+	public class SentenceFilter(IReadOnlyList<IObjectOID> OIDs, IReadOnlyList<AuthorOID> authors)
 	{
-		public IObjectOID? OID { get; init; } = OID;
-		public AuthorOID? Author { get; init; } = author;
+		public IReadOnlyList<IObjectOID> OIDs { get; init; } = OIDs;
+		public IReadOnlyList<AuthorOID> Authors { get; init; } = authors;
 	}
 }

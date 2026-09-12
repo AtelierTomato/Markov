@@ -45,8 +45,8 @@ $";
 		public void OIDPatternGenerateFailTest()
 		{
 			Regex myNewPatternLol;
-			Action act = () => myNewPatternLol = OIDPattern.Generate(["bees"]);
-			act.Should().Throw<ArgumentException>().WithMessage("OIDPattern failed to construct as less than 2 fields were given. (Parameter 'fields')");
+			Action act = () => myNewPatternLol = OIDPattern.Generate([]);
+			act.Should().Throw<ArgumentException>().WithMessage("OIDPattern failed to construct as less than 1 field was given. (Parameter 'fields')");
 		}
 	}
 }

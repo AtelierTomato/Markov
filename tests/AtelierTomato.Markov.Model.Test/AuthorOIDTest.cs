@@ -48,10 +48,10 @@ namespace AtelierTomato.Markov.Model.Test
 			act.Should().Throw<ArgumentException>().WithMessage("The ServiceType was not able to be parsed from the given OID. (Parameter 'OID')");
 		}
 		[Fact]
-		public void AuthorParseInvalidTest()
+		public void AuthorParseSpecialTest()
 		{
-			Action act = () => AuthorOID.Parse("Invalid:google.com:appleseed");
-			act.Should().Throw<ArgumentException>().WithMessage("The AuthorOID given is of ServiceType Invalid, which is not a valid ServiceType. (Parameter 'OID')");
+			Action act = () => AuthorOID.Parse("Special:google.com:appleseed");
+			act.Should().Throw<ArgumentException>().WithMessage("The AuthorOID given is of ServiceType Special, which is not a valid ServiceType for AuthorOIDs. (Parameter 'OID')");
 		}
 	}
 }

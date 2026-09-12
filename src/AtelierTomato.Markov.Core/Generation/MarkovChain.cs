@@ -1,25 +1,40 @@
 ﻿using AtelierTomato.Markov.Model;
 using AtelierTomato.Markov.Storage;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core.Generation
 {
-	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovChainOptions> options)
+	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovChainOptions> options, ILogger<MarkovChain> logger)
 	{
 		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
 		private readonly MarkovChainOptions options = options.Value;
+		private readonly ILogger<MarkovChain> logger = logger;
 		private static readonly Random random = new();
 
-		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null)
+		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null, IObjectOID? queryScope = null)
 		{
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
 			List<IObjectOID> prevIDs = [];
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await GetFirstSentence(filter, keyword);
+				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword, queryScope);
 				if (sentence is null)
 					return string.Empty;
+				if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sentence.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sentence.Author)))
+				{
+					// If for whatever reason something that shouldn't appear with our filter shows up, return nothing
+					_logInvalidFilteredSentence(
+						logger,
+						string.Join(' ', filter.OIDs.Select(o => o.ToString())),
+						string.Join(' ', filter.Authors.Select(a => a.ToString())),
+						sentence.OID.ToString(),
+						sentence.Author.ToString(),
+						null
+					);
+					return string.Empty;
+				}
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
 				prevIDs.Add(sentence.OID);
 			}
@@ -39,51 +54,79 @@ namespace AtelierTomato.Markov.Core.Generation
 					currentPastaLength = 0;
 				}
 
-				sentence = await GetNextSentence(prevList, prevIDs, filter, keyword);
-				if (sentence is not null)
+				int allowedRerolls;
+				if (tokenizedSentence.Count > options.MaximumLengthForReroll)
 				{
-					prevIDs.Add(sentence.OID);
-					currentPastaLength++;
+					allowedRerolls = 0;
+				}
+				else
+				{
+					allowedRerolls = options.MaximumMarkovRerolls;
+				}
 
-					var spacedText = ' ' + sentence.Text + ' ';
-
-					// Keep only the parts of the found sentence after the last occurrence of prevlist
-					var prevListLocation = spacedText.LastIndexOf(' ' + string.Join(' ', prevList) + ' ', StringComparison.CurrentCultureIgnoreCase);
-
-					if (prevListLocation < 0)
+				var sentences = await sentenceAccess.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, filter, keyword, queryScope);
+				if (sentences.Any())
+				{
+					foreach (var sent in sentences)
 					{
-						// TODO: This should be logged, it should not be possible for the prevList to not be matched in the found sentence.
-						prevListLocation = 0;
-					}
-
-					var sentenceWithoutPrevList = spacedText
-						.Substring(prevListLocation)
-						.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-						.Skip(prevList.Count);
-
-					var nextWord = sentenceWithoutPrevList.FirstOrDefault();
-
-					if (nextWord is not null)
-					{
-						// Get just the next word after the last instance of the prevList, add to both tS and pL.
-						tokenizedSentence.Add(nextWord);
-						prevList.Add(nextWord);
-
-						// Trim prevList if it gets too long.
-						if (prevList.Count > options.MaximumPrevListLength)
+						if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sent.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sent.Author)))
 						{
-							prevList.RemoveAt(0);
-						}
-					}
-					else
-					{
-						// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
-						if (rerolls > options.MaximumMarkovRerolls || tokenizedSentence.Count > options.MaximumLengthForReroll)
-						{
+							// If for whatever reason something that shouldn't appear with our filter shows up, output the messages as is
+							_logInvalidFilteredSentence(
+								logger,
+								string.Join(' ', filter.OIDs.Select(o => o.ToString())),
+								string.Join(' ', filter.Authors.Select(a => a.ToString())),
+								sent.OID.ToString(),
+								sent.Author.ToString(),
+								null
+							);
 							return string.Join(' ', tokenizedSentence);
 						}
-						rerolls++;
-						currentPastaLength = 0;
+						prevIDs.Add(sent.OID);
+						currentPastaLength++;
+
+						var spacedText = ' ' + sent.Text + ' ';
+
+						// Keep only the parts of the found sentence after the last occurrence of prevlist
+						var prevListLocation = spacedText.LastIndexOf(' ' + string.Join(' ', prevList) + ' ', StringComparison.CurrentCultureIgnoreCase);
+
+						if (prevListLocation < 0)
+						{
+							// TODO: This should be logged, it should not be possible for the prevList to not be matched in the found sentence.
+							prevListLocation = 0;
+						}
+
+						var sentenceWithoutPrevList = spacedText
+							.Substring(prevListLocation)
+							.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+							.Skip(prevList.Count);
+
+						var nextWord = sentenceWithoutPrevList.FirstOrDefault();
+
+						if (nextWord is not null)
+						{
+							// Get just the next word after the last instance of the prevList, add to both tS and pL.
+							tokenizedSentence.Add(nextWord);
+							prevList.Add(nextWord);
+
+							// Trim prevList if it gets too long.
+							if (prevList.Count > options.MaximumPrevListLength)
+							{
+								prevList.RemoveAt(0);
+							}
+							break;
+						}
+						else
+						{
+							prevIDs.Remove(sent.OID);
+							// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
+							if (rerolls > options.MaximumMarkovRerolls || tokenizedSentence.Count > options.MaximumLengthForReroll || rerolls + 1 >= sentences.Count())
+							{
+								return string.Join(' ', tokenizedSentence);
+							}
+							rerolls++;
+							currentPastaLength = 0;
+						}
 					}
 				}
 				else if (prevList.Count != 0)
@@ -98,7 +141,7 @@ namespace AtelierTomato.Markov.Core.Generation
 					return string.Join(' ', tokenizedSentence);
 				}
 			}
-
+			// If we hit the maximum length for a generated sentence, output the message.
 			return string.Join(' ', tokenizedSentence);
 		}
 
@@ -108,24 +151,26 @@ namespace AtelierTomato.Markov.Core.Generation
 			return random.NextDouble() < discardThreshold;
 		}
 
-		private async Task<Sentence?> GetNextSentence(List<string> prevList, List<IObjectOID> previousIDs, SentenceFilter filter, string? keyword = null)
-		{
-			Sentence? sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter, keyword);
-			if (sentence is null && keyword is not null)
-			{
-				sentence = await sentenceAccess.ReadNextRandomSentence(prevList, previousIDs, filter);
-			}
-			return sentence;
-		}
-
-		private async Task<Sentence?> GetFirstSentence(SentenceFilter filter, string? keyword = null)
-		{
-			Sentence? sentence = await sentenceAccess.ReadRandomSentence(filter, keyword);
-			if (sentence is null && keyword is not null)
-			{
-				sentence = await sentenceAccess.ReadRandomSentence(filter);
-			}
-			return sentence;
-		}
+		private static readonly Action<
+			ILogger,
+			string, // OIDs
+			string, // Authors
+			string, // SentenceOID
+			string, // SentenceAuthor
+			Exception?
+		> _logInvalidFilteredSentence =
+			LoggerMessage.Define<string, string, string, string>(
+				LogLevel.Error,
+				new EventId(6, nameof(Generate)),
+"""
+Somehow, a message was returned that doesn't match our filter while generating. This is VERY BAD.
+Filter:
+	OIDs: {OIDs}
+	Authors: {Authors}
+Sentence Data:
+	OID: {SentenceOID}
+	Author: {SentenceAuthor}
+"""
+			);
 	}
 }

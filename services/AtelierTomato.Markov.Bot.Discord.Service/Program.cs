@@ -67,6 +67,7 @@ builder.Services
 	.AddSingleton<ILocationSettingAccess, SqliteLocationSettingAccess>()
 	.AddSingleton<ISentenceAccess, SqliteSentenceAccess>()
 	.AddSingleton<IWordStatisticAccess, SqliteWordStatisticAccess>()
+	.AddSingleton<IMarkovStorageSessionFactory, SqliteMarkovStorageSessionFactory>()
 	.AddSingleton<MarkovChain>()
 	.AddSingleton<KeywordProvider>()
 	.AddSingleton<DiscordSentenceRenderer>()

@@ -64,7 +64,7 @@ DROP TABLE IF EXISTS {tempTableName};
 				// Now create the new table.
 				await connection.ExecuteAsync($@"
 CREATE TEMP TABLE IF NOT EXISTS {tempTableName} AS
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
+SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
 FROM SentenceAfterLinkWithPermission INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 ON (SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%')
 WHERE
@@ -75,7 +75,7 @@ WHERE
 					{
 						queryScope = queryScope?.ToString(),
 						hasAuthors = filter.Authors.Any(),
-						authors = filter.Authors,
+						authors = filter.Authors.Select(a => a.ToString()),
 					}
 				);
 
@@ -94,7 +94,7 @@ DROP TABLE IF EXISTS {tempTableName};
 				// Now create the new table.
 				await connection.ExecuteAsync($@"
 CREATE TEMP TABLE IF NOT EXISTS {tempTableName} AS
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
+SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
 FROM SentenceAfterLinkWithPermission
 WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
@@ -104,7 +104,7 @@ WHERE
 					{
 						queryScope = queryScope?.ToString(),
 						hasAuthors = filter.Authors.Any(),
-						authors = filter.Authors,
+						authors = filter.Authors.Select(a => a.ToString()),
 					}
 				);
 
@@ -124,7 +124,7 @@ DROP TABLE {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 		{
 			SentenceRow? result;
 			result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
+SELECT {tempTableName}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
 FROM {tempTableName}
 ORDER BY
 	CASE
@@ -149,7 +149,7 @@ LIMIT 1
 		{
 			IEnumerable<SentenceRow> result;
 			result = await connection.QueryAsync<SentenceRow>($@"
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
+SELECT {tempTableName}.{nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
 FROM {tempTableName}
 WHERE
 	( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
@@ -173,6 +173,7 @@ LIMIT @amount
 				}
 			);
 
+			var temp = result.Select(s => s.ToSentence(objectOIDParser).Text);
 			return result.Select(s => s.ToSentence(objectOIDParser));
 		}
 

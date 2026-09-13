@@ -1,4 +1,5 @@
 ﻿using AtelierTomato.Markov.Model;
+using AtelierTomato.Markov.Storage.Sqlite.Model;
 using Dapper;
 using Microsoft.Data.Sqlite;
 
@@ -43,11 +44,12 @@ CREATE TEMPORARY TABLE IF NOT EXISTS {nameof(SentenceFilter)}{nameof(SentenceFil
 INSERT INTO {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)} ( {nameof(Sentence.OID)} )
 VALUES ( @oid )
 ON CONFLICT DO NOTHING
-				",
-					new
-					{
-						oid = objectOID.ToString()
-					});
+",
+						new
+						{
+							oid = objectOID.ToString()
+						}
+					);
 				}
 
 				await transaction.CommitAsync();
@@ -62,19 +64,20 @@ DROP TABLE IF EXISTS {tempTableName};
 				// Now create the new table.
 				await connection.ExecuteAsync($@"
 CREATE TEMP TABLE IF NOT EXISTS {tempTableName} AS
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Text)}
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
 FROM SentenceAfterLinkWithPermission INNER JOIN {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 ON (SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} || ':') LIKE ({nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}.{nameof(Sentence.OID)} || ':%')
 WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors )
-				",
+",
 					new
 					{
 						queryScope = queryScope?.ToString(),
 						hasAuthors = filter.Authors.Any(),
 						authors = filter.Authors,
-					});
+					}
+				);
 
 				// We've got our table, drop the temp-er one.
 				await connection.ExecuteAsync($@"
@@ -91,18 +94,19 @@ DROP TABLE IF EXISTS {tempTableName};
 				// Now create the new table.
 				await connection.ExecuteAsync($@"
 CREATE TEMP TABLE IF NOT EXISTS {tempTableName} AS
-SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Text)}
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
 FROM SentenceAfterLinkWithPermission
 WHERE
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors )
-				",
+",
 					new
 					{
 						queryScope = queryScope?.ToString(),
 						hasAuthors = filter.Authors.Any(),
 						authors = filter.Authors,
-					});
+					}
+				);
 
 				// We've got our table, drop the temp-er one.
 				await connection.ExecuteAsync($@"
@@ -116,14 +120,61 @@ DROP TABLE {nameof(SentenceFilter)}{nameof(SentenceFilter.OIDs)}
 			connection.Close();
 		}
 
-		public Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, string? keyword = null)
+		public async Task<Sentence?> ReadRandomSentence(string? keyword = null)
 		{
-			throw new NotImplementedException();
+			SentenceRow? result;
+			result = await connection.QuerySingleOrDefaultAsync<SentenceRow?>($@"
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
+FROM {tempTableName}
+ORDER BY
+	CASE
+		WHEN @keyword IS NOT NULL
+		 AND {nameof(Sentence.Text)} LIKE '% ' || @keyword || ' %'
+		THEN 1
+		ELSE 2
+	END,
+	RANDOM()
+LIMIT 1
+",
+				new
+				{
+					keyword
+				}
+			);
+
+			return result?.ToSentence(objectOIDParser);
 		}
 
-		public Task<Sentence?> ReadRandomSentence(string? keyword = null)
+		public async Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, string? keyword = null)
 		{
-			throw new NotImplementedException();
+			IEnumerable<SentenceRow> result;
+			result = await connection.QueryAsync<SentenceRow>($@"
+SELECT {nameof(Sentence.OID)}, {nameof(Sentence.Author)}, {nameof(Sentence.Date)}, {nameof(Sentence.Text)}
+FROM {tempTableName}
+WHERE
+	( {nameof(Sentence.OID)} NOT IN @previousIDs ) AND
+	( {nameof(Sentence.Text)} LIKE '% ' || @prevList || ' %' )
+ORDER BY
+	CASE
+		WHEN @keyword IS NOT NULL
+		 AND {nameof(Sentence.Text)} LIKE '% ' || @keyword || ' %'
+		THEN 1
+		ELSE 2
+	END,
+	RANDOM()
+LIMIT @amount
+",
+				new
+				{
+					previousIDs = previousIDs.Select(x => x.ToString()),
+					prevList = string.Join(' ', prevList),
+					keyword,
+					amount
+				}
+			);
+
+			return result.Select(s => s.ToSentence(objectOIDParser));
 		}
+
 	}
 }

@@ -6,6 +6,6 @@ namespace AtelierTomato.Markov.Storage
 	{
 		Task CreateTempTable(SentenceFilter filter, IObjectOID? queryScope = null);
 		Task<Sentence?> ReadRandomSentence(string? keyword = null);
-		Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, string? keyword = null);
+		Task<IEnumerable<Sentence>> ReadNextRandomSentences(int amount, List<string> prevList, List<IObjectOID> previousIDs, string? keyword = null);
 	}
 }

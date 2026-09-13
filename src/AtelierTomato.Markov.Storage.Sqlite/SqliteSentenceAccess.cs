@@ -85,7 +85,7 @@ ON (SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} || ':') LIKE ({nameof
 ( SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
 ORDER BY
-CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+CASE WHEN @keyword IS NOT NULL AND {nameof(Sentence.Text)} LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
 LIMIT @amount
 ",
@@ -109,7 +109,7 @@ SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.
 ( SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} NOT IN @previousIDs ) AND
 ( ( ' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @prevList || ' %' )
 ORDER BY
-CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+CASE WHEN @keyword IS NOT NULL AND {nameof(Sentence.Text)} LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
 LIMIT @amount
 ",
@@ -146,7 +146,7 @@ ON (SentenceAfterLinkWithPermission.{nameof(Sentence.OID)} || ':') LIKE ({nameof
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
-CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+CASE WHEN @keyword IS NOT NULL AND {nameof(Sentence.Text)} LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
 LIMIT 1
 ",
@@ -167,7 +167,7 @@ SELECT SentenceAfterLinkWithPermission.{nameof(Sentence.OID)}, {nameof(Sentence.
 ( {nameof(AuthorPermission.AllowedScope)} IS NULL OR {nameof(AuthorPermission.AllowedScope)} IS '' OR @queryScope || ':' LIKE {nameof(AuthorPermission.AllowedScope)} || ':%' ) AND
 ( @hasAuthors IS 0 OR {nameof(Sentence.Author)} IN @authors )
 ORDER BY
-CASE WHEN @keyword IS NOT NULL AND (' ' || {nameof(Sentence.Text)} || ' ') LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
+CASE WHEN @keyword IS NOT NULL AND {nameof(Sentence.Text)} LIKE '% ' || @keyword || ' %' THEN 1 ELSE 2 END,
 RANDOM()
 LIMIT 1
 ",

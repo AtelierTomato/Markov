@@ -5,23 +5,30 @@ using Microsoft.Extensions.Options;
 
 namespace AtelierTomato.Markov.Core.Generation
 {
-	public class MarkovChain(ISentenceAccess sentenceAccess, IOptions<MarkovChainOptions> options, ILogger<MarkovChain> logger)
+	public class MarkovChain(IMarkovStorageSessionFactory storageSessionFactory, IOptions<MarkovChainOptions> options, ILogger<MarkovChain> logger)
 	{
-		private readonly ISentenceAccess sentenceAccess = sentenceAccess;
+		private readonly IMarkovStorageSessionFactory storageSessionFactory = storageSessionFactory;
 		private readonly MarkovChainOptions options = options.Value;
 		private readonly ILogger<MarkovChain> logger = logger;
 		private static readonly Random random = new();
 
 		public async Task<string> Generate(SentenceFilter filter, string? keyword = null, string? firstWord = null, IObjectOID? queryScope = null)
 		{
+			// Create a StorageSession and the temp table we'll be querying out of
+			var storageSession = storageSessionFactory.CreateSession();
+			await storageSession.CreateTempTable(filter, queryScope);
+
 			// Tracks the IDs of previously used sentences so that we don't recreate an existing sentence or ping pong between two sentences.
 			List<IObjectOID> prevIDs = [];
 			Sentence? sentence;
 			if (firstWord is null)
 			{
-				sentence = await sentenceAccess.ReadRandomSentence(filter, keyword, queryScope);
+				sentence = await storageSession.ReadRandomSentence(keyword);
 				if (sentence is null)
+				{
+					storageSession.Dispose();
 					return string.Empty;
+				}
 				if ((filter.OIDs.Any() && !filter.OIDs.Any(l => l.IsParentOrEqualTo(sentence.OID))) || (filter.Authors.Any() && !filter.Authors.Any(a => a == sentence.Author)))
 				{
 					// If for whatever reason something that shouldn't appear with our filter shows up, return nothing
@@ -33,6 +40,7 @@ namespace AtelierTomato.Markov.Core.Generation
 						sentence.Author.ToString(),
 						null
 					);
+					storageSession.Dispose();
 					return string.Empty;
 				}
 				firstWord = sentence.Text.Substring(0, sentence.Text.IndexOf(' '));
@@ -64,7 +72,7 @@ namespace AtelierTomato.Markov.Core.Generation
 					allowedRerolls = options.MaximumMarkovRerolls;
 				}
 
-				var sentences = await sentenceAccess.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, filter, keyword, queryScope);
+				var sentences = await storageSession.ReadNextRandomSentences(1 + allowedRerolls, prevList, prevIDs, keyword);
 				if (sentences.Any())
 				{
 					foreach (var sent in sentences)
@@ -80,6 +88,7 @@ namespace AtelierTomato.Markov.Core.Generation
 								sent.Author.ToString(),
 								null
 							);
+							storageSession.Dispose();
 							return string.Join(' ', tokenizedSentence);
 						}
 						prevIDs.Add(sent.OID);
@@ -122,6 +131,7 @@ namespace AtelierTomato.Markov.Core.Generation
 							// Rerolls a few times if it hits the end of the sentence, allowing formation of longer sentences with the tradeoff of taking longer to generate
 							if (rerolls > options.MaximumMarkovRerolls || tokenizedSentence.Count > options.MaximumLengthForReroll || rerolls + 1 >= sentences.Count())
 							{
+								storageSession.Dispose();
 								return string.Join(' ', tokenizedSentence);
 							}
 							rerolls++;
@@ -138,10 +148,18 @@ namespace AtelierTomato.Markov.Core.Generation
 				else
 				{
 					// If the prevList reaches 0, that means that there's only one instance of the word in the database/query, so output the message.
+					storageSession.Dispose();
+					return string.Join(' ', tokenizedSentence);
+				}
+				// Randomly kill the sentence early based on a probability to ensure somewhat smaller sentences
+				if (random.NextDouble() < (1 - Math.Pow(1 - options.MarkovChainKillingProbability, currentPastaLength)))
+				{
+					storageSession.Dispose();
 					return string.Join(' ', tokenizedSentence);
 				}
 			}
 			// If we hit the maximum length for a generated sentence, output the message.
+			storageSession.Dispose();
 			return string.Join(' ', tokenizedSentence);
 		}
 
